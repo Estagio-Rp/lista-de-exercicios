@@ -1,211 +1,142 @@
 package br.com.rpinfo.analuisa;
 
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.Properties;
+import insert.AddProdutos;
+
+import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        try {
-            Connection connect = conectar();
+        Scanner scanner = new Scanner(System.in);
 
-            listarTodosProdutos(connect);
-            listarNomeEPreco(connect);
-            listarProdutosLimpeza(connect);
-            listarProdutosEstoqueMaiorQue10(connect);
-            listarProdutosPrecoEntre100E1000(connect);
-            listarProdutosComNomeGamer(connect);
-            listarTresProdutosMaisBaratos(connect);
-            contarProdutosArmazenameto(connect);
-            agruparCategoriaMediaPrecos(connect);
+        ConsultaProdutos consultaProdutos = new ConsultaProdutos();
+        AddProdutos addProdutos = new AddProdutos();
 
-            connect.close();
+        int opcao;
 
-        } catch (Exception e) {
-            System.out.println("Erro: " + e.getMessage());
-        }
-    }
+        do {
+            System.out.println("Menu principal");
+            System.out.println("==========================");
+            System.out.println("1 - Consultar produtos");
+            System.out.println("2 - Cadastrar novo produto");
+            System.out.println("0 - Sair");
+            System.out.print("Escolha uma opção: ");
 
-    public static Connection conectar() throws Exception {
-        Properties properties = new Properties();
+            opcao = scanner.nextInt();
+            scanner.nextLine();
 
-        InputStream input = Main.class
-                .getClassLoader()
-                .getResourceAsStream("application.properties");
+            switch (opcao) {
+                case 1:
+                    menuConsultas(scanner, consultaProdutos);
+                    break;
 
-        if (input == null) {
-            throw new Exception("application.properties file not found.");
-        }
+                case 2:
+                    cadastrarProduto(scanner, addProdutos);
+                    break;
 
-        properties.load(input);
+                case 0:
+                    System.out.println("Encerrando o sistema...");
+                    break;
 
-        String url = properties.getProperty("spring.datasource.url");
-        String usuario = properties.getProperty("spring.datasource.username");
-        String senha = properties.getProperty("spring.datasource.password");
-
-        return DriverManager.getConnection(url, usuario, senha);
-    }
-
-    public static void listarTodosProdutos(Connection connect) throws Exception {
-        String query = "SELECT id, nome, preco, categoria, estoque FROM produtos";
-
-        System.out.println("todos os produtos");
-
-        try (Statement stmt = connect.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
-            while (rs.next()) {
-                System.out.println("ID: " + rs.getInt("id"));
-                System.out.println("Nome: " + rs.getString("nome"));
-                System.out.println("Preço: " + rs.getDouble("preco"));
-                System.out.println("Categoria: " + rs.getString("categoria"));
-                System.out.println("Estoque: " + rs.getInt("estoque"));
-                System.out.println("-------------------------");
+                default:
+                    System.out.println("Opção inválida!");
+                    break;
             }
 
-        }
+        } while (opcao != 0);
+
+        scanner.close();
     }
 
-    public static void listarNomeEPreco(Connection connect) throws Exception {
-        String query = "SELECT nome, preco FROM produtos";
+    public static void menuConsultas(Scanner scanner, ConsultaProdutos consultaProdutos) {
+        int opcaoConsulta;
 
-        System.out.println("Nome e preço dos produtos");
+        do {
+            System.out.println("Menu de consultas");
+            System.out.println("==================================================");
+            System.out.println("1 - Listar todos os produtos");
+            System.out.println("2 - Listar nome e preço dos produtos");
+            System.out.println("3 - Listar produtos de limpeza");
+            System.out.println("4 - Listar produtos com estoque maior que 10");
+            System.out.println("5 - Listar produtos com preço entre R$100 e R$1000");
+            System.out.println("6 - Listar produtos com nome Gamer");
+            System.out.println("7 - Listar 3 produtos mais baratos");
+            System.out.println("8 - Contar produtos da categoria Armazenamento");
+            System.out.println("9 - Média de preços por categoria");
+            System.out.println("0 - Voltar ao menu principal");
+            System.out.print("Escolha uma opção: ");
 
-        try (Statement stmt = connect.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+            opcaoConsulta = scanner.nextInt();
+            scanner.nextLine();
 
-            while (rs.next()) {
-                System.out.println("Nome: " + rs.getString("nome"));
-                System.out.println("Preço: R$ " + rs.getDouble("preco"));
-                System.out.println("-------------------------");
+            switch (opcaoConsulta) {
+                case 1:
+                    consultaProdutos.listarTodosProdutos();
+                    break;
+
+                case 2:
+                    consultaProdutos.listarNomeEPreco();
+                    break;
+
+                case 3:
+                    consultaProdutos.listarProdutosLimpeza();
+                    break;
+
+                case 4:
+                    consultaProdutos.listarProdutosEstoqueMaiorQue10();
+                    break;
+
+                case 5:
+                    consultaProdutos.listarProdutosPrecoEntre100E1000();
+                    break;
+
+                case 6:
+                    consultaProdutos.listarProdutosComNomeGamer();
+                    break;
+
+                case 7:
+                    consultaProdutos.listarTresProdutosMaisBaratos();
+                    break;
+
+                case 8:
+                    consultaProdutos.contarProdutosArmazenamento();
+                    break;
+
+                case 9:
+                    consultaProdutos.agruparCategoriaMediaPrecos();
+                    break;
+
+                case 0:
+                    System.out.println("Voltando ao menu principal...");
+                    break;
+
+                default:
+                    System.out.println("Opção inválida!");
+                    break;
             }
-        }
+
+        } while (opcaoConsulta != 0);
     }
 
-    public static void listarProdutosLimpeza(Connection connect) throws Exception {
-        String query = "SELECT id, nome, preco, categoria, estoque FROM produtos WHERE categoria = 'Limpeza'";
+    public static void cadastrarProduto(Scanner scanner, AddProdutos addProdutos) {
+        System.out.println("Cadastro de produtos");
+        System.out.println("=========================");
 
-        System.out.println("Produtos de limpeza");
+        System.out.print("Nome: ");
+        String nome = scanner.nextLine();
 
-        try (Statement stmt = connect.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+        System.out.print("Preço: ");
+        double preco = scanner.nextDouble();
+        scanner.nextLine();
 
-            while (rs.next()) {
-                System.out.println("ID: " + rs.getInt("id"));
-                System.out.println("Nome: " + rs.getString("nome"));
-                System.out.println("Preço: R$ " + rs.getDouble("preco"));
-                System.out.println("Categoria: " + rs.getString("categoria"));
-                System.out.println("Estoque: " + rs.getInt("estoque"));
-                System.out.println("-------------------------");
-            }
-        }
-    }
+        System.out.print("Categoria: ");
+        String categoria = scanner.nextLine();
 
-    public static void listarProdutosEstoqueMaiorQue10(Connection connect) throws Exception {
-        String query = "SELECT id, nome, preco, categoria, estoque FROM produtos WHERE estoque > 10";
+        System.out.print("Estoque: ");
+        int estoque = scanner.nextInt();
+        scanner.nextLine();
 
-        System.out.println("Produtos de estoque");
-        try (Statement stmt = connect.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            while (rs.next()) {
-                System.out.println("ID: " + rs.getInt("id"));
-                System.out.println("Nome: " + rs.getString("nome"));
-                System.out.println("Preço: R$ " + rs.getDouble("preco"));
-                System.out.println("Categoria: " + rs.getString("categoria"));
-                System.out.println("Estoque: " + rs.getInt("estoque"));
-                System.out.println("-------------------------");
-            }
-        }
-    }
-
-    public static void listarProdutosPrecoEntre100E1000(Connection connect) throws Exception {
-        String query = "SELECT id, nome, preco, categoria, estoque FROM produtos WHERE preco BETWEEN 100 AND 1000";
-
-        System.out.println("Produtos de preco entre R$100 e R$1000");
-
-        try (Statement stmt = connect.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
-            while (rs.next()) {
-                System.out.println("ID: " + rs.getInt("id"));
-                System.out.println("Nome: " + rs.getString("nome"));
-                System.out.println("Preço: R$ " + rs.getDouble("preco"));
-                System.out.println("Categoria: " + rs.getString("categoria"));
-                System.out.println("Estoque: " + rs.getInt("estoque"));
-                System.out.println("-------------------------");
-            }
-        }
-    }
-
-    public static void listarProdutosComNomeGamer(Connection connect) throws Exception {
-        String query = "SELECT id, nome, preco, categoria, estoque FROM produtos WHERE nome ILIKE '%Gamer%'";
-
-        System.out.println("Produtos com nome '%Gamer%'");
-
-        try (Statement stmt = connect.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            while (rs.next()) {
-                System.out.println("ID: " + rs.getInt("id"));
-                System.out.println("Nome: " + rs.getString("nome"));
-                System.out.println("Preço : R$ " + rs.getDouble("preco"));
-                System.out.println("Categoria: " + rs.getString("categoria"));
-                System.out.println("Estoque: " + rs.getInt("estoque"));
-                System.out.println("-------------------------");
-
-            }
-        }
-    }
-
-    public static void listarTresProdutosMaisBaratos(Connection connect) throws Exception {
-        String query = "SELECT id, nome, preco, categoria, estoque FROM produtos ORDER BY preco ASC LIMIT 3";
-
-        System.out.println("3 produtos mais baratos");
-
-        try (Statement stmt = connect.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            while (rs.next()) {
-                System.out.println("ID: " + rs.getInt("id"));
-                System.out.println("Nome: " + rs.getString("nome"));
-                System.out.println("Preço: R$ " + rs.getDouble("preco"));
-                System.out.println("Categoria: " + rs.getString("categoria"));
-                System.out.println("Estoque: " + rs.getInt("estoque"));
-                System.out.println("-------------------------");
-
-            }
-        }
-    }
-
-    public static void contarProdutosArmazenameto(Connection connect) throws Exception {
-        String query = "SELECT COUNT(*) AS total FROM produtos WHERE categoria = 'Armazenamento'";
-
-        System.out.println("Total de produtos da categoria armazenameto");
-
-        try (Statement stmt = connect.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            if (rs.next()) {
-                System.out.println("Total: " + rs.getInt("total"));
-                System.out.println("-------------------------");
-            }
-        }
-    }
-
-    public static void agruparCategoriaMediaPrecos(Connection connect) throws Exception {
-        String query = "SELECT categoria, AVG(preco) AS media_preco FROM produtos GROUP BY categoria";
-
-        System.out.println("Média de preços por categoria");
-
-        try (Statement stmt = connect.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
-            while (rs.next()) {
-                System.out.println("Categoria: " + rs.getString("categoria"));
-                System.out.println("Média de preço: R$" + rs.getDouble("media_preco"));
-            }
-        }
+        addProdutos.cadastrarProduto(nome, preco, categoria, estoque);
     }
 }
