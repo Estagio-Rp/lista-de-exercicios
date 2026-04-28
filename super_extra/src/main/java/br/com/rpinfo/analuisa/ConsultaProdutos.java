@@ -9,7 +9,7 @@ public class ConsultaProdutos {
     public void listarTodosProdutos() {
         String query = "SELECT id, nome, preco, categoria, estoque FROM produtos";
 
-        System.out.println("\n--- TODOS OS PRODUTOS ---");
+        System.out.println("--- Todos os produtos ---");
 
         try (Connection connect = Conexao.conectar();
              Statement stmt = connect.createStatement();
@@ -27,7 +27,7 @@ public class ConsultaProdutos {
     public void listarNomeEPreco() {
         String query = "SELECT nome, preco FROM produtos";
 
-        System.out.println("\n--- NOME E PREÇO DOS PRODUTOS ---");
+        System.out.println("--- Nome e preço dos produtos ---");
 
         try (Connection connect = Conexao.conectar();
              Statement stmt = connect.createStatement();
@@ -49,7 +49,7 @@ public class ConsultaProdutos {
     public void listarProdutosLimpeza() {
         String query = "SELECT id, nome, preco, categoria, estoque FROM produtos WHERE categoria = 'Limpeza'";
 
-        System.out.println("\n--- PRODUTOS DE LIMPEZA ---");
+        System.out.println("--- Produtos de limpeza ---");
 
         try (Connection connect = Conexao.conectar();
              Statement stmt = connect.createStatement();
@@ -67,7 +67,7 @@ public class ConsultaProdutos {
     public void listarProdutosEstoqueMaiorQue10() {
         String query = "SELECT id, nome, preco, categoria, estoque FROM produtos WHERE estoque > 10";
 
-        System.out.println("\n--- PRODUTOS COM ESTOQUE MAIOR QUE 10 ---");
+        System.out.println("--- Produtos com estoque maior que 10 ---");
 
         try (Connection connect = Conexao.conectar();
              Statement stmt = connect.createStatement();
@@ -85,7 +85,7 @@ public class ConsultaProdutos {
     public void listarProdutosPrecoEntre100E1000() {
         String query = "SELECT id, nome, preco, categoria, estoque FROM produtos WHERE preco BETWEEN 100 AND 1000";
 
-        System.out.println("\n--- PRODUTOS COM PREÇO ENTRE R$100 E R$1000 ---");
+        System.out.println("\n--- Produtos com preços entre R$100 E R$1000 ---");
 
         try (Connection connect = Conexao.conectar();
              Statement stmt = connect.createStatement();
@@ -103,7 +103,7 @@ public class ConsultaProdutos {
     public void listarProdutosComNomeGamer() {
         String query = "SELECT id, nome, preco, categoria, estoque FROM produtos WHERE nome ILIKE '%Gamer%'";
 
-        System.out.println("\n--- PRODUTOS COM NOME GAMER ---");
+        System.out.println("--- Produtos com nome GAMER ---");
 
         try (Connection connect = Conexao.conectar();
              Statement stmt = connect.createStatement();
@@ -121,7 +121,7 @@ public class ConsultaProdutos {
     public void listarTresProdutosMaisBaratos() {
         String query = "SELECT id, nome, preco, categoria, estoque FROM produtos ORDER BY preco ASC LIMIT 3";
 
-        System.out.println("\n--- 3 PRODUTOS MAIS BARATOS ---");
+        System.out.println("--- 3 Produtos mais baratos ---");
 
         try (Connection connect = Conexao.conectar();
              Statement stmt = connect.createStatement();
@@ -139,7 +139,7 @@ public class ConsultaProdutos {
     public void contarProdutosArmazenamento() {
         String query = "SELECT COUNT(*) AS total FROM produtos WHERE categoria = 'Armazenamento'";
 
-        System.out.println("\n--- TOTAL DE PRODUTOS DA CATEGORIA ARMAZENAMENTO ---");
+        System.out.println("--- Total de produtos da categoria ARMAZENAMENTO ---");
 
         try (Connection connect = Conexao.conectar();
              Statement stmt = connect.createStatement();
@@ -158,7 +158,7 @@ public class ConsultaProdutos {
     public void agruparCategoriaMediaPrecos() {
         String query = "SELECT categoria, AVG(preco) AS media_preco FROM produtos GROUP BY categoria";
 
-        System.out.println("\n--- MÉDIA DE PREÇOS POR CATEGORIA ---");
+        System.out.println("--- Média de preços por categoria ---");
 
         try (Connection connect = Conexao.conectar();
              Statement stmt = connect.createStatement();

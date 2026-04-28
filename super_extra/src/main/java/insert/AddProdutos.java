@@ -20,7 +20,7 @@ public class AddProdutos {
 
             stmt.executeUpdate();
 
-            System.out.println("\nProduto cadastrado com sucesso!");
+            System.out.println("Produto cadastrado com sucesso!");
 
         } catch (Exception e) {
             System.out.println("Erro ao cadastrar produto: " + e.getMessage());
