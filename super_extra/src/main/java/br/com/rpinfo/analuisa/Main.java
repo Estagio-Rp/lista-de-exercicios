@@ -24,7 +24,6 @@ public class Main {
             contarProdutosArmazenameto(connect);
             agruparCategoriaMediaPrecos(connect);
 
-
             connect.close();
 
         } catch (Exception e) {
@@ -179,7 +178,6 @@ public class Main {
 
             }
         }
-
     }
 
     public static void contarProdutosArmazenameto(Connection connect) throws Exception {
@@ -199,15 +197,14 @@ public class Main {
     public static void agruparCategoriaMediaPrecos(Connection connect) throws Exception {
         String query = "SELECT categoria, AVG(preco) AS media_preco FROM produtos GROUP BY categoria";
 
-        System.out.println("Média de preço por categoria");
+        System.out.println("Média de preços por categoria");
 
         try (Statement stmt = connect.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
+
             while (rs.next()) {
                 System.out.println("Categoria: " + rs.getString("categoria"));
-                System.out.println("Média de preço: R$ " + rs.getDouble("media_preco"));
-                System.out.println("-------------------------");
-
+                System.out.println("Média de preço: R$" + rs.getDouble("media_preco"));
             }
         }
     }
