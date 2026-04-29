@@ -44,7 +44,7 @@ public class updateClientes {
     }
 
 
-    public void atualizarEndereco(int id, String endeId) {
+    public void atualizarEnderecoId(int id, int endeId) {
         String sql = "UPDATE clientes SET ende_id = ? WHERE id = ?";
 
         try (Connection connect = Conexao.conectar();
