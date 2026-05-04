@@ -13,6 +13,6 @@ public class Carro extends Veiculo {
     public void exibirInformacoes() {
         System.out.println("\n--- CARRO ---");
         super.exibirInformacoes();
-        System.out.println("Tipo de combustível: " + tipoCombustivel);
+        System.out.println("Tipo de combustível: " + this.tipoCombustivel);
     }
 }
