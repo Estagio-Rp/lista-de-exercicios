@@ -47,7 +47,7 @@ public class ConsultaProdutos {
     }
 
     public void listarProdutosLimpeza() {
-        String query = "SELECT id, nome, preco, categoria, estoque FROM produtos WHERE categoria = 'Limpeza'";
+        String query = "SELECT id, nome, preco, categoria, estoque FROM produtos WHERE categoria ILIKE 'Limpeza'";
 
         System.out.println("--- Produtos de limpeza ---");
 
@@ -137,7 +137,7 @@ public class ConsultaProdutos {
     }
 
     public void contarProdutosArmazenamento() {
-        String query = "SELECT COUNT(*) AS total FROM produtos WHERE categoria = 'Armazenamento'";
+        String query = "SELECT COUNT(*) AS total FROM produtos WHERE categoria ILIKE 'Armazenamento'";
 
         System.out.println("--- Total de produtos da categoria ARMAZENAMENTO ---");
 

@@ -351,7 +351,7 @@ public class Main {
         int opcaoDelete;
 
         do {
-            System.out.println("\nMenu de atualizações");
+            System.out.println("\nMenu de remoção");
             System.out.println("==================================================");
             System.out.println("1 - deletar produto");
             System.out.println("2 - deletar cliente");
