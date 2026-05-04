@@ -4,17 +4,17 @@ import java.util.ArrayList;
 
 public class Turma {
 
-    ArrayList<Aluno> alunos = new ArrayList<>();
+    private ArrayList<Aluno> alunos = new ArrayList<>();
 
-    public void adicionarAluno(Aluno aluno){
+    public void adicionarAluno(Aluno aluno) {
         alunos.add(aluno);
     }
 
-    public void listarAlunos(){
+    public void listarAlunos() {
         System.out.println("--- LISTA DE ALUNOS DA TURMA ---");
 
-        for (Aluno aluno : alunos){
-            System.out.println("Nome: " + aluno.nome + " | idade: " + aluno.idade + "anos");
+        for (Aluno aluno : alunos) {
+            System.out.println("Nome: " + aluno.getNome() + " | idade: " + aluno.getIdade() + " anos");
         }
     }
 }

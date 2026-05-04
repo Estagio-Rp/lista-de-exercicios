@@ -12,9 +12,9 @@ public class Main {
 
         do {
             System.out.println("\n--- CONTROLE DE ALUNOS ---");
-            System.out.println("1- Adicionar aluno");
-            System.out.println("2- Listar alunos");
-            System.out.println("3- Sair");
+            System.out.println("1 - Adicionar aluno");
+            System.out.println("2 - Listar alunos");
+            System.out.println("3 - Sair");
             System.out.print("Escolha uma opção: ");
 
             opcao = scanner.nextInt();
@@ -29,10 +29,15 @@ public class Main {
                     int idade = scanner.nextInt();
                     scanner.nextLine();
 
-                    Aluno aluno = new Aluno(nome, idade);
-                    turma.adicionarAluno(aluno);
+                    if (idade < 0) {
+                        System.out.println("Erro: a idade não pode ser negativa.");
+                    } else {
+                        Aluno aluno = new Aluno(nome, idade);
+                        turma.adicionarAluno(aluno);
 
-                    System.out.println("Aluno adicionado com sucesso!");
+                        System.out.println("Aluno adicionado com sucesso!");
+                    }
+
                     break;
 
                 case 2:
