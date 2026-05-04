@@ -20,10 +20,9 @@ public class AddCidades {
             stmt.executeUpdate();
 
             System.out.println("Cidade cadastrada com sucesso!");
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Erro ao cadastrar cidade!" + e.getMessage());
+            e.printStackTrace();
         }
-
-
     }
 }
