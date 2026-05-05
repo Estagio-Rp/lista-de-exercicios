@@ -4,6 +4,9 @@ import delete.DeleteCidades;
 import delete.DeleteClientes;
 import delete.DeleteEnderecos;
 import delete.DeleteProdutos;
+import insert.AddCidades;
+import insert.AddClientes;
+import insert.AddEnderecos;
 import insert.AddProdutos;
 import update.UpdateCidades;
 import update.UpdateClientes;
@@ -19,11 +22,17 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         ConsultaProdutos consultaProdutos = new ConsultaProdutos();
+
         AddProdutos addProdutos = new AddProdutos();
+        AddCidades addCidades = new AddCidades();
+        AddClientes addClientes = new AddClientes();
+        AddEnderecos addEnderecos = new AddEnderecos();
+
         UpdateProdutos updateProdutos = new UpdateProdutos();
         UpdateClientes updateClientes = new UpdateClientes();
         UpdateEnderecos updateEnderecos = new UpdateEnderecos();
         UpdateCidades updateCidades = new UpdateCidades();
+
         DeleteProdutos deleteProdutos = new DeleteProdutos();
         DeleteCidades deleteCidades = new DeleteCidades();
         DeleteClientes deleteClientes = new DeleteClientes();
@@ -32,10 +41,10 @@ public class Main {
         int opcao;
 
         do {
-            System.out.println("Menu principal");
+            System.out.println("\nMenu principal");
             System.out.println("==========================");
             System.out.println("1 - Consultar produtos");
-            System.out.println("2 - Cadastrar novo produto");
+            System.out.println("2 - Cadastrar registros");
             System.out.println("3 - Atualizar registros");
             System.out.println("4 - Deletar registros");
             System.out.println("0 - Sair");
@@ -50,7 +59,7 @@ public class Main {
                     break;
 
                 case 2:
-                    cadastrarProduto(scanner, addProdutos);
+                    menuCadastros(scanner, addProdutos, addCidades, addClientes, addEnderecos);
                     break;
 
                 case 3:
@@ -59,6 +68,7 @@ public class Main {
 
                 case 4:
                     menuDeletes(scanner, deleteProdutos, deleteClientes, deleteEnderecos, deleteCidades);
+                    break;
 
                 case 0:
                     System.out.println("Encerrando o sistema...");
@@ -78,7 +88,7 @@ public class Main {
         int opcaoConsulta;
 
         do {
-            System.out.println("Menu de consultas");
+            System.out.println("\nMenu de consultas");
             System.out.println("==================================================");
             System.out.println("1 - Listar todos os produtos");
             System.out.println("2 - Listar nome e preço dos produtos");
@@ -144,25 +154,151 @@ public class Main {
         } while (opcaoConsulta != 0);
     }
 
+    public static void menuCadastros(
+            Scanner scanner,
+            AddProdutos addProdutos,
+            AddCidades addCidades,
+            AddClientes addClientes,
+            AddEnderecos addEnderecos
+    ) {
+        int opcaoCadastro;
+
+        do {
+            System.out.println("\nMenu de cadastros");
+            System.out.println("==================================================");
+            System.out.println("1 - Cadastrar produto");
+            System.out.println("2 - Cadastrar cidade");
+            System.out.println("3 - Cadastrar cliente");
+            System.out.println("4 - Cadastrar endereço");
+            System.out.println("0 - Voltar ao menu principal");
+            System.out.print("Escolha uma opção: ");
+
+            opcaoCadastro = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (opcaoCadastro) {
+                case 1:
+                    cadastrarProduto(scanner, addProdutos);
+                    break;
+
+                case 2:
+                    cadastrarCidade(scanner, addCidades);
+                    break;
+
+                case 3:
+                    cadastrarCliente(scanner, addClientes);
+                    break;
+
+                case 4:
+                    cadastrarEndereco(scanner, addEnderecos);
+                    break;
+
+                case 0:
+                    System.out.println("Voltando ao menu principal...");
+                    break;
+
+                default:
+                    System.out.println("Opção inválida!");
+                    break;
+            }
+
+        } while (opcaoCadastro != 0);
+    }
+
     public static void cadastrarProduto(Scanner scanner, AddProdutos addProdutos) {
-        System.out.println("Cadastro de produtos");
+        System.out.println("\nCadastro de produtos");
         System.out.println("=========================");
 
         System.out.print("Nome: ");
-        String nome = scanner.nextLine();
+        String nome = scanner.nextLine().trim();
 
         System.out.print("Preço: ");
         double preco = scanner.nextDouble();
         scanner.nextLine();
 
         System.out.print("Categoria: ");
-        String categoria = scanner.nextLine();
+        String categoria = scanner.nextLine().trim().toLowerCase();
 
         System.out.print("Estoque: ");
         int estoque = scanner.nextInt();
         scanner.nextLine();
 
         addProdutos.cadastrarProduto(nome, preco, categoria, estoque);
+    }
+
+    public static void cadastrarCidade(Scanner scanner, AddCidades addCidades) {
+        System.out.println("\nCadastro de cidade");
+        System.out.println("=========================");
+
+        System.out.print("ID da cidade: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Nome da cidade: ");
+        String nome = scanner.nextLine().trim();
+
+        System.out.print("UF: ");
+        String uf = scanner.nextLine().trim().toUpperCase();
+
+        addCidades.cadastrarCidade(id, nome, uf);
+    }
+
+    public static void cadastrarCliente(Scanner scanner, AddClientes addClientes) {
+        System.out.println("\nCadastro de cliente");
+        System.out.println("=========================");
+
+        System.out.print("ID do cliente: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Nome: ");
+        String nome = scanner.nextLine().trim();
+
+        System.out.print("Email: ");
+        String email = scanner.nextLine().trim().toLowerCase();
+
+        System.out.print("CPF: ");
+        String cpf = scanner.nextLine().trim();
+
+        System.out.print("Telefone: ");
+        String telefone = scanner.nextLine().trim();
+
+        System.out.print("ID do endereço: ");
+        int endeId = scanner.nextInt();
+        scanner.nextLine();
+
+        addClientes.cadastrarCliente(id, nome, email, cpf, telefone, endeId);
+    }
+
+    public static void cadastrarEndereco(Scanner scanner, AddEnderecos addEnderecos) {
+        System.out.println("\nCadastro de endereço");
+        System.out.println("=========================");
+
+        System.out.print("ID do endereço: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("CEP: ");
+        String cep = scanner.nextLine().trim();
+
+        System.out.print("Rua: ");
+        String rua = scanner.nextLine().trim();
+
+        System.out.print("Número: ");
+        int numero = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Complemento: ");
+        String complemento = scanner.nextLine().trim();
+
+        System.out.print("Bairro: ");
+        String bairro = scanner.nextLine().trim();
+
+        System.out.print("ID da cidade: ");
+        int cidaId = scanner.nextInt();
+        scanner.nextLine();
+
+        addEnderecos.cadastrarEndereco(id, cep, rua, numero, complemento, bairro, cidaId);
     }
 
     public static void menuAtualizacoes(
@@ -204,7 +340,7 @@ public class Main {
                     scanner.nextLine();
 
                     System.out.print("Nova categoria: ");
-                    String categoria = scanner.nextLine();
+                    String categoria = scanner.nextLine().trim().toLowerCase();
 
                     updateProdutos.atualizarCategoria(id, categoria);
                     break;
@@ -228,7 +364,6 @@ public class Main {
                     double preco = scanner.nextDouble();
                     scanner.nextLine();
 
-
                     updateProdutos.atualizarPreco(id, preco);
                     break;
 
@@ -238,7 +373,7 @@ public class Main {
                     scanner.nextLine();
 
                     System.out.print("Novo email: ");
-                    String email = scanner.nextLine();
+                    String email = scanner.nextLine().trim().toLowerCase();
 
                     updateClientes.atualizarEmail(id, email);
                     break;
@@ -249,7 +384,7 @@ public class Main {
                     scanner.nextLine();
 
                     System.out.print("Novo telefone: ");
-                    String telefone = scanner.nextLine();
+                    String telefone = scanner.nextLine().trim();
 
                     updateClientes.atualizarTelefone(id, telefone);
                     break;
@@ -271,7 +406,7 @@ public class Main {
                     scanner.nextLine();
 
                     System.out.print("Nova rua: ");
-                    String rua = scanner.nextLine();
+                    String rua = scanner.nextLine().trim();
 
                     updateEnderecos.atualizarRua(id, rua);
                     break;
@@ -293,7 +428,7 @@ public class Main {
                     scanner.nextLine();
 
                     System.out.print("Novo complemento: ");
-                    String complemento = scanner.nextLine();
+                    String complemento = scanner.nextLine().trim();
 
                     updateEnderecos.atualizarComplemento(id, complemento);
                     break;
@@ -304,40 +439,42 @@ public class Main {
                     scanner.nextLine();
 
                     System.out.print("Novo bairro: ");
-                    String bairro = scanner.nextLine();
+                    String bairro = scanner.nextLine().trim();
 
                     updateEnderecos.atualizarBairro(id, bairro);
+                    break;
 
                 case 11:
-                    System.out.println("ID da cidade: ");
+                    System.out.print("ID da cidade: ");
                     id = scanner.nextInt();
                     scanner.nextLine();
 
-                    System.out.println("novo nome da cidade");
-                    String nome = scanner.nextLine();
+                    System.out.print("Novo nome da cidade: ");
+                    String nome = scanner.nextLine().trim();
 
                     updateCidades.atualizarNome(id, nome);
                     break;
 
                 case 12:
-                    System.out.println("ID da cidade: ");
+                    System.out.print("ID da cidade: ");
                     id = scanner.nextInt();
                     scanner.nextLine();
 
-                    System.out.println("Nova UF: ");
-                    String UF = scanner.nextLine();
+                    System.out.print("Nova UF: ");
+                    String uf = scanner.nextLine().trim().toUpperCase();
 
-                    updateCidades.atualizarUf(id, UF);
+                    updateCidades.atualizarUf(id, uf);
                     break;
 
                 case 0:
-                    System.out.println("Voltando ao menu principal..");
+                    System.out.println("Voltando ao menu principal...");
                     break;
 
                 default:
                     System.out.println("Opção inválida!");
                     break;
             }
+
         } while (opcaoUpdate != 0);
     }
 
@@ -353,11 +490,11 @@ public class Main {
         do {
             System.out.println("\nMenu de remoção");
             System.out.println("==================================================");
-            System.out.println("1 - deletar produto");
-            System.out.println("2 - deletar cliente");
-            System.out.println("3 - deletar endereço");
-            System.out.println("4 - deletar cidade");
-            System.out.println("0 - voltar ao menu principal..");
+            System.out.println("1 - Deletar produto");
+            System.out.println("2 - Deletar cliente");
+            System.out.println("3 - Deletar endereço");
+            System.out.println("4 - Deletar cidade");
+            System.out.println("0 - Voltar ao menu principal");
             System.out.print("Escolha uma opção: ");
 
             opcaoDelete = scanner.nextInt();
@@ -383,24 +520,30 @@ public class Main {
                     break;
 
                 case 3:
-                    System.out.println("ID do endereço: ");
+                    System.out.print("ID do endereço: ");
                     id = scanner.nextInt();
                     scanner.nextLine();
 
                     deleteEnderecos.deletarEndereco(id);
+                    break;
 
                 case 4:
-                    System.out.println("ID da cidade: ");
+                    System.out.print("ID da cidade: ");
                     id = scanner.nextInt();
                     scanner.nextLine();
 
                     deleteCidades.deletarCidade(id);
                     break;
 
+                case 0:
+                    System.out.println("Voltando ao menu principal...");
+                    break;
+
                 default:
                     System.out.println("Opção inválida!");
                     break;
             }
-        }while (opcaoDelete != 0);
+
+        } while (opcaoDelete != 0);
     }
 }
