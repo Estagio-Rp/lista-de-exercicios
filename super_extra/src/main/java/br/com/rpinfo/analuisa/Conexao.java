@@ -7,7 +7,7 @@ import java.util.Properties;
 
 public class Conexao {
 
-    public static Connection conectar() throws Exception{
+    public static Connection conectar() throws Exception {
         Properties properties = new Properties();
 
         InputStream inputStream = Conexao.class
