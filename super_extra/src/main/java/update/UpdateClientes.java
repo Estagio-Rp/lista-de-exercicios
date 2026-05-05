@@ -5,7 +5,7 @@ import br.com.rpinfo.analuisa.Conexao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-public class updateClientes {
+public class UpdateClientes {
 
     public void atualizarEmail(int id, String email) {
         String sql = "UPDATE clientes SET email = ? WHERE id = ?";

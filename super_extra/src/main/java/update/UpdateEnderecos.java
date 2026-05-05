@@ -5,7 +5,7 @@ import br.com.rpinfo.analuisa.Conexao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-public class updateEnderecos {
+public class UpdateEnderecos {
 
     public void atualizarRua(int id, String rua) {
         String sql = "UPDATE enderecos SET rua = ? WHERE id = ?";

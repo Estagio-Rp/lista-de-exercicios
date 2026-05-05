@@ -2,11 +2,10 @@ package update;
 
 import br.com.rpinfo.analuisa.Conexao;
 
-import java.io.PipedReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-public class updateCidades {
+public class UpdateCidades {
 
     public void atualizarNome(int id, String nome) {
         String sql = "UPDATE cidades SET nome = ? WHERE id = ?";

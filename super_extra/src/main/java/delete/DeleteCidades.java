@@ -5,10 +5,10 @@ import br.com.rpinfo.analuisa.Conexao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-public class deleteClientes {
+public class DeleteCidades {
 
-    public void deletarCliente(int id) {
-        String sql = "DELETE FROM clientes WHERE id = ?";
+    public void deletarCidade(int id) {
+        String sql = "DELETE FROM cidades WHERE id = ?";
 
         try (Connection connect = Conexao.conectar();
              PreparedStatement stmt = connect.prepareStatement(sql)) {
@@ -17,9 +17,9 @@ public class deleteClientes {
 
             stmt.executeUpdate();
 
-            System.out.println("Cliente deletado com sucesso!");
+            System.out.println("cidade deletado com sucesso!");
         } catch (Exception e) {
-            System.out.println("Erro ao deletar cliente!" + e.getMessage());
+            System.out.println("Erro ao deletar cidade!" + e.getMessage());
         }
     }
 }

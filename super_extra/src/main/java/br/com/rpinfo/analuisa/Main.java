@@ -1,14 +1,14 @@
 package br.com.rpinfo.analuisa;
 
-import delete.deleteCidades;
-import delete.deleteClientes;
-import delete.deleteEnderecos;
-import delete.deleteProdutos;
+import delete.DeleteCidades;
+import delete.DeleteClientes;
+import delete.DeleteEnderecos;
+import delete.DeleteProdutos;
 import insert.AddProdutos;
-import update.updateCidades;
-import update.updateClientes;
-import update.updateEnderecos;
-import update.updateProdutos;
+import update.UpdateCidades;
+import update.UpdateClientes;
+import update.UpdateEnderecos;
+import update.UpdateProdutos;
 
 import java.util.Scanner;
 
@@ -20,14 +20,14 @@ public class Main {
 
         ConsultaProdutos consultaProdutos = new ConsultaProdutos();
         AddProdutos addProdutos = new AddProdutos();
-        updateProdutos updateProdutos = new updateProdutos();
-        updateClientes updateClientes = new updateClientes();
-        updateEnderecos updateEnderecos = new updateEnderecos();
-        updateCidades updateCidades = new updateCidades();
-        deleteProdutos deleteProdutos = new deleteProdutos();
-        deleteCidades deleteCidades = new deleteCidades();
-        deleteClientes deleteClientes = new deleteClientes();
-        deleteEnderecos deleteEnderecos = new deleteEnderecos();
+        UpdateProdutos updateProdutos = new UpdateProdutos();
+        UpdateClientes updateClientes = new UpdateClientes();
+        UpdateEnderecos updateEnderecos = new UpdateEnderecos();
+        UpdateCidades updateCidades = new UpdateCidades();
+        DeleteProdutos deleteProdutos = new DeleteProdutos();
+        DeleteCidades deleteCidades = new DeleteCidades();
+        DeleteClientes deleteClientes = new DeleteClientes();
+        DeleteEnderecos deleteEnderecos = new DeleteEnderecos();
 
         int opcao;
 
@@ -167,10 +167,10 @@ public class Main {
 
     public static void menuAtualizacoes(
             Scanner scanner,
-            updateProdutos updateProdutos,
-            updateClientes updateClientes,
-            updateEnderecos updateEnderecos,
-            updateCidades updateCidades
+            UpdateProdutos updateProdutos,
+            UpdateClientes updateClientes,
+            UpdateEnderecos updateEnderecos,
+            UpdateCidades updateCidades
     ) {
         int opcaoUpdate;
 
@@ -343,10 +343,10 @@ public class Main {
 
     public static void menuDeletes(
             Scanner scanner,
-            deleteProdutos deleteProdutos,
-            deleteClientes deleteClientes,
-            deleteEnderecos deleteEnderecos,
-            deleteCidades deleteCidades
+            DeleteProdutos deleteProdutos,
+            DeleteClientes deleteClientes,
+            DeleteEnderecos deleteEnderecos,
+            DeleteCidades deleteCidades
     ) {
         int opcaoDelete;
 

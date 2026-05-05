@@ -1,12 +1,11 @@
 package update;
 
 import br.com.rpinfo.analuisa.Conexao;
-import org.postgresql.core.ConnectionFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-public class updateProdutos {
+public class UpdateProdutos {
     public void atualizarCategoria(int id, String categoria) {
 
         String sql = "UPDATE produtos SET categoria = ? WHERE id = ?";
