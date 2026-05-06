@@ -15,11 +15,16 @@ public class DeleteProdutos {
 
             stmt.setInt(1, id);
 
-            stmt.executeUpdate();
+            int linhasAfetadas = stmt.executeUpdate();
 
-            System.out.println("Produto deletado com sucesso!");
+            if (linhasAfetadas > 0) {
+                System.out.println("\nProduto deletado com sucesso!");
+            } else {
+                System.out.println("\nNenhum produto encontrado com esse ID.");
+            }
+
         } catch (Exception e) {
-            System.out.println("Erro ao deletar produtos" + e.getMessage());
+            System.out.println("\nErro ao deletar produto: " + e.getMessage());
         }
     }
 }

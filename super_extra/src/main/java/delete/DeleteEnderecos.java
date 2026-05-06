@@ -8,17 +8,36 @@ import java.sql.PreparedStatement;
 public class DeleteEnderecos {
 
     public void deletarEndereco(int id) {
-        String sql = "DELETE FROM enderecos WHERE id = ?";
+        String limparClientes = "UPDATE clientes SET ende_id = NULL WHERE ende_id = ?";
+        String deletarEndereco = "DELETE FROM enderecos WHERE id = ?";
 
-        try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql)) {
+        try (Connection connect = Conexao.conectar()) {
+            connect.setAutoCommit(false);
 
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
+            try (PreparedStatement stmtLimpar = connect.prepareStatement(limparClientes);
+                 PreparedStatement stmtDelete = connect.prepareStatement(deletarEndereco)) {
 
-            System.out.println("Endereço deletado com sucesso!");
+                stmtLimpar.setInt(1, id);
+                int clientesAtualizados = stmtLimpar.executeUpdate();
+
+                stmtDelete.setInt(1, id);
+                int linhasAfetadas = stmtDelete.executeUpdate();
+
+                if (linhasAfetadas > 0) {
+                    connect.commit();
+                    System.out.println("\nEndereço deletado com sucesso!");
+                    System.out.println("Clientes desvinculados desse endereço: " + clientesAtualizados);
+                } else {
+                    connect.rollback();
+                    System.out.println("\nNenhum endereço encontrado com esse ID.");
+                }
+            } catch (Exception e) {
+                connect.rollback();
+                throw e;
+            }
+
         } catch (Exception e) {
-            System.out.println("Erro ao deletar endereco!" + e.getMessage());
+            System.out.println("\nErro ao deletar endereço: " + e.getMessage());
         }
     }
 }

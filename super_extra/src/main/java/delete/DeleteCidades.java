@@ -8,18 +8,36 @@ import java.sql.PreparedStatement;
 public class DeleteCidades {
 
     public void deletarCidade(int id) {
-        String sql = "DELETE FROM cidades WHERE id = ?";
+        String limparEnderecos = "UPDATE enderecos SET cida_id = NULL WHERE cida_id = ?";
+        String deletarCidade = "DELETE FROM cidades WHERE id = ?";
 
-        try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql)) {
+        try (Connection connect = Conexao.conectar()) {
+            connect.setAutoCommit(false);
 
-            stmt.setInt(1, id);
+            try (PreparedStatement stmtLimpar = connect.prepareStatement(limparEnderecos);
+                 PreparedStatement stmtDelete = connect.prepareStatement(deletarCidade)) {
 
-            stmt.executeUpdate();
+                stmtLimpar.setInt(1, id);
+                int enderecosAtualizados = stmtLimpar.executeUpdate();
 
-            System.out.println("cidade deletado com sucesso!");
+                stmtDelete.setInt(1, id);
+                int linhasAfetadas = stmtDelete.executeUpdate();
+
+                if (linhasAfetadas > 0) {
+                    connect.commit();
+                    System.out.println("\nCidade deletada com sucesso!");
+                    System.out.println("Endereços desvinculados dessa cidade: " + enderecosAtualizados);
+                } else {
+                    connect.rollback();
+                    System.out.println("\nNenhuma cidade encontrada com esse ID.");
+                }
+            } catch (Exception e) {
+                connect.rollback();
+                throw e;
+            }
+
         } catch (Exception e) {
-            System.out.println("Erro ao deletar cidade!" + e.getMessage());
+            System.out.println("\nErro ao deletar cidade: " + e.getMessage());
         }
     }
 }

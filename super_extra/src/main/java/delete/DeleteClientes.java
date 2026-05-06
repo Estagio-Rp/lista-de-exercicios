@@ -15,11 +15,16 @@ public class DeleteClientes {
 
             stmt.setInt(1, id);
 
-            stmt.executeUpdate();
+            int linhasAfetadas = stmt.executeUpdate();
 
-            System.out.println("Cliente deletado com sucesso!");
+            if (linhasAfetadas > 0) {
+                System.out.println("\nCliente deletado com sucesso!");
+            } else {
+                System.out.println("\nNenhum cliente encontrado com esse ID.");
+            }
+
         } catch (Exception e) {
-            System.out.println("Erro ao deletar cliente!" + e.getMessage());
+            System.out.println("\nErro ao deletar cliente: " + e.getMessage());
         }
     }
 }
