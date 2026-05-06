@@ -4,25 +4,34 @@ import br.com.rpinfo.analuisa.Conexao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 public class AddCidades {
 
-    public void cadastrarCidade(int id, String nome, String uf) {
-        String sql = "INSERT INTO cidades (id, nome, uf) VALUES (?, ?, ?)";
+    public void cadastrarCidade(String nome, String uf) {
+        String sql = "INSERT INTO cidades (nome, uf) VALUES (?, ?)";
 
         try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql)) {
+             PreparedStatement stmt = connect.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            stmt.setInt(1, id);
-            stmt.setString(2, nome);
-            stmt.setString(3, uf);
+            stmt.setString(1, nome);
+            stmt.setString(2, uf);
 
-            stmt.executeUpdate();
+            int linhasAfetadas = stmt.executeUpdate();
 
-            System.out.println("Cidade cadastrada com sucesso!");
+            if (linhasAfetadas > 0) {
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        System.out.println("\nCidade cadastrada com sucesso! ID gerado: " + rs.getInt(1));
+                    } else {
+                        System.out.println("\nCidade cadastrada com sucesso!");
+                    }
+                }
+            }
+
         } catch (Exception e) {
-            System.out.println("Erro ao cadastrar cidade!" + e.getMessage());
-            e.printStackTrace();
+            System.out.println("\nErro ao cadastrar cidade: " + e.getMessage());
         }
     }
 }
