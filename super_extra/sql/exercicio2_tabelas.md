@@ -43,7 +43,6 @@ CREATE TABLE produtos (
 );
 ```
 
-
 # DROP TABLES
 
 ```sql
