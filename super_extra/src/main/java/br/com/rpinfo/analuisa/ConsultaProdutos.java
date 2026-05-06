@@ -9,7 +9,7 @@ public class ConsultaProdutos {
     public boolean listarTodosProdutos() {
         String query = "SELECT id, nome, preco, categoria, estoque FROM produtos ORDER BY id";
 
-        System.out.println("\n--- Todos os produtos ---");
+        System.out.println("\n--- PRODUTOS ---");
 
         try (Connection connect = Conexao.conectar();
              Statement stmt = connect.createStatement();
@@ -236,7 +236,7 @@ public class ConsultaProdutos {
     public boolean listarTodasCidades() {
         String query = "SELECT id, nome, uf FROM cidades ORDER BY id";
 
-        System.out.println("\n--- Todas as cidades ---");
+        System.out.println("\n--- CIDADES ---");
 
         try (Connection connect = Conexao.conectar();
              Statement stmt = connect.createStatement();
@@ -261,7 +261,7 @@ public class ConsultaProdutos {
     public boolean listarTodosEnderecos() {
         String query = "SELECT id, cep, rua, numero, complemento, bairro, cida_id FROM enderecos ORDER BY id";
 
-        System.out.println("\n--- Todos os endereços ---");
+        System.out.println("\n--- ENDEREÇOS ---");
 
         try (Connection connect = Conexao.conectar();
              Statement stmt = connect.createStatement();
@@ -286,7 +286,7 @@ public class ConsultaProdutos {
     public boolean listarTodosClientes() {
         String query = "SELECT id, nome, email, cpf, telefone, data_cadastro, ende_id FROM clientes ORDER BY id";
 
-        System.out.println("\n--- Todos os clientes ---");
+        System.out.println("\n--- CLIENTES ---");
 
         try (Connection connect = Conexao.conectar();
              Statement stmt = connect.createStatement();
