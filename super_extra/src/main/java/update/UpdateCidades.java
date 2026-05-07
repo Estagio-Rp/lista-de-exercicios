@@ -13,34 +13,40 @@ public class UpdateCidades {
         try (Connection connect = Conexao.conectar();
              PreparedStatement stmt = connect.prepareStatement(sql)) {
 
-            stmt.setInt(1, id);
-            stmt.setString(2, nome);
+            stmt.setString(1, nome);
+            stmt.setInt(2, id);
 
-            stmt.executeUpdate();
+            int linhasAfetadas = stmt.executeUpdate();
 
-
-            System.out.println("Nome da cidade atualizado com sucesso!");
+            if (linhasAfetadas > 0) {
+                System.out.println("\nNome da cidade atualizado com sucesso!");
+            } else {
+                System.out.println("\nNenhuma cidade encontrada com esse ID.");
+            }
 
         } catch (Exception e) {
-            System.out.println("Erro ao atualizar nome da cidade" + e.getMessage());
+            System.out.println("\nErro ao atualizar nome da cidade: " + e.getMessage());
         }
     }
 
     public void atualizarUf(int id, String uf) {
-        String sql = "UPDATE cidades set uf = ? WHERE id = ?";
+        String sql = "UPDATE cidades SET uf =?  WHERE id = ?";
 
         try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql)){
+             PreparedStatement stmt = connect.prepareStatement(sql)) {
+            stmt.setString(1, uf);
+            stmt.setInt(2, id);
 
-            stmt.setInt(1, id);
-            stmt.setString(2, uf);
+            int linhasAfetadas = stmt.executeUpdate();
 
-            stmt.executeUpdate();
+            if (linhasAfetadas > 0) {
+                System.out.println("\nUF atualizada com sucesso!");
+            } else {
+                System.out.println("\nNenhuma UF atualizada com esse ID.");
+            }
 
-            System.out.println("UF atualiziado com sucesso!");
-
-        }catch (Exception e){
-            System.out.println("Erro ao atualizar UF" + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("\nErro ao atualizar UF: " + e.getMessage());
         }
     }
 }
