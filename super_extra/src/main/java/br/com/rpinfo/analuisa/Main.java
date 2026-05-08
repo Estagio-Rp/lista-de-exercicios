@@ -617,7 +617,7 @@ public class Main {
     private static double lerDoubleMinimo(Scanner scanner, String mensagem, double minimo) {
         while (true) {
             try {
-                System.out.println(mensagem);
+                System.out.print(mensagem);
                 double valor = Double.parseDouble(scanner.nextLine().trim().replace(",", "."));
 
                 if (valor >= minimo) {
