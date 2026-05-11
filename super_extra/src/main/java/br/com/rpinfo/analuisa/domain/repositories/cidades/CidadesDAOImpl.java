@@ -1,23 +1,26 @@
-
 package br.com.rpinfo.analuisa.domain.repositories.cidades;
 
-import br.com.rpinfo.analuisa.Conexao;
 import br.com.rpinfo.analuisa.domain.model.entity.Cidade;
+import br.com.rpinfo.analuisa.domain.repositories.DAOImpl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CidadesDAOImpl implements CidadesDAO {
+public class CidadesDAOImpl extends DAOImpl implements CidadesDAO {
+
+    public CidadesDAOImpl(Connection connection) {
+        super(connection);
+    }
 
     @Override
     public void cadastrar(Cidade cidade) {
         String sql = "INSERT INTO cidades (nome, uf) VALUES (?, ?)";
 
-        try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql)) {
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, cidade.getNome());
             stmt.setString(2, cidade.getUf());
@@ -29,8 +32,9 @@ public class CidadesDAOImpl implements CidadesDAO {
                     cidade.setId(rs.getInt(1));
                 }
             }
+
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao cadastrar cidade!" + e.getMessage());
+            throw new RuntimeException("Erro ao cadastrar cidade: " + e.getMessage());
         }
     }
 
@@ -40,8 +44,7 @@ public class CidadesDAOImpl implements CidadesDAO {
 
         List<Cidade> cidades = new ArrayList<>();
 
-        try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql);
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -50,10 +53,12 @@ public class CidadesDAOImpl implements CidadesDAO {
                         rs.getString("nome"),
                         rs.getString("uf")
                 );
+
                 cidades.add(cidade);
             }
+
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao listar cidades!" + e.getMessage());
+            throw new RuntimeException("Erro ao listar cidades: " + e.getMessage());
         }
 
         return cidades;
@@ -62,8 +67,8 @@ public class CidadesDAOImpl implements CidadesDAO {
     @Override
     public Cidade buscarPorId(Integer id) {
         String sql = "SELECT id, nome, uf FROM cidades WHERE id = ?";
-        try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql)) {
+
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
 
             stmt.setInt(1, id);
 
@@ -80,6 +85,7 @@ public class CidadesDAOImpl implements CidadesDAO {
         } catch (Exception e) {
             throw new RuntimeException("Erro ao buscar cidade: " + e.getMessage());
         }
+
         return null;
     }
 
@@ -92,8 +98,7 @@ public class CidadesDAOImpl implements CidadesDAO {
     public void atualizar(Cidade cidade) {
         String sql = "UPDATE cidades SET nome = ?, uf = ? WHERE id = ?";
 
-        try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql)) {
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
 
             stmt.setString(1, cidade.getNome());
             stmt.setString(2, cidade.getUf());
@@ -102,20 +107,22 @@ public class CidadesDAOImpl implements CidadesDAO {
             stmt.executeUpdate();
 
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao atualizar cidade!" + e.getMessage());
+            throw new RuntimeException("Erro ao atualizar cidade: " + e.getMessage());
         }
     }
 
     @Override
     public void deletar(Integer id) {
-        String desvincularEnderecos = "UPDATE enderecos SET cida_id = NULL WHERE cida_id = ?"; //evitar aquele erro dizendo que a cidade ainda está vinculada a algum ende.
+        String desvincularEnderecos = "UPDATE enderecos SET cida_id = NULL WHERE cida_id = ?";
         String deletarCidade = "DELETE FROM cidades WHERE id = ?";
 
-        try (Connection connect = Conexao.conectar()) {
-            connect.setAutoCommit(false);
+        Connection connection = getConnection();
 
-            try (PreparedStatement stmtDesvincular = connect.prepareStatement(desvincularEnderecos);
-                 PreparedStatement stmtDeletar = connect.prepareStatement(deletarCidade)) {
+        try {
+            connection.setAutoCommit(false);
+
+            try (PreparedStatement stmtDesvincular = connection.prepareStatement(desvincularEnderecos);
+                 PreparedStatement stmtDeletar = connection.prepareStatement(deletarCidade)) {
 
                 stmtDesvincular.setInt(1, id);
                 stmtDesvincular.executeUpdate();
@@ -123,17 +130,24 @@ public class CidadesDAOImpl implements CidadesDAO {
                 stmtDeletar.setInt(1, id);
                 stmtDeletar.executeUpdate();
 
-                connect.commit();
-
-            } catch (Exception e) {
-                connect.rollback();
-                throw e;
+                connection.commit();
             }
 
         } catch (Exception e) {
+            try {
+                connection.rollback();
+            } catch (Exception rollbackException) {
+                throw new RuntimeException("Erro ao desfazer exclusão da cidade: " + rollbackException.getMessage());
+            }
+
             throw new RuntimeException("Erro ao deletar cidade: " + e.getMessage());
+
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (Exception e) {
+                throw new RuntimeException("Erro ao restaurar autoCommit da conexão: " + e.getMessage());
+            }
         }
     }
-
 }
-
