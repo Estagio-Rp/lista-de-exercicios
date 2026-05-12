@@ -4,48 +4,56 @@ import br.com.rpinfo.analuisa.domain.exceptions.CampoInvalidoException;
 import br.com.rpinfo.analuisa.domain.exceptions.RegistroNaoEncontradoException;
 import br.com.rpinfo.analuisa.domain.model.entity.Cidade;
 import br.com.rpinfo.analuisa.domain.repositories.cidades.CidadesDAO;
+import br.com.rpinfo.analuisa.domain.repositories.cidades.CidadesDAOImpl;
 
+import java.sql.Connection;
 import java.util.List;
 
-public class CidadesService {
-    private final CidadesDAO cidadesDAO;
+public class CidadesService extends ServiceBase {
 
-    public CidadesService(CidadesDAO cidadesDAO) {
-        this.cidadesDAO = cidadesDAO;
+    private final CidadesDAO dao;
+
+    public CidadesService(Connection connection) {
+        super(connection);
+        this.dao = new CidadesDAOImpl(connection);
     }
 
-    public void cadastrar(Cidade cidade) {
+    public void cadastrarCidade(Cidade cidade) {
         validarCidade(cidade);
-        cidadesDAO.cadastrar(cidade);
+
+        this.dao.cadastrar(cidade);
+
+        System.out.println("Cidade cadastrada com sucesso!");
     }
 
-    public List<Cidade> listarTodos() {
-        return cidadesDAO.listarTodos();
+    public List<Cidade> listarCidades() {
+        return this.dao.listarTodos();
     }
 
-    public void atualizar(Cidade cidade) {
-        if (cidade.getId() == null || cidade.getId() <= 0) {
-            throw new CampoInvalidoException("ID da cidade inválido.");
-        }
+    public void atualizarCidade(Cidade cidade) {
+        validarId(cidade.getId());
 
-        if (!cidadesDAO.existePorId(cidade.getId())) {
+        if (!this.dao.existePorId(cidade.getId())) {
             throw new RegistroNaoEncontradoException("Cidade não encontrada.");
         }
 
         validarCidade(cidade);
-        cidadesDAO.atualizar(cidade);
+
+        this.dao.atualizar(cidade);
+
+        System.out.println("Cidade atualizada com sucesso!");
     }
 
-    public void deletar(Integer id) {
-        if (id == null || id <= 0) {
-            throw new CampoInvalidoException("ID da cidade inválido.");
-        }
+    public void deletarCidade(Integer id) {
+        validarId(id);
 
-        if (!cidadesDAO.existePorId(id)) {
+        if (!this.dao.existePorId(id)) {
             throw new RegistroNaoEncontradoException("Cidade não encontrada.");
         }
 
-        cidadesDAO.deletar(id);
+        this.dao.deletar(id);
+
+        System.out.println("Cidade deletada com sucesso!");
     }
 
     private void validarCidade(Cidade cidade) {
@@ -57,5 +65,10 @@ public class CidadesService {
             throw new CampoInvalidoException("A UF deve ter exatamente 2 letras.");
         }
     }
-}
 
+    private void validarId(Integer id) {
+        if (id == null || id <= 0) {
+            throw new CampoInvalidoException("ID inválido.");
+        }
+    }
+}

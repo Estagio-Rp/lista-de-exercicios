@@ -5,18 +5,18 @@ import br.com.rpinfo.analuisa.application.usecase.CidadesUseCase;
 import br.com.rpinfo.analuisa.shared.LeitorConsole;
 
 import java.util.List;
+import java.util.Scanner;
 
 public class CidadesController {
 
-    private final CidadesUseCase cidadesUseCase;
     private final LeitorConsole leitor;
 
-    public CidadesController(CidadesUseCase cidadesUseCase, LeitorConsole leitor) {
-        this.cidadesUseCase = cidadesUseCase;
-        this.leitor = leitor;
+    public CidadesController() {
+        Scanner scanner = new Scanner(System.in);
+        this.leitor = new LeitorConsole(scanner);
     }
 
-    public void menu() {
+    public void menuCidades() {
         int opcao;
 
         do {
@@ -31,16 +31,19 @@ public class CidadesController {
 
             switch (opcao) {
                 case 1:
-                    adicionar();
+                    adicionarCidade();
                     break;
+
                 case 2:
-                    listar();
+                    listarCidades();
                     break;
+
                 case 3:
-                    editar();
+                    editarCidade();
                     break;
+
                 case 4:
-                    excluir();
+                    excluirCidade();
                     break;
 
                 case 0:
@@ -55,13 +58,25 @@ public class CidadesController {
         } while (opcao != 0);
     }
 
-    public boolean listar() {
+    private void adicionarCidade() {
         try {
-            List<CidadesDTO> cidades = cidadesUseCase.listarTodos();
+            CidadesDTO cidade = lerDadosCidade(null);
+
+            CidadesUseCase.inserirCidade(cidade);
+
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public boolean listarCidades() {
+        try {
+            List<CidadesDTO> cidades = CidadesUseCase.listarCidades();
+
             System.out.println("\n--- LISTA DE CIDADES ---");
 
             if (cidades.isEmpty()) {
-                System.out.println("Nenhum cidade cadastrada!");
+                System.out.println("Nenhuma cidade cadastrada.");
                 return false;
             }
 
@@ -70,63 +85,46 @@ public class CidadesController {
                 System.out.println("Nome: " + cidade.getNome());
                 System.out.println("UF: " + cidade.getUf());
             }
+
             return true;
+
         } catch (RuntimeException e) {
-            System.out.println("Erro ao listar os cidades!" + e.getMessage());
+            System.out.println(e.getMessage());
             return false;
         }
     }
 
-    private void adicionar() {
+    private void editarCidade() {
         try {
-            System.out.println("\n--- CADASTRO DE CIDADE ---");
-
-            CidadesDTO cidade = lerDadosCidade(null);
-
-            cidadesUseCase.cadastrar(cidade);
-
-            System.out.println("\nCidade cadastrada com sucesso!");
-
-        } catch (RuntimeException e) {
-            System.out.println("\nErro ao cadastrar cidade: " + e.getMessage());
-        }
-    }
-
-    private void editar() {
-        try {
-            if (!listar()) {
+            if (!listarCidades()) {
                 return;
             }
 
-            int id = leitor.lerInteiroMinimo("\nID da cidade que deseja editar: ", 1);
+            Integer id = leitor.lerInteiroMinimo("\nID da cidade que deseja editar: ", 1);
 
             CidadesDTO cidade = lerDadosCidade(id);
 
-            cidadesUseCase.atualizar(id, cidade);
-
-            System.out.println("\nCidade atualizada com sucesso!");
+            CidadesUseCase.atualizarCidade(id, cidade);
 
         } catch (RuntimeException e) {
-            System.out.println("\nErro ao editar cidade: " + e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 
-    private void excluir() {
+    private void excluirCidade() {
         try {
-            if (!listar()) {
+            if (!listarCidades()) {
                 return;
             }
 
             System.out.println("\nAtenção: endereços vinculados a essa cidade ficarão sem cidade.");
 
-            int id = leitor.lerInteiroMinimo("ID da cidade que deseja excluir: ", 1);
+            Integer id = leitor.lerInteiroMinimo("ID da cidade que deseja excluir: ", 1);
 
-            cidadesUseCase.deletar(id);
-
-            System.out.println("\nCidade excluída com sucesso!");
+            CidadesUseCase.deletarCidade(id);
 
         } catch (RuntimeException e) {
-            System.out.println("\nErro ao excluir cidade: " + e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 
@@ -142,6 +140,3 @@ public class CidadesController {
         return new CidadesDTO(id, nome, uf);
     }
 }
-
-
-

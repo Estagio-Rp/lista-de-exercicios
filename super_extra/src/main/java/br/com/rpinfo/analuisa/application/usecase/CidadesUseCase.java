@@ -2,48 +2,73 @@ package br.com.rpinfo.analuisa.application.usecase;
 
 import br.com.rpinfo.analuisa.application.dto.cidades.CidadesDTO;
 import br.com.rpinfo.analuisa.application.service.CidadesService;
+import br.com.rpinfo.analuisa.application.service.ServiceBase;
 import br.com.rpinfo.analuisa.domain.model.entity.Cidade;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CidadesUseCase {
 
-    private final CidadesService cidadesService;
+    public static void inserirCidade(CidadesDTO cidadeDTO) {
+        try (Connection connection = ServiceBase.connectionManager()) {
+            CidadesService service = new CidadesService(connection);
 
-    public CidadesUseCase(CidadesService cidadesService) {
-        this.cidadesService = cidadesService;
-    }
+            Cidade cidade = converterParaEntidade(cidadeDTO);
+
+            service.cadastrarCidade(cidade);
 
 
-    public void cadastrar(CidadesDTO dto) {
-        Cidade cidade = converterParaEntidade(dto);
-        cidadesService.cadastrar(cidade);
-    }
-
-    public List<CidadesDTO> listarTodos() {
-        List<Cidade> cidades = cidadesService.listarTodos();
-        List<CidadesDTO> cidadesDTO = new ArrayList<>();
-
-        for (Cidade cidade : cidades) {
-            cidadesDTO.add(converterParaDTO(cidade));
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao inserir cidade: " + e.getMessage());
         }
-
-        return cidadesDTO;
     }
 
-    public void atualizar(Integer id, CidadesDTO dto) {
-        Cidade cidade = converterParaEntidade(dto);
-        cidade.setId(id);
+    public static List<CidadesDTO> listarCidades() {
+        try (Connection connection = ServiceBase.connectionManager()) {
+            CidadesService service = new CidadesService(connection);
 
-        cidadesService.atualizar(cidade);
+            List<Cidade> cidades = service.listarCidades();
+            List<CidadesDTO> cidadesDTO = new ArrayList<>();
+
+            for (Cidade cidade : cidades) {
+                cidadesDTO.add(converterParaDTO(cidade));
+            }
+
+            return cidadesDTO;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao listar cidades: " + e.getMessage());
+        }
     }
 
-    public void deletar(Integer id) {
-        cidadesService.deletar(id);
+    public static void atualizarCidade(Integer id, CidadesDTO cidadeDTO) {
+        try (Connection connection = ServiceBase.connectionManager()) {
+            CidadesService service = new CidadesService(connection);
+
+            Cidade cidade = converterParaEntidade(cidadeDTO);
+            cidade.setId(id);
+
+            service.atualizarCidade(cidade);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao atualizar cidade: " + e.getMessage());
+        }
     }
 
-    private Cidade converterParaEntidade(CidadesDTO dto) {
+    public static void deletarCidade(Integer id) {
+        try (Connection connection = ServiceBase.connectionManager()) {
+            CidadesService service = new CidadesService(connection);
+
+            service.deletarCidade(id);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao deletar cidade: " + e.getMessage());
+        }
+    }
+
+    private static Cidade converterParaEntidade(CidadesDTO dto) {
         return new Cidade(
                 dto.getId(),
                 dto.getNome(),
@@ -51,7 +76,7 @@ public class CidadesUseCase {
         );
     }
 
-    private CidadesDTO converterParaDTO(Cidade cidade) {
+    private static CidadesDTO converterParaDTO(Cidade cidade) {
         return new CidadesDTO(
                 cidade.getId(),
                 cidade.getNome(),
@@ -59,4 +84,3 @@ public class CidadesUseCase {
         );
     }
 }
-
