@@ -6,43 +6,52 @@ import java.sql.Statement;
 public class SequenceUtils {
 
     public static void reorganizarIdsCidades(Connection connection) {
-        String sql = """
-                WITH mapa AS (
+        try (Statement stmt = connection.createStatement()) {
+
+            stmt.execute("DROP TABLE IF EXISTS temp_mapa_cidades");
+
+            stmt.execute("""
+                    CREATE TEMP TABLE temp_mapa_cidades AS
                     SELECT
                         id AS id_antigo,
                         ROW_NUMBER() OVER (ORDER BY id) AS id_novo
                     FROM cidades
-                ),
-                atualiza_enderecos AS (
+                    """);
+
+            stmt.execute("""
                     UPDATE enderecos e
                     SET cida_id = -m.id_novo
-                    FROM mapa m
+                    FROM temp_mapa_cidades m
                     WHERE e.cida_id = m.id_antigo
-                    RETURNING e.id
-                ),
-                atualiza_cidades AS (
+                    """);
+
+            stmt.execute("""
                     UPDATE cidades c
                     SET id = -m.id_novo
-                    FROM mapa m
+                    FROM temp_mapa_cidades m
                     WHERE c.id = m.id_antigo
-                    RETURNING c.id
-                )
-                UPDATE cidades
-                SET id = ABS(id);
-                
-                UPDATE enderecos
-                SET cida_id = ABS(cida_id)
-                WHERE cida_id IS NOT NULL AND cida_id < 0;
-                
-                SELECT setval(
-                    pg_get_serial_sequence('cidades', 'id'),
-                    COALESCE((SELECT MAX(id) FROM cidades), 1),
-                    (SELECT COUNT(*) > 0 FROM cidades)
-                );
-                """;
+                    """);
 
-        try (Statement stmt = connection.createStatement()) {
-            stmt.execute(sql);
+            stmt.execute("""
+                    UPDATE cidades
+                    SET id = ABS(id)
+                    """);
+
+            stmt.execute("""
+                    UPDATE enderecos
+                    SET cida_id = ABS(cida_id)
+                    WHERE cida_id IS NOT NULL AND cida_id < 0
+                    """);
+
+            stmt.execute("""
+                    SELECT setval(
+                        pg_get_serial_sequence('cidades', 'id'),
+                        COALESCE((SELECT MAX(id) FROM cidades), 1),
+                        (SELECT COUNT(*) > 0 FROM cidades)
+                    )
+                    """);
+
+            stmt.execute("DROP TABLE IF EXISTS temp_mapa_cidades");
 
         } catch (Exception e) {
             throw new RuntimeException("Erro ao reorganizar IDs das cidades: " + e.getMessage());

@@ -7,7 +7,6 @@ import br.com.rpinfo.analuisa.shared.SequenceUtils;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,18 +20,14 @@ public class CidadesDAOImpl extends DAOImpl implements CidadesDAO {
     public void cadastrar(Cidade cidade) {
         String sql = "INSERT INTO cidades (nome, uf) VALUES (?, ?)";
 
-        try (PreparedStatement stmt = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
 
             stmt.setString(1, cidade.getNome());
             stmt.setString(2, cidade.getUf());
 
             stmt.executeUpdate();
 
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    cidade.setId(rs.getInt(1));
-                }
-            }
+            SequenceUtils.reorganizarIdsCidades(getConnection());
 
         } catch (Exception e) {
             throw new RuntimeException("Erro ao cadastrar cidade: " + e.getMessage());
@@ -41,6 +36,8 @@ public class CidadesDAOImpl extends DAOImpl implements CidadesDAO {
 
     @Override
     public List<Cidade> listarTodos() {
+        SequenceUtils.reorganizarIdsCidades(getConnection());
+
         String sql = "SELECT id, nome, uf FROM cidades ORDER BY id";
 
         List<Cidade> cidades = new ArrayList<>();
@@ -106,6 +103,8 @@ public class CidadesDAOImpl extends DAOImpl implements CidadesDAO {
             stmt.setInt(3, cidade.getId());
 
             stmt.executeUpdate();
+
+            SequenceUtils.reorganizarIdsCidades(getConnection());
 
         } catch (Exception e) {
             throw new RuntimeException("Erro ao atualizar cidade: " + e.getMessage());
