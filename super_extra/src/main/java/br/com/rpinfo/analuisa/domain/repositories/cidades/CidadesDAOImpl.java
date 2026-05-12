@@ -2,6 +2,7 @@ package br.com.rpinfo.analuisa.domain.repositories.cidades;
 
 import br.com.rpinfo.analuisa.domain.model.entity.Cidade;
 import br.com.rpinfo.analuisa.domain.repositories.DAOImpl;
+import br.com.rpinfo.analuisa.shared.SequenceUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -116,38 +117,19 @@ public class CidadesDAOImpl extends DAOImpl implements CidadesDAO {
         String desvincularEnderecos = "UPDATE enderecos SET cida_id = NULL WHERE cida_id = ?";
         String deletarCidade = "DELETE FROM cidades WHERE id = ?";
 
-        Connection connection = getConnection();
+        try (PreparedStatement stmtDesvincular = getConnection().prepareStatement(desvincularEnderecos);
+             PreparedStatement stmtDeletar = getConnection().prepareStatement(deletarCidade)) {
 
-        try {
-            connection.setAutoCommit(false);
+            stmtDesvincular.setInt(1, id);
+            stmtDesvincular.executeUpdate();
 
-            try (PreparedStatement stmtDesvincular = connection.prepareStatement(desvincularEnderecos);
-                 PreparedStatement stmtDeletar = connection.prepareStatement(deletarCidade)) {
+            stmtDeletar.setInt(1, id);
+            stmtDeletar.executeUpdate();
 
-                stmtDesvincular.setInt(1, id);
-                stmtDesvincular.executeUpdate();
-
-                stmtDeletar.setInt(1, id);
-                stmtDeletar.executeUpdate();
-
-                connection.commit();
-            }
+            SequenceUtils.reorganizarIdsCidades(getConnection());
 
         } catch (Exception e) {
-            try {
-                connection.rollback();
-            } catch (Exception rollbackException) {
-                throw new RuntimeException("Erro ao desfazer exclusão da cidade: " + rollbackException.getMessage());
-            }
-
             throw new RuntimeException("Erro ao deletar cidade: " + e.getMessage());
-
-        } finally {
-            try {
-                connection.setAutoCommit(true);
-            } catch (Exception e) {
-                throw new RuntimeException("Erro ao restaurar autoCommit da conexão: " + e.getMessage());
-            }
         }
     }
 }
