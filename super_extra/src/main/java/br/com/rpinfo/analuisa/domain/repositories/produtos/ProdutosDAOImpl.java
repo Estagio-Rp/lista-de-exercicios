@@ -2,7 +2,6 @@ package br.com.rpinfo.analuisa.domain.repositories.produtos;
 
 import br.com.rpinfo.analuisa.domain.model.entity.Produto;
 import br.com.rpinfo.analuisa.domain.repositories.DAOImpl;
-import br.com.rpinfo.analuisa.shared.SequenceUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,7 +29,6 @@ public class ProdutosDAOImpl extends DAOImpl implements ProdutosDAO {
 
             stmt.executeUpdate();
 
-            SequenceUtils.reorganizarIdsProdutos(getConnection());
 
         } catch (Exception e) {
             throw new RuntimeException("Erro ao cadastrar produto: " + e.getMessage());
@@ -39,7 +37,6 @@ public class ProdutosDAOImpl extends DAOImpl implements ProdutosDAO {
 
     @Override
     public List<Produto> listarTodos() {
-        SequenceUtils.reorganizarIdsProdutos(getConnection());
 
         String sql = "SELECT id, nome, preco, categoria, estoque FROM produtos ORDER BY id";
 
@@ -99,7 +96,6 @@ public class ProdutosDAOImpl extends DAOImpl implements ProdutosDAO {
 
             stmt.executeUpdate();
 
-            SequenceUtils.reorganizarIdsProdutos(getConnection());
 
         } catch (Exception e) {
             throw new RuntimeException("Erro ao atualizar produto: " + e.getMessage());
@@ -115,7 +111,6 @@ public class ProdutosDAOImpl extends DAOImpl implements ProdutosDAO {
             stmt.setInt(1, id);
             stmt.executeUpdate();
 
-            SequenceUtils.reorganizarIdsProdutos(getConnection());
 
         } catch (Exception e) {
             throw new RuntimeException("Erro ao deletar produto: " + e.getMessage());

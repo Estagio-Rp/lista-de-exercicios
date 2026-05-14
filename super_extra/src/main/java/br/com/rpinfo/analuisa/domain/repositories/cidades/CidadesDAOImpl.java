@@ -2,7 +2,6 @@ package br.com.rpinfo.analuisa.domain.repositories.cidades;
 
 import br.com.rpinfo.analuisa.domain.model.entity.Cidade;
 import br.com.rpinfo.analuisa.domain.repositories.DAOImpl;
-import br.com.rpinfo.analuisa.shared.SequenceUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,8 +26,6 @@ public class CidadesDAOImpl extends DAOImpl implements CidadesDAO {
 
             stmt.executeUpdate();
 
-            SequenceUtils.reorganizarIdsCidades(getConnection());
-
         } catch (Exception e) {
             throw new RuntimeException("Erro ao cadastrar cidade: " + e.getMessage());
         }
@@ -36,7 +33,6 @@ public class CidadesDAOImpl extends DAOImpl implements CidadesDAO {
 
     @Override
     public List<Cidade> listarTodos() {
-        SequenceUtils.reorganizarIdsCidades(getConnection());
 
         String sql = "SELECT id, nome, uf FROM cidades ORDER BY id";
 
@@ -104,7 +100,6 @@ public class CidadesDAOImpl extends DAOImpl implements CidadesDAO {
 
             stmt.executeUpdate();
 
-            SequenceUtils.reorganizarIdsCidades(getConnection());
 
         } catch (Exception e) {
             throw new RuntimeException("Erro ao atualizar cidade: " + e.getMessage());
@@ -125,7 +120,6 @@ public class CidadesDAOImpl extends DAOImpl implements CidadesDAO {
             stmtDeletar.setInt(1, id);
             stmtDeletar.executeUpdate();
 
-            SequenceUtils.reorganizarIdsCidades(getConnection());
 
         } catch (Exception e) {
             throw new RuntimeException("Erro ao deletar cidade: " + e.getMessage());
