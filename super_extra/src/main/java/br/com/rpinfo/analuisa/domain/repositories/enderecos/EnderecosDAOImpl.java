@@ -1,68 +1,60 @@
 package br.com.rpinfo.analuisa.domain.repositories.enderecos;
 
-import br.com.rpinfo.analuisa.Conexao;
 import br.com.rpinfo.analuisa.domain.model.entity.Endereco;
+import br.com.rpinfo.analuisa.domain.repositories.DAOImpl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EnderecosDAOImpl implements EnderecosDAO {
+public class EnderecosDAOImpl extends DAOImpl implements EnderecosDAO {
+
+    public EnderecosDAOImpl(Connection connection) {
+        super(connection);
+    }
 
     @Override
     public void cadastrar(Endereco endereco) {
-        String sql = "INSERT INTO enderecos(cep, rua, numero, complemento, bairro, cida_id) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        String sql = "INSERT INTO enderecos (cep, rua, numero, complemento, bairro, cida_id) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
 
             stmt.setString(1, endereco.getCep());
             stmt.setString(2, endereco.getRua());
-            stmt.setObject(3, endereco.getNumero());
+            stmt.setInt(3, endereco.getNumero());
             stmt.setString(4, endereco.getComplemento());
             stmt.setString(5, endereco.getBairro());
             stmt.setObject(6, endereco.getCidadeId());
 
             stmt.executeUpdate();
 
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    endereco.setId(rs.getInt(1));
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao cadastrar endereço: " + e.getMessage(), e);
-        }
 
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao cadastrar endereço: " + e.getMessage());
+        }
     }
 
     @Override
     public List<Endereco> listarTodos() {
+
         String sql = "SELECT id, cep, rua, numero, complemento, bairro, cida_id FROM enderecos ORDER BY id";
 
         List<Endereco> enderecos = new ArrayList<>();
 
-        try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql);
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
+
             while (rs.next()) {
-                Endereco endereco = new Endereco(
-                        rs.getInt("id"),
-                        rs.getString("cep"),
-                        rs.getString("rua"),
-                        rs.getObject("numero", Integer.class),
-                        rs.getString("complemento"),
-                        rs.getString("bairro"),
-                        rs.getObject("cida_id", Integer.class)
-                );
-                enderecos.add(endereco);
+                enderecos.add(mapearEndereco(rs));
             }
 
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao listar endereços: " + e.getMessage(), e);
+            throw new RuntimeException("Erro ao listar endereços: " + e.getMessage());
         }
+
         return enderecos;
     }
 
@@ -70,28 +62,20 @@ public class EnderecosDAOImpl implements EnderecosDAO {
     public Endereco buscarPorId(Integer id) {
         String sql = "SELECT id, cep, rua, numero, complemento, bairro, cida_id FROM enderecos WHERE id = ?";
 
-        try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql)) {
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
 
             stmt.setInt(1, id);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return new Endereco(
-                            rs.getInt("id"),
-                            rs.getString("cep"),
-                            rs.getString("rua"),
-                            rs.getObject("numero", Integer.class),
-                            rs.getString("complemento"),
-                            rs.getString("bairro"),
-                            rs.getObject("cida_id", Integer.class)
-                    );
+                    return mapearEndereco(rs);
                 }
             }
 
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao buscar endereço por ID: " + e.getMessage(), e);
+            throw new RuntimeException("Erro ao buscar endereço: " + e.getMessage());
         }
+
         return null;
     }
 
@@ -104,18 +88,18 @@ public class EnderecosDAOImpl implements EnderecosDAO {
     public void atualizar(Endereco endereco) {
         String sql = "UPDATE enderecos SET cep = ?, rua = ?, numero = ?, complemento = ?, bairro = ?, cida_id = ? WHERE id = ?";
 
-        try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql)) {
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
 
             stmt.setString(1, endereco.getCep());
             stmt.setString(2, endereco.getRua());
-            stmt.setObject(3, endereco.getNumero());
+            stmt.setInt(3, endereco.getNumero());
             stmt.setString(4, endereco.getComplemento());
             stmt.setString(5, endereco.getBairro());
             stmt.setObject(6, endereco.getCidadeId());
             stmt.setInt(7, endereco.getId());
 
             stmt.executeUpdate();
+
 
         } catch (Exception e) {
             throw new RuntimeException("Erro ao atualizar endereço: " + e.getMessage());
@@ -127,27 +111,30 @@ public class EnderecosDAOImpl implements EnderecosDAO {
         String desvincularClientes = "UPDATE clientes SET ende_id = NULL WHERE ende_id = ?";
         String deletarEndereco = "DELETE FROM enderecos WHERE id = ?";
 
-        try (Connection connect = Conexao.conectar()) {
-            connect.setAutoCommit(false);
+        try (PreparedStatement stmtDesvincular = getConnection().prepareStatement(desvincularClientes);
+             PreparedStatement stmtDeletar = getConnection().prepareStatement(deletarEndereco)) {
 
-            try (PreparedStatement stmtDesvincular = connect.prepareStatement(desvincularClientes);
-                 PreparedStatement stmtDeletar = connect.prepareStatement(deletarEndereco)) {
+            stmtDesvincular.setInt(1, id);
+            stmtDesvincular.executeUpdate();
 
-                stmtDesvincular.setInt(1, id);
-                stmtDesvincular.executeUpdate();
+            stmtDeletar.setInt(1, id);
+            stmtDeletar.executeUpdate();
 
-                stmtDeletar.setInt(1, id);
-                stmtDeletar.executeUpdate();
 
-                connect.commit();
-
-            }catch (Exception e) {
-                connect.rollback();
-                throw e;
-            }
-
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException("Erro ao deletar endereço: " + e.getMessage());
         }
+    }
+
+    private Endereco mapearEndereco(ResultSet rs) throws SQLException {
+        return new Endereco(
+                rs.getInt("id"),
+                rs.getString("cep"),
+                rs.getString("rua"),
+                rs.getInt("numero"),
+                rs.getString("complemento"),
+                rs.getString("bairro"),
+                rs.getObject("cida_id", Integer.class)
+        );
     }
 }
