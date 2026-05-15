@@ -142,13 +142,22 @@ public class EnderecosController {
                 "Erro: o CEP deve ter 8 números. Exemplo: 85501266 ou 85501-266."
         ).replaceAll("\\D", "");
 
-        String rua = leitor.lerTextoObrigatorio("Rua: ");
+        String rua = leitor.lerTextoNaoNumerico(
+                "Rua: ",
+                "Erro: a rua não pode ser apenas numérica."
+        );
 
         Integer numero = leitor.lerInteiroMinimo("Número: ", 1);
 
-        String complemento = leitor.lerTextoObrigatorio("Complemento: ");
+        String complemento = leitor.lerTextoOpcionalNaoNumerico(
+                "Complemento: ",
+                "Erro: o complemento não pode ser apenas numérico."
+        );
 
-        String bairro = leitor.lerTextoObrigatorio("Bairro: ");
+        String bairro = leitor.lerTextoNaoNumerico(
+                "Bairro: ",
+                "Erro: o bairro não pode ser apenas numérico."
+        );
 
         Integer cidadeId = leitor.lerInteiroMinimo("ID da cidade: ", 1);
 

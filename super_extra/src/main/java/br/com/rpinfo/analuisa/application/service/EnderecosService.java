@@ -69,12 +69,32 @@ public class EnderecosService extends ServiceBase {
             throw new CampoInvalidoException("A rua é obrigatória.");
         }
 
+        String rua = endereco.getRua().trim();
+
+        if (rua.matches("\\d+")) {
+            throw new CampoInvalidoException("A rua não pode ser apenas numérica.");
+        }
+
         if (endereco.getNumero() == null || endereco.getNumero() <= 0) {
             throw new CampoInvalidoException("O número deve ser maior que zero.");
         }
 
+        if (endereco.getComplemento() != null && !endereco.getComplemento().isBlank()) {
+            String complemento = endereco.getComplemento().trim();
+
+            if (complemento.matches("\\d+")) {
+                throw new CampoInvalidoException("O complemento não pode ser apenas numérico.");
+            }
+        }
+
         if (endereco.getBairro() == null || endereco.getBairro().isBlank()) {
             throw new CampoInvalidoException("O bairro é obrigatório.");
+        }
+
+        String bairro = endereco.getBairro().trim();
+
+        if (bairro.matches("\\d+")) {
+            throw new CampoInvalidoException("O bairro não pode ser apenas numérico.");
         }
 
         if (endereco.getCidadeId() == null || endereco.getCidadeId() <= 0) {
