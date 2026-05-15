@@ -1,6 +1,8 @@
 package br.com.rpinfo.analuisa;
 
 import br.com.rpinfo.analuisa.adapter.rest.controller.CidadesController;
+import br.com.rpinfo.analuisa.adapter.rest.controller.ClientesController;
+import br.com.rpinfo.analuisa.adapter.rest.controller.EnderecosController;
 import br.com.rpinfo.analuisa.adapter.rest.controller.ProdutosController;
 
 import java.util.Scanner;
@@ -12,6 +14,8 @@ public class Main {
 
         CidadesController cidadesController = new CidadesController();
         ProdutosController produtosController = new ProdutosController();
+        EnderecosController enderecosController = new EnderecosController();
+        ClientesController clientesController = new ClientesController();
 
         int opcao = -1;
 
@@ -29,6 +33,12 @@ public class Main {
                     case 2:
                         cidadesController.menuCidades();
                         break;
+
+                    case 3:
+                        enderecosController.menuEnderecos();
+
+                    case 4:
+                        clientesController.menuClientes();
 
                     case 0:
                         System.out.println("Encerrando aplicação...");
@@ -50,6 +60,8 @@ public class Main {
         System.out.println("\n=== LOJA - MENU PRINCIPAL ===");
         System.out.println("1. Gerenciar Produtos");
         System.out.println("2. Gerenciar Cidades");
+        System.out.println("3. Gerenciar Enderecos");
+        System.out.println("4. Gerenciar Clientes");
         System.out.println("0. Sair");
         System.out.print("Escolha uma opção: ");
     }

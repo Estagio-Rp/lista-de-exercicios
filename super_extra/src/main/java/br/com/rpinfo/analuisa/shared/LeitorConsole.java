@@ -41,6 +41,7 @@ public class LeitorConsole {
             if (!texto.isEmpty()) {
                 return texto;
             }
+
             System.out.println("Erro: esse campo não pode ficar vazio.");
         }
     }
@@ -50,6 +51,40 @@ public class LeitorConsole {
             String texto = lerTextoObrigatorio(mensagem);
 
             if (texto.matches(regex)) {
+                return texto;
+            }
+
+            System.out.println(erro);
+        }
+    }
+
+    public String lerTextoNaoNumerico(String mensagem, String erro) {
+        while (true) {
+            String texto = lerTextoObrigatorio(mensagem);
+
+            if (!texto.matches("\\d+")) {
+                return texto;
+            }
+
+            System.out.println(erro);
+        }
+    }
+
+    public String lerTextoOpcional(String mensagem) {
+        System.out.print(mensagem);
+        return scanner.nextLine().trim();
+    }
+
+    public String lerTextoOpcionalNaoNumerico(String mensagem, String erro) {
+        while (true) {
+            System.out.print(mensagem);
+            String texto = scanner.nextLine().trim();
+
+            if (texto.isEmpty()) {
+                return texto;
+            }
+
+            if (!texto.matches("\\d+")) {
                 return texto;
             }
 
