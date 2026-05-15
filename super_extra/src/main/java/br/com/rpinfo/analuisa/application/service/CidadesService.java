@@ -61,6 +61,12 @@ public class CidadesService extends ServiceBase {
             throw new CampoInvalidoException("O nome da cidade é obrigatório.");
         }
 
+        String nome = cidade.getNome();
+
+        if (nome.matches("\\d+")) {
+            throw new CampoInvalidoException("O nome da cidade não pode ser numérico.");
+        }
+
         if (cidade.getUf() == null || !cidade.getUf().matches("[A-Z]{2}")) {
             throw new CampoInvalidoException("A UF deve ter exatamente 2 letras.");
         }

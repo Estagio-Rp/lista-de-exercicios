@@ -129,7 +129,10 @@ public class CidadesController {
     }
 
     private CidadesDTO lerDadosCidade(Integer id) {
-        String nome = leitor.lerTextoObrigatorio("Nome da cidade: ");
+        String nome = leitor.lerTextoNaoNumerico(
+                "Nome da cidade: ",
+                "Erro: o nome da cidade não pode ser numérico."
+        );
 
         String uf = leitor.lerTextoComPadrao(
                 "UF: ",
