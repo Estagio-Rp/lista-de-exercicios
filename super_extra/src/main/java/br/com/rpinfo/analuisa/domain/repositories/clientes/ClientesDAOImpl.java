@@ -1,25 +1,30 @@
 package br.com.rpinfo.analuisa.domain.repositories.clientes;
 
-import br.com.rpinfo.analuisa.Conexao;
 import br.com.rpinfo.analuisa.domain.model.entity.Cliente;
+import br.com.rpinfo.analuisa.domain.repositories.DAOImpl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClientesDAOImpl implements ClientesDAO {
+public class ClientesDAOImpl extends DAOImpl implements ClientesDAO {
+
+    public ClientesDAOImpl(Connection connection) {
+        super(connection);
+    }
 
     @Override
     public void cadastrar(Cliente cliente) {
-        String sql = "INSERT INTO clientes (nome, email, cpf, telefone, data_cadastro, ende_id) " +
-                "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?)";
+        String sql = """
+                INSERT INTO clientes (nome, email, cpf, telefone, data_cadastro, ende_id)
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?)
+                """;
 
-        try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
 
             stmt.setString(1, cliente.getNome());
             stmt.setString(2, cliente.getEmail());
@@ -28,12 +33,6 @@ public class ClientesDAOImpl implements ClientesDAO {
             stmt.setObject(5, cliente.getEnderecoId());
 
             stmt.executeUpdate();
-
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    cliente.setId(rs.getInt(1));
-                }
-            }
 
         } catch (Exception e) {
             throw new RuntimeException("Erro ao cadastrar cliente: " + e.getMessage());
@@ -46,8 +45,7 @@ public class ClientesDAOImpl implements ClientesDAO {
 
         List<Cliente> clientes = new ArrayList<>();
 
-        try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql);
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -65,8 +63,7 @@ public class ClientesDAOImpl implements ClientesDAO {
     public Cliente buscarPorId(Integer id) {
         String sql = "SELECT id, nome, email, cpf, telefone, data_cadastro, ende_id FROM clientes WHERE id = ?";
 
-        try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql)) {
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
 
             stmt.setInt(1, id);
 
@@ -90,10 +87,13 @@ public class ClientesDAOImpl implements ClientesDAO {
 
     @Override
     public void atualizar(Cliente cliente) {
-        String sql = "UPDATE clientes SET nome = ?, email = ?, cpf = ?, telefone = ?, ende_id = ? WHERE id = ?";
+        String sql = """
+                UPDATE clientes
+                SET nome = ?, email = ?, cpf = ?, telefone = ?, ende_id = ?
+                WHERE id = ?
+                """;
 
-        try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql)) {
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
 
             stmt.setString(1, cliente.getNome());
             stmt.setString(2, cliente.getEmail());
@@ -113,8 +113,7 @@ public class ClientesDAOImpl implements ClientesDAO {
     public void deletar(Integer id) {
         String sql = "DELETE FROM clientes WHERE id = ?";
 
-        try (Connection connect = Conexao.conectar();
-             PreparedStatement stmt = connect.prepareStatement(sql)) {
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
 
             stmt.setInt(1, id);
             stmt.executeUpdate();
@@ -124,7 +123,7 @@ public class ClientesDAOImpl implements ClientesDAO {
         }
     }
 
-    private Cliente mapearCliente(ResultSet rs) throws Exception {
+    private Cliente mapearCliente(ResultSet rs) throws SQLException {
         Timestamp dataCadastro = rs.getTimestamp("data_cadastro");
 
         return new Cliente(
