@@ -60,35 +60,45 @@ public class ClientesService extends ServiceBase {
         System.out.println("Cliente deletado com sucesso!");
     }
 
-    private void validarCliente(Cliente cliente) {
-        if (cliente.getNome() == null || cliente.getNome().isBlank()) {
-            throw new CampoInvalidoException("O nome do cliente é obrigatório.");
+        private void validarCliente (Cliente cliente){
+            if (cliente.getNome() == null || cliente.getNome().isBlank()) {
+                throw new CampoInvalidoException("O nome do cliente é obrigatório.");
+            }
+
+            String nome = cliente.getNome().trim();
+
+            if (nome.matches("\\d+")) {
+                throw new CampoInvalidoException("O nome do cliente não pode ser apenas numérico.");
+            }
+
+            if (cliente.getEmail() == null || !cliente.getEmail().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+                throw new CampoInvalidoException("O email informado é inválido.");
+            }
+
+            if (cliente.getEmail() == null || !cliente.getEmail().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+                throw new CampoInvalidoException("O email informado é inválido.");
+            }
+
+            if (cliente.getCpf() == null || !cliente.getCpf().matches("\\d{11}")) {
+                throw new CampoInvalidoException("O CPF deve conter exatamente 11 números.");
+            }
+
+            if (cliente.getTelefone() == null || !cliente.getTelefone().matches("\\d{10,11}")) {
+                throw new CampoInvalidoException("O telefone deve conter 10 ou 11 números, incluindo DDD.");
+            }
+
+            if (cliente.getEnderecoId() == null || cliente.getEnderecoId() <= 0) {
+                throw new CampoInvalidoException("O ID do endereço é obrigatório.");
+            }
+
+            if (!this.enderecosDAO.existePorId(cliente.getEnderecoId())) {
+                throw new RegistroNaoEncontradoException("O endereço informado não existe.");
+            }
         }
 
-        if (cliente.getEmail() == null || !cliente.getEmail().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
-            throw new CampoInvalidoException("O email informado é inválido.");
-        }
-
-        if (cliente.getCpf() == null || !cliente.getCpf().matches("\\d{11}")) {
-            throw new CampoInvalidoException("O CPF deve conter exatamente 11 números.");
-        }
-
-        if (cliente.getTelefone() == null || !cliente.getTelefone().matches("\\d{10,11}")) {
-            throw new CampoInvalidoException("O telefone deve conter 10 ou 11 números, incluindo DDD.");
-        }
-
-        if (cliente.getEnderecoId() == null || cliente.getEnderecoId() <= 0) {
-            throw new CampoInvalidoException("O ID do endereço é obrigatório.");
-        }
-
-        if (!this.enderecosDAO.existePorId(cliente.getEnderecoId())) {
-            throw new RegistroNaoEncontradoException("O endereço informado não existe.");
+        private void validarId (Integer id){
+            if (id == null || id <= 0) {
+                throw new CampoInvalidoException("ID inválido.");
+            }
         }
     }
-
-    private void validarId(Integer id) {
-        if (id == null || id <= 0) {
-            throw new CampoInvalidoException("ID inválido.");
-        }
-    }
-}

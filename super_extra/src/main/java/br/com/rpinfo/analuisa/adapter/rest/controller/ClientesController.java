@@ -137,7 +137,10 @@ public class ClientesController {
     }
 
     private ClientesDTO lerDadosCliente(Integer id) {
-        String nome = leitor.lerTextoObrigatorio("Nome do cliente: ");
+        String nome = leitor.lerTextoNaoNumerico(
+                "Nome do cliente: ",
+                "Erro: o nome do cliente não pode ser apenas numérico."
+        );
 
         String email = leitor.lerTextoComPadrao(
                 "Email: ",
@@ -157,7 +160,7 @@ public class ClientesController {
                 "Erro: telefone inválido. Use DDD + número. Exemplo: 46999998888."
         ).replaceAll("\\D", "");
 
-        Integer enderecoId = leitor.lerInteiroMinimo("ID do endereço: ", 1);
+        Integer enderecoId = lerEnderecoIdValido();
 
         return new ClientesDTO(
                 id,
@@ -195,6 +198,30 @@ public class ClientesController {
             System.out.println(e.getMessage());
             return false;
         }
+    }
+
+    private Integer lerEnderecoIdValido() {
+        while (true) {
+            Integer enderecoId = leitor.lerInteiroMinimo("ID do endereço: ", 1);
+
+            if (enderecoExiste(enderecoId)) {
+                return enderecoId;
+            }
+
+            System.out.println("Erro: o endereço informado não existe. Digite um ID de endereço válido.");
+        }
+    }
+
+    private boolean enderecoExiste(Integer id) {
+        List<EnderecosDTO> enderecos = EnderecosUseCase.listarEnderecos();
+
+        for (EnderecosDTO endereco : enderecos) {
+            if (endereco.getId().equals(id)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
