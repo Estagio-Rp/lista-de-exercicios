@@ -123,7 +123,10 @@ public class ProdutosController {
     }
 
     private ProdutosDTO lerDadosProduto(Integer id) {
-        String nome = leitor.lerTextoObrigatorio("Nome do produto: ");
+        String nome = leitor.lerTextoNaoNumerico(
+                "Nome do produto: ",
+                "Erro: o nome do produto não pode ser apenas numérico."
+        );
 
         String precoTexto = leitor.lerTextoComPadrao(
                 "Preço: ",
@@ -133,7 +136,10 @@ public class ProdutosController {
 
         BigDecimal preco = new BigDecimal(precoTexto);
 
-        String categoria = leitor.lerTextoObrigatorio("Categoria: ").toLowerCase();
+        String categoria = leitor.lerTextoNaoNumerico(
+                "Categoria: ",
+                "Erro: a categoria do produto não pode ser numérica."
+        ).toLowerCase();
 
         Integer estoque = leitor.lerInteiroMinimo("Estoque: ", 0);
 

@@ -61,6 +61,17 @@ public class ProdutosService extends ServiceBase {
             throw new CampoInvalidoException("O nome do produto é obrigatório.");
         }
 
+        String nome = produto.getNome().trim();
+
+        if (nome.matches("\\d+")) {
+            throw new CampoInvalidoException("O nome do produto não pode ser apenas numérico.");
+        }
+        String categoria = produto.getCategoria().trim();
+
+        if (categoria.matches("\\d+")) {
+            throw new CampoInvalidoException("A categoria do produto não pode ser numérica.");
+        }
+
         if (produto.getPreco() == null || produto.getPreco().compareTo(BigDecimal.ZERO) < 0) {
             throw new CampoInvalidoException("O preço do produto não pode ser negativo.");
         }
