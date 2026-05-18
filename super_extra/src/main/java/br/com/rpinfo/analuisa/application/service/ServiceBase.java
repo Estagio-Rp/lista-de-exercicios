@@ -36,18 +36,4 @@ public class ServiceBase {
             throw new RuntimeException("Falha ao conectar com o banco de dados.", e);
         }
     }
-
-    public void closeConnection() {
-        try {
-            if (connection != null && !connection.isClosed()) {
-                connection.close();
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Erro ao fechar a conexão: " + e.getMessage());
-
-        } finally {
-            connection = null;
-        }
-    }
 }
