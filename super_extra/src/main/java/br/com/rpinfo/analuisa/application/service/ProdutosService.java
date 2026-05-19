@@ -1,59 +1,81 @@
 package br.com.rpinfo.analuisa.application.service;
 
+import br.com.rpinfo.analuisa.application.dto.produtos.ProdutosDTO;
 import br.com.rpinfo.analuisa.domain.exceptions.CampoInvalidoException;
 import br.com.rpinfo.analuisa.domain.exceptions.RegistroNaoEncontradoException;
 import br.com.rpinfo.analuisa.domain.model.entity.Produto;
 import br.com.rpinfo.analuisa.domain.repositories.produtos.ProdutosDAO;
-import br.com.rpinfo.analuisa.domain.repositories.produtos.ProdutosDAOImpl;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class ProdutosService extends ServiceBase {
+@Service
+public class ProdutosService {
 
-    private final ProdutosDAO dao;
+    private final ProdutosDAO produtosDAO;
 
-    public ProdutosService(Connection connection) {
-        super(connection);
-        this.dao = new ProdutosDAOImpl(connection);
+    public ProdutosService(ProdutosDAO produtosDAO) {
+        this.produtosDAO = produtosDAO;
     }
 
-    public void cadastrarProduto(Produto produto) {
+    @Transactional
+    public boolean inserirProduto(ProdutosDTO dto) {
+        Produto produto = dto.toEntity();
+
         validarProduto(produto);
 
-        this.dao.cadastrar(produto);
+        Produto produtoSalvo = produtosDAO.save(produto);
 
-        System.out.println("Produto cadastrado com sucesso!");
+        return produtoSalvo.getId() != null;
     }
 
-    public List<Produto> listarProdutos() {
-        return this.dao.listarTodos();
+    public List<ProdutosDTO> listarProdutos() {
+        return produtosDAO.findAllByOrderByIdAsc()
+                .stream()
+                .map(ProdutosDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
-    public void atualizarProduto(Produto produto) {
-        validarId(produto.getId());
+    public ProdutosDTO buscarPorId(Integer id) {
+        validarId(id);
 
-        if (!this.dao.existePorId(produto.getId())) {
-            throw new RegistroNaoEncontradoException("Produto não encontrado.");
-        }
+        Produto produto = produtosDAO.findById(id)
+                .orElseThrow(() -> new RegistroNaoEncontradoException("Produto não encontrado."));
 
-        validarProduto(produto);
-        this.dao.atualizar(produto);
-
-        System.out.println("Produto atualizado com sucesso!");
+        return ProdutosDTO.fromEntity(produto);
     }
 
+    @Transactional
+    public ProdutosDTO atualizarProduto(Integer id, ProdutosDTO dto) {
+        validarId(id);
+
+        Produto produtoAtual = produtosDAO.findById(id)
+                .orElseThrow(() -> new RegistroNaoEncontradoException("Produto não encontrado."));
+
+        produtoAtual.setNome(dto.getNome());
+        produtoAtual.setPreco(dto.getPreco());
+        produtoAtual.setCategoria(dto.getCategoria());
+        produtoAtual.setEstoque(dto.getEstoque());
+
+        validarProduto(produtoAtual);
+
+        Produto produtoSalvo = produtosDAO.save(produtoAtual);
+
+        return ProdutosDTO.fromEntity(produtoSalvo);
+    }
+
+    @Transactional
     public void deletarProduto(Integer id) {
         validarId(id);
 
-        if (!this.dao.existePorId(id)) {
+        if (!produtosDAO.existsById(id)) {
             throw new RegistroNaoEncontradoException("Produto não encontrado.");
         }
 
-        this.dao.deletar(id);
-
-        System.out.println("Produto deletado com sucesso!");
+        produtosDAO.deleteById(id);
     }
 
     private void validarProduto(Produto produto) {
@@ -66,11 +88,6 @@ public class ProdutosService extends ServiceBase {
         if (nome.matches("\\d+")) {
             throw new CampoInvalidoException("O nome do produto não pode ser apenas numérico.");
         }
-        String categoria = produto.getCategoria().trim();
-
-        if (categoria.matches("\\d+")) {
-            throw new CampoInvalidoException("A categoria do produto não pode ser numérica.");
-        }
 
         if (produto.getPreco() == null || produto.getPreco().compareTo(BigDecimal.ZERO) < 0) {
             throw new CampoInvalidoException("O preço do produto não pode ser negativo.");
@@ -78,6 +95,12 @@ public class ProdutosService extends ServiceBase {
 
         if (produto.getCategoria() == null || produto.getCategoria().isBlank()) {
             throw new CampoInvalidoException("A categoria do produto é obrigatória.");
+        }
+
+        String categoria = produto.getCategoria().trim();
+
+        if (categoria.matches("\\d+")) {
+            throw new CampoInvalidoException("A categoria do produto não pode ser apenas numérica.");
         }
 
         if (produto.getEstoque() == null || produto.getEstoque() < 0) {
@@ -91,7 +114,3 @@ public class ProdutosService extends ServiceBase {
         }
     }
 }
-
-
-
-

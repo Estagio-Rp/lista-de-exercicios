@@ -20,12 +20,23 @@ public class ProdutosDTO {
     private String categoria;
     private Integer estoque;
 
-    //converter dto - entity
     public Produto toEntity() {
-        return new Produto(this.id, this.nome, this.preco, this.categoria, this.estoque);
+        return new Produto(
+                this.id,
+                this.nome,
+                this.preco,
+                this.categoria,
+                this.estoque
+        );
     }
 
     public static ProdutosDTO fromEntity(Produto produto) {
-        return new ProdutosDTO(produto.getId(), produto.getNome(), produto.getPreco(), produto.getCategoria(), produto.getEstoque());
+        return new ProdutosDTO(
+                produto.getId(),
+                produto.getNome(),
+                produto.getPreco(),
+                produto.getCategoria(),
+                produto.getEstoque()
+        );
     }
 }
