@@ -67,10 +67,15 @@ public class ProdutosController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletar(@PathVariable Integer id) {
+    public ResponseEntity<String> deletar(@PathVariable Integer id) {
         try {
-            produtosUseCase.deletarProduto(id);
-            return ResponseEntity.noContent().build();
+            boolean deletado = produtosUseCase.deletarProduto(id);
+
+            if (deletado) {
+                return ResponseEntity.ok("Produto deletado com sucesso!");
+            }
+
+            return ResponseEntity.badRequest().body("Não foi possível deletar o produto.");
 
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

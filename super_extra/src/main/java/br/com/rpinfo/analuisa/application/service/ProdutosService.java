@@ -68,7 +68,7 @@ public class ProdutosService {
     }
 
     @Transactional
-    public void deletarProduto(Integer id) {
+    public boolean deletarProduto(Integer id) {
         validarId(id);
 
         if (!produtosDAO.existsById(id)) {
@@ -76,6 +76,8 @@ public class ProdutosService {
         }
 
         produtosDAO.deleteById(id);
+
+        return true;
     }
 
     private void validarProduto(Produto produto) {

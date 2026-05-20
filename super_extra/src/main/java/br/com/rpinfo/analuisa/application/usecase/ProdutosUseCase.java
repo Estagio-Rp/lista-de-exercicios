@@ -31,7 +31,7 @@ public class ProdutosUseCase {
         return produtosService.atualizarProduto(id, dto);
     }
 
-    public void deletarProduto(Integer id) {
-        produtosService.deletarProduto(id);
+    public boolean deletarProduto(Integer id) {
+        return produtosService.deletarProduto(id);
     }
 }
