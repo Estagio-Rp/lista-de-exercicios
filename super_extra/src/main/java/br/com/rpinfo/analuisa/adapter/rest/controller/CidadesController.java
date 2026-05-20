@@ -2,144 +2,83 @@ package br.com.rpinfo.analuisa.adapter.rest.controller;
 
 import br.com.rpinfo.analuisa.application.dto.cidades.CidadesDTO;
 import br.com.rpinfo.analuisa.application.usecase.CidadesUseCase;
-import br.com.rpinfo.analuisa.shared.LeitorConsole;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Scanner;
 
+@RestController
+@RequestMapping("/api/cidades")
 public class CidadesController {
 
-    private final LeitorConsole leitor;
+    private final CidadesUseCase cidadesUseCase;
 
-    public CidadesController() {
-        Scanner scanner = new Scanner(System.in);
-        this.leitor = new LeitorConsole(scanner);
+    public CidadesController(CidadesUseCase cidadesUseCase) {
+        this.cidadesUseCase = cidadesUseCase;
     }
 
-    public void menuCidades() {
-        int opcao;
+    @PostMapping
+    public ResponseEntity<String> inserir(@RequestBody CidadesDTO dto) {
+        try {
+            boolean cadastrado = cidadesUseCase.inserirCidade(dto);
 
-        do {
-            System.out.println("\n=== CIDADES ===");
-            System.out.println("1. Adicionar Cidade");
-            System.out.println("2. Listar Cidades");
-            System.out.println("3. Editar Cidade");
-            System.out.println("4. Excluir Cidade");
-            System.out.println("0. Voltar ao Menu Principal");
-
-            opcao = leitor.lerInteiro("Escolha uma opção: ");
-
-            switch (opcao) {
-                case 1:
-                    adicionarCidade();
-                    break;
-
-                case 2:
-                    listarCidades();
-                    break;
-
-                case 3:
-                    editarCidade();
-                    break;
-
-                case 4:
-                    excluirCidade();
-                    break;
-
-                case 0:
-                    System.out.println("Voltando ao menu principal...");
-                    break;
-
-                default:
-                    System.out.println("Opção inválida!");
-                    break;
+            if (cadastrado) {
+                return ResponseEntity.ok("Cadastro realizado com sucesso!");
             }
 
-        } while (opcao != 0);
-    }
-
-    private void adicionarCidade() {
-        try {
-            CidadesDTO cidade = lerDadosCidade(null);
-
-            CidadesUseCase.inserirCidade(cidade);
+            return ResponseEntity.badRequest().body("Não foi possível cadastrar a cidade.");
 
         } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    public boolean listarCidades() {
+    @GetMapping
+    public ResponseEntity<?> listar() {
         try {
-            List<CidadesDTO> cidades = CidadesUseCase.listarCidades();
-
-            System.out.println("\n--- LISTA DE CIDADES ---");
-
-            if (cidades.isEmpty()) {
-                System.out.println("Nenhuma cidade cadastrada.");
-                return false;
-            }
-
-            for (CidadesDTO cidade : cidades) {
-                System.out.println("\nID: " + cidade.getId());
-                System.out.println("Nome: " + cidade.getNome());
-                System.out.println("UF: " + cidade.getUf());
-            }
-
-            return true;
+            List<CidadesDTO> cidades = cidadesUseCase.listarCidades();
+            return ResponseEntity.ok(cidades);
 
         } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
-            return false;
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    private void editarCidade() {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> buscar(@PathVariable Integer id) {
         try {
-            if (!listarCidades()) {
-                return;
-            }
-
-            Integer id = leitor.lerInteiroMinimo("\nID da cidade que deseja editar: ", 1);
-
-            CidadesDTO cidade = lerDadosCidade(id);
-
-            CidadesUseCase.atualizarCidade(id, cidade);
+            CidadesDTO cidade = cidadesUseCase.buscarCidade(id);
+            return ResponseEntity.ok(cidade);
 
         } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    private void excluirCidade() {
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody CidadesDTO dto) {
         try {
-            if (!listarCidades()) {
-                return;
-            }
-
-            System.out.println("\nAtenção: endereços vinculados a essa cidade ficarão sem cidade.");
-
-            Integer id = leitor.lerInteiroMinimo("ID da cidade que deseja excluir: ", 1);
-
-            CidadesUseCase.deletarCidade(id);
+            CidadesDTO cidade = cidadesUseCase.atualizarCidade(id, dto);
+            return ResponseEntity.ok(cidade);
 
         } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    private CidadesDTO lerDadosCidade(Integer id) {
-        String nome = leitor.lerTextoNaoNumerico(
-                "Nome da cidade: ",
-                "Erro: o nome da cidade não pode ser numérico."
-        );
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deletar(@PathVariable Integer id) {
+        try {
+            boolean deletado = cidadesUseCase.deletarCidade(id);
 
-        String uf = leitor.lerTextoComPadrao(
-                "UF: ",
-                "[A-Za-z]{2}",
-                "Erro: a UF deve ter exatamente 2 letras. Exemplo: PR."
-        ).toUpperCase();
+            if (deletado) {
+                return ResponseEntity.ok("Cidade deletada com sucesso!");
+            }
 
-        return new CidadesDTO(id, nome, uf);
+            return ResponseEntity.badRequest().body("Não foi possível deletar a cidade.");
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

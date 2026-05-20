@@ -1,19 +1,13 @@
 package br.com.rpinfo.analuisa.domain.repositories.cidades;
 
 import br.com.rpinfo.analuisa.domain.model.entity.Cidade;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
-public interface CidadesDAO {
+@Repository
+public interface CidadesDAO extends JpaRepository<Cidade, Integer> {
+    List<Cidade> findAllByOrderByIdAsc();
 
-    void cadastrar(Cidade cidade);
-
-    List<Cidade> listarTodos();
-
-    Cidade buscarPorId(Integer id);
-
-    boolean existePorId(Integer id);
-
-    void atualizar(Cidade cidade);
-
-    void deletar(Integer id);
 }

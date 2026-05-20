@@ -1,59 +1,87 @@
 package br.com.rpinfo.analuisa.application.service;
 
+import br.com.rpinfo.analuisa.application.dto.cidades.CidadesDTO;
 import br.com.rpinfo.analuisa.domain.exceptions.CampoInvalidoException;
 import br.com.rpinfo.analuisa.domain.exceptions.RegistroNaoEncontradoException;
 import br.com.rpinfo.analuisa.domain.model.entity.Cidade;
 import br.com.rpinfo.analuisa.domain.repositories.cidades.CidadesDAO;
-import br.com.rpinfo.analuisa.domain.repositories.cidades.CidadesDAOImpl;
+import br.com.rpinfo.analuisa.domain.repositories.enderecos.EnderecosDAO;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Connection;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class CidadesService extends ServiceBase {
+@Service
+public class CidadesService {
 
-    private final CidadesDAO dao;
+    private final CidadesDAO cidadesDAO;
+    private final EnderecosDAO enderecosDAO;
 
-    public CidadesService(Connection connection) {
-        super(connection);
-        this.dao = new CidadesDAOImpl(connection);
+    public CidadesService(CidadesDAO cidadesDAO, EnderecosDAO enderecosDAO) {
+        this.cidadesDAO = cidadesDAO;
+        this.enderecosDAO = enderecosDAO;
     }
 
-    public void cadastrarCidade(Cidade cidade) {
-        validarCidade(cidade);
-
-        this.dao.cadastrar(cidade);
-
-        System.out.println("Cidade cadastrada com sucesso!");
-    }
-
-    public List<Cidade> listarCidades() {
-        return this.dao.listarTodos();
-    }
-
-    public void atualizarCidade(Cidade cidade) {
-        validarId(cidade.getId());
-
-        if (!this.dao.existePorId(cidade.getId())) {
-            throw new RegistroNaoEncontradoException("Cidade não encontrada.");
-        }
+    @Transactional
+    public boolean inserirCidade(CidadesDTO dto) {
+        Cidade cidade = dto.toEntity();
 
         validarCidade(cidade);
 
-        this.dao.atualizar(cidade);
+        Cidade cidadeSalva = cidadesDAO.save(cidade);
 
-        System.out.println("Cidade atualizada com sucesso!");
+        return cidadeSalva.getId() != null;
     }
 
-    public void deletarCidade(Integer id) {
+    public List<CidadesDTO> listarCidades() {
+        return cidadesDAO.findAllByOrderByIdAsc()
+                .stream()
+                .map(CidadesDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    public CidadesDTO buscarPorId(Integer id) {
         validarId(id);
 
-        if (!this.dao.existePorId(id)) {
+        Cidade cidade = cidadesDAO.findById(id)
+                .orElseThrow(() -> new RegistroNaoEncontradoException("Cidade não encontrada."));
+
+        return CidadesDTO.fromEntity(cidade);
+    }
+
+    @Transactional
+    public CidadesDTO atualizarCidade(Integer id, CidadesDTO dto) {
+        validarId(id);
+
+        Cidade cidadeAtual = cidadesDAO.findById(id)
+                .orElseThrow(() -> new RegistroNaoEncontradoException("Cidade não encontrada."));
+
+        cidadeAtual.setNome(dto.getNome());
+        cidadeAtual.setUf(dto.getUf());
+
+        validarCidade(cidadeAtual);
+
+        Cidade cidadeSalva = cidadesDAO.save(cidadeAtual);
+
+        return CidadesDTO.fromEntity(cidadeSalva);
+    }
+
+    @Transactional
+    public boolean deletarCidade(Integer id) {
+        validarId(id);
+
+        if (!cidadesDAO.existsById(id)) {
             throw new RegistroNaoEncontradoException("Cidade não encontrada.");
         }
 
-        this.dao.deletar(id);
+        if (enderecosDAO.existsByCidadeId(id)) {
+            throw new CampoInvalidoException("Não é possível excluir uma cidade vinculada a endereço.");
+        }
 
-        System.out.println("Cidade deletada com sucesso!");
+        cidadesDAO.deleteById(id);
+
+        return true;
     }
 
     private void validarCidade(Cidade cidade) {
@@ -61,15 +89,21 @@ public class CidadesService extends ServiceBase {
             throw new CampoInvalidoException("O nome da cidade é obrigatório.");
         }
 
-        String nome = cidade.getNome();
-
-        if (nome.matches("\\d+")) {
-            throw new CampoInvalidoException("O nome da cidade não pode ser numérico.");
+        if (cidade.getNome().trim().matches("\\d+")) {
+            throw new CampoInvalidoException("O nome da cidade não pode ser apenas numérico.");
         }
 
-        if (cidade.getUf() == null || !cidade.getUf().matches("[A-Z]{2}")) {
+        if (cidade.getUf() == null || cidade.getUf().isBlank()) {
+            throw new CampoInvalidoException("A UF é obrigatória.");
+        }
+
+        String uf = cidade.getUf().trim().toUpperCase();
+
+        if (!uf.matches("[A-Z]{2}")) {
             throw new CampoInvalidoException("A UF deve ter exatamente 2 letras.");
         }
+
+        cidade.setUf(uf);
     }
 
     private void validarId(Integer id) {
