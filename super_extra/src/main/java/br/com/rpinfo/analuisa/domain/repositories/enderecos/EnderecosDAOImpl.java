@@ -10,7 +10,7 @@
 //import java.util.ArrayList;
 //import java.util.List;
 //
-//public class EnderecosDAOImpl extends DAOImpl {
+//public class EnderecosDAOImpl extends DAOImpl implements EnderecosDAO {
 //
 //    public EnderecosDAOImpl(Connection connection) {
 //        super(connection);

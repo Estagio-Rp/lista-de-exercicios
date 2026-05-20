@@ -9,7 +9,7 @@
 //import java.util.ArrayList;
 //import java.util.List;
 //
-//public class CidadesDAOImpl extends DAOImpl implements CidadesDAO {
+//public class CidadesDAOImpl extends DAOImpl {
 //
 //    public CidadesDAOImpl(Connection connection) {
 //        super(connection);
