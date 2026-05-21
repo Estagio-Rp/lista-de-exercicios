@@ -2,64 +2,36 @@ package br.com.rpinfo.analuisa.application.usecase;
 
 import br.com.rpinfo.analuisa.application.dto.clientes.ClientesDTO;
 import br.com.rpinfo.analuisa.application.service.ClientesService;
-import br.com.rpinfo.analuisa.application.service.ServiceBase;
-import br.com.rpinfo.analuisa.domain.model.entity.Cliente;
+import org.springframework.stereotype.Component;
 
-import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class ClientesUseCase {
 
-    public static void inserirCliente(ClientesDTO clientesDTO) {
-        try (Connection connection = ServiceBase.connectionManager()) {
-            ClientesService service = new ClientesService(connection);
+    private final ClientesService clientesService;
 
-            Cliente cliente = clientesDTO.toEntity();
-
-            service.cadastrarCliente(cliente);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao inserir cliente!" + e.getMessage());
-        }
+    public ClientesUseCase(ClientesService clientesService) {
+        this.clientesService = clientesService;
     }
 
-    public static List<ClientesDTO> listarClientes() {
-        try (Connection connection = ServiceBase.connectionManager()) {
-            ClientesService service = new ClientesService(connection);
-
-            List<Cliente> clientes = service.listarClientes();
-            List<ClientesDTO> clientesDTO = new ArrayList<>();
-
-            for (Cliente cliente : clientes) {
-                clientesDTO.add(ClientesDTO.fromEntity(cliente));
-            }
-            return clientesDTO;
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao listar clientes!" + e.getMessage());
-        }
+    public boolean inserirCliente(ClientesDTO dto) {
+        return clientesService.inserirCliente(dto);
     }
 
-    public static void atualizarCliente(Integer id, ClientesDTO clientesDTO) {
-        try (Connection connection = ServiceBase.connectionManager()) {
-            ClientesService service = new ClientesService(connection);
-
-            Cliente cliente = clientesDTO.toEntity();
-            cliente.setId(id);
-
-            service.atualizarCliente(cliente);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao atualizar cliente!" + e.getMessage());
-        }
+    public List<ClientesDTO> listarClientes() {
+        return clientesService.listarClientes();
     }
 
-    public static void deletarCliente(Integer id) {
-        try (Connection connection = ServiceBase.connectionManager()) {
-            ClientesService service = new ClientesService(connection);
+    public ClientesDTO buscarCliente(Integer id) {
+        return clientesService.buscarPorId(id);
+    }
 
-            service.deletarCliente(id);
+    public ClientesDTO atualizarCliente(Integer id, ClientesDTO dto) {
+        return clientesService.atualizarCliente(id, dto);
+    }
 
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao deletar cliente!" + e.getMessage());
-        }
+    public boolean deletarCliente(Integer id) {
+        return clientesService.deletarCliente(id);
     }
 }

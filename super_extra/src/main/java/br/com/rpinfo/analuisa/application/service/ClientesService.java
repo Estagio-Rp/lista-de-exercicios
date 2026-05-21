@@ -1,104 +1,129 @@
 package br.com.rpinfo.analuisa.application.service;
 
+import br.com.rpinfo.analuisa.application.dto.clientes.ClientesDTO;
 import br.com.rpinfo.analuisa.domain.exceptions.CampoInvalidoException;
 import br.com.rpinfo.analuisa.domain.exceptions.RegistroNaoEncontradoException;
 import br.com.rpinfo.analuisa.domain.model.entity.Cliente;
 import br.com.rpinfo.analuisa.domain.repositories.clientes.ClientesDAO;
-import br.com.rpinfo.analuisa.domain.repositories.clientes.ClientesDAOImpl;
 import br.com.rpinfo.analuisa.domain.repositories.enderecos.EnderecosDAO;
-import br.com.rpinfo.analuisa.domain.repositories.enderecos.EnderecosDAOImpl;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Connection;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class ClientesService extends ServiceBase {
+@Service
+public class ClientesService {
 
     private final ClientesDAO clientesDAO;
     private final EnderecosDAO enderecosDAO;
 
-    public ClientesService(Connection connection) {
-        super(connection);
-        this.clientesDAO = new ClientesDAOImpl(connection);
-        this.enderecosDAO = new EnderecosDAOImpl(connection);
+    public ClientesService(ClientesDAO clientesDAO, EnderecosDAO enderecosDAO) {
+        this.clientesDAO = clientesDAO;
+        this.enderecosDAO = enderecosDAO;
     }
 
-    public void cadastrarCliente(Cliente cliente) {
+    @Transactional
+    public boolean inserirCliente(ClientesDTO dto) {
+        Cliente cliente = dto.toEntity();
+
         validarCliente(cliente);
 
-        this.clientesDAO.cadastrar(cliente);
-
-        System.out.println("Cliente cadastrado com sucesso!");
-    }
-
-    public List<Cliente> listarClientes() {
-        return this.clientesDAO.listarTodos();
-    }
-
-    public void atualizarCliente(Cliente cliente) {
-        validarId(cliente.getId());
-
-        if (!this.clientesDAO.existePorId(cliente.getId())) {
-            throw new RegistroNaoEncontradoException("Cliente não encontrado.");
+        if (clientesDAO.existsByCpf(cliente.getCpf())) {
+            throw new CampoInvalidoException("CPF já cadastrado.");
         }
 
-        validarCliente(cliente);
+        Cliente clienteSalvo = clientesDAO.save(cliente);
 
-        this.clientesDAO.atualizar(cliente);
-
-        System.out.println("Cliente atualizado com sucesso!");
+        return clienteSalvo.getId() != null;
     }
 
-    public void deletarCliente(Integer id) {
+    public List<ClientesDTO> listarClientes() {
+        return clientesDAO.findAllByOrderByIdAsc()
+                .stream()
+                .map(ClientesDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    public ClientesDTO buscarPorId(Integer id) {
         validarId(id);
 
-        if (!this.clientesDAO.existePorId(id)) {
+        Cliente cliente = clientesDAO.findById(id)
+                .orElseThrow(() -> new RegistroNaoEncontradoException("Cliente não encontrado."));
+
+        return ClientesDTO.fromEntity(cliente);
+    }
+
+    @Transactional
+    public ClientesDTO atualizarCliente(Integer id, ClientesDTO dto) {
+        validarId(id);
+
+        Cliente clienteAtual = clientesDAO.findById(id)
+                .orElseThrow(() -> new RegistroNaoEncontradoException("Cliente não encontrado."));
+
+        if (dto.getCpf() != null && clientesDAO.existsByCpfAndIdNot(dto.getCpf(), id)) {
+            throw new CampoInvalidoException("CPF já cadastrado.");
+        }
+
+        clienteAtual.setNome(dto.getNome());
+        clienteAtual.setEmail(dto.getEmail());
+        clienteAtual.setCpf(dto.getCpf());
+        clienteAtual.setTelefone(dto.getTelefone());
+        clienteAtual.setEnderecoId(dto.getEnderecoId());
+
+        validarCliente(clienteAtual);
+
+        Cliente clienteSalvo = clientesDAO.save(clienteAtual);
+
+        return ClientesDTO.fromEntity(clienteSalvo);
+    }
+
+    @Transactional
+    public boolean deletarCliente(Integer id) {
+        validarId(id);
+
+        if (!clientesDAO.existsById(id)) {
             throw new RegistroNaoEncontradoException("Cliente não encontrado.");
         }
 
-        this.clientesDAO.deletar(id);
+        clientesDAO.deleteById(id);
 
-        System.out.println("Cliente deletado com sucesso!");
+        return true;
     }
 
-        private void validarCliente (Cliente cliente){
-            if (cliente.getNome() == null || cliente.getNome().isBlank()) {
-                throw new CampoInvalidoException("O nome do cliente é obrigatório.");
-            }
-
-            String nome = cliente.getNome().trim();
-
-            if (nome.matches("\\d+")) {
-                throw new CampoInvalidoException("O nome do cliente não pode ser apenas numérico.");
-            }
-
-            if (cliente.getEmail() == null || !cliente.getEmail().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
-                throw new CampoInvalidoException("O email informado é inválido.");
-            }
-
-            if (cliente.getEmail() == null || !cliente.getEmail().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
-                throw new CampoInvalidoException("O email informado é inválido.");
-            }
-
-            if (cliente.getCpf() == null || !cliente.getCpf().matches("\\d{11}")) {
-                throw new CampoInvalidoException("O CPF deve conter exatamente 11 números.");
-            }
-
-            if (cliente.getTelefone() == null || !cliente.getTelefone().matches("\\d{10,11}")) {
-                throw new CampoInvalidoException("O telefone deve conter 10 ou 11 números, incluindo DDD.");
-            }
-
-            if (cliente.getEnderecoId() == null || cliente.getEnderecoId() <= 0) {
-                throw new CampoInvalidoException("O ID do endereço é obrigatório.");
-            }
-
-            if (!this.enderecosDAO.existePorId(cliente.getEnderecoId())) {
-                throw new RegistroNaoEncontradoException("O endereço informado não existe.");
-            }
+    private void validarCliente(Cliente cliente) {
+        if (cliente.getNome() == null || cliente.getNome().isBlank()) {
+            throw new CampoInvalidoException("O nome do cliente é obrigatório.");
         }
 
-        private void validarId (Integer id){
-            if (id == null || id <= 0) {
-                throw new CampoInvalidoException("ID inválido.");
-            }
+        if (cliente.getNome().trim().matches("\\d+")) {
+            throw new CampoInvalidoException("O nome do cliente não pode ser apenas numérico.");
+        }
+
+        if (cliente.getEmail() == null || !cliente.getEmail().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+            throw new CampoInvalidoException("O email informado é inválido.");
+        }
+
+        if (cliente.getCpf() == null || !cliente.getCpf().matches("\\d{11}")) {
+            throw new CampoInvalidoException("O CPF deve conter exatamente 11 números.");
+        }
+
+        if (cliente.getTelefone() == null || !cliente.getTelefone().matches("\\d{10,11}")) {
+            throw new CampoInvalidoException("O telefone deve conter 10 ou 11 números, incluindo DDD.");
+        }
+
+        if (cliente.getEnderecoId() == null || cliente.getEnderecoId() <= 0) {
+            throw new CampoInvalidoException("O ID do endereço é obrigatório.");
+        }
+
+        if (!enderecosDAO.existsById(cliente.getEnderecoId())) {
+            throw new RegistroNaoEncontradoException("O endereço informado não existe.");
         }
     }
+
+    private void validarId(Integer id) {
+        if (id == null || id <= 0) {
+            throw new CampoInvalidoException("ID inválido.");
+        }
+    }
+}

@@ -1,21 +1,19 @@
 package br.com.rpinfo.analuisa.domain.repositories.clientes;
 
 import br.com.rpinfo.analuisa.domain.model.entity.Cliente;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
-public interface ClientesDAO {
+@Repository
+public interface ClientesDAO extends JpaRepository<Cliente, Integer> {
 
-    void cadastrar(Cliente cliente);
+    List<Cliente> findAllByOrderByIdAsc();
 
-    List<Cliente> listarTodos();
+    boolean existsByCpf(String cpf);
 
-    Cliente buscarPorId(Integer id);
+    boolean existsByCpfAndIdNot(String cpf, Integer id);
 
-    boolean existePorId(Integer id);
-
-    void atualizar(Cliente cliente);
-
-    void deletar(Integer id);
-
+    boolean existsByEnderecoId(Integer enderecoId);
 }
-
