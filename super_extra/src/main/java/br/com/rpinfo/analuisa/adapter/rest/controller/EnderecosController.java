@@ -1,198 +1,85 @@
 package br.com.rpinfo.analuisa.adapter.rest.controller;
 
-import br.com.rpinfo.analuisa.application.dto.cidades.CidadesDTO;
 import br.com.rpinfo.analuisa.application.dto.enderecos.EnderecosDTO;
-import br.com.rpinfo.analuisa.application.usecase.CidadesUseCase;
 import br.com.rpinfo.analuisa.application.usecase.EnderecosUseCase;
-import br.com.rpinfo.analuisa.shared.LeitorConsole;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Scanner;
 
+@RestController
+@RequestMapping("/api/enderecos")
 public class EnderecosController {
 
-    private final LeitorConsole leitor;
+    private final EnderecosUseCase enderecosUseCase;
 
-    public EnderecosController() {
-        Scanner scanner = new Scanner(System.in);
-        this.leitor = new LeitorConsole(scanner);
+    public EnderecosController(EnderecosUseCase enderecosUseCase) {
+        this.enderecosUseCase = enderecosUseCase;
     }
 
-    public void menuEnderecos() {
-        int opcao;
-
-        do {
-            System.out.println("\n=== ENDEREÇOS ===");
-            System.out.println("1. Adicionar Endereço");
-            System.out.println("2. Listar Endereços");
-            System.out.println("3. Editar Endereços");
-            System.out.println("4. Excluir Endereços");
-            System.out.println("0. Voltar ao Menu Principal");
-
-            opcao = leitor.lerInteiro("Escolha uma opção: ");
-
-            switch (opcao) {
-                case 1:
-                    adicionarEndereco();
-                    break;
-                case 2:
-                    listarEnderecos();
-                    break;
-                case 3:
-                    editarEndereco();
-                    break;
-                case 4:
-                    excluirEndereco();
-                    break;
-                case 0:
-                    System.out.println("Voltando ao menu principal");
-                    break;
-
-                default:
-                    System.out.println("Opção inválida!");
-            }
-        } while (opcao != 0);
-    }
-
-    private void adicionarEndereco() {
+    @PostMapping
+    public ResponseEntity<String> inserir(@RequestBody EnderecosDTO dto) {
         try {
-            if (!listarCidadesDisponiveis()) {
-                System.out.println("Cadasre uma cidade antes de cadastrar endereço: ");
-                return;
+            boolean cadastrado = enderecosUseCase.inserirEndereco(dto);
+
+            if (cadastrado) {
+                return ResponseEntity.ok("Cadastro realizado com sucesso!");
             }
 
-            EnderecosDTO endereco = lerDadosEndereco(null);
+            return ResponseEntity.badRequest().body("Não foi possível cadastrar o endereço.");
 
-            EnderecosUseCase.inserirEnderecos(endereco);
         } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    public boolean listarEnderecos() {
+    @GetMapping
+    public ResponseEntity<?> listar() {
         try {
-            List<EnderecosDTO> enderecos = EnderecosUseCase.listarEnderecos();
-
-            System.out.println("\n--- LISTA DE ENDEREÇOS ---");
-
-            if (enderecos.isEmpty()) {
-                System.out.println("Nenhum endereço cadastrado.");
-                return false;
-            }
-
-            for (EnderecosDTO endereco : enderecos) {
-                System.out.println("\nID: " + endereco.getId());
-                System.out.println("CEP: " + endereco.getCep());
-                System.out.println("Rua: " + endereco.getRua());
-                System.out.println("Número: " + endereco.getNumero());
-                System.out.println("Complemento: " + endereco.getComplemento());
-                System.out.println("Bairro: " + endereco.getBairro());
-                System.out.println("ID da cidade: " + endereco.getCidadeId());
-            }
-
-            return true;
+            List<EnderecosDTO> enderecos = enderecosUseCase.listarEnderecos();
+            return ResponseEntity.ok(enderecos);
 
         } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
-            return false;
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    private void editarEndereco() {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> buscar(@PathVariable Integer id) {
         try {
-            if (!listarEnderecos()) {
-                return;
-            }
+            EnderecosDTO endereco = enderecosUseCase.buscarEndereco(id);
+            return ResponseEntity.ok(endereco);
 
-            Integer id = leitor.lerInteiroMinimo("Digite o ID do endereço que deseja editar: ", 1);
-
-            if (!listarCidadesDisponiveis()) {
-                System.out.println("Cadastre uma cidade antes de editar endereço.");
-                return;
-            }
-
-            EnderecosDTO endereco = lerDadosEndereco(id);
-
-            EnderecosUseCase.atualizarEnderecos(id, endereco);
         } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    private void excluirEndereco() {
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody EnderecosDTO dto) {
         try {
-            if (!listarEnderecos()) {
-                return;
-            }
-            System.out.println("\nAtenção: clientes vinculados a esse endereço ficarão sem endereço.");
-
-            Integer id = leitor.lerInteiroMinimo("ID do endereço que deseja excluir: ", 1);
-
-            EnderecosUseCase.deletarEnderecos(id);
+            EnderecosDTO endereco = enderecosUseCase.atualizarEndereco(id, dto);
+            return ResponseEntity.ok(endereco);
 
         } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    private EnderecosDTO lerDadosEndereco(Integer id) {
-        String cep = leitor.lerTextoComPadrao(
-                "CEP: ",
-                "\\d{8}|\\d{5}-\\d{3}",
-                "Erro: o CEP deve ter 8 números. Exemplo: 85501266 ou 85501-266."
-        ).replaceAll("\\D", "");
-
-        String rua = leitor.lerTextoNaoNumerico(
-                "Rua: ",
-                "Erro: a rua não pode ser apenas numérica."
-        );
-
-        Integer numero = leitor.lerInteiroMinimo("Número: ", 1);
-
-        String complemento = leitor.lerTextoOpcionalNaoNumerico(
-                "Complemento: ",
-                "Erro: o complemento não pode ser apenas numérico."
-        );
-
-        String bairro = leitor.lerTextoNaoNumerico(
-                "Bairro: ",
-                "Erro: o bairro não pode ser apenas numérico."
-        );
-
-        Integer cidadeId = leitor.lerInteiroMinimo("ID da cidade: ", 1);
-
-        return new EnderecosDTO(
-                id,
-                cep,
-                rua,
-                numero,
-                complemento,
-                bairro,
-                cidadeId
-        );
-    }
-
-    private boolean listarCidadesDisponiveis() {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deletar(@PathVariable Integer id) {
         try {
-            List<CidadesDTO> cidades = CidadesUseCase.listarCidades();
+            boolean deletado = enderecosUseCase.deletarEndereco(id);
 
-            System.out.println("\n--- CIDADES DISPONIVEIS ---");
-
-            if (cidades.isEmpty()) {
-                System.out.println("Nenhuma cidade cadastrada.");
-                return false;
+            if (deletado) {
+                return ResponseEntity.ok("Endereço deletado com sucesso!");
             }
 
-            for (CidadesDTO cidade : cidades) {
-                System.out.println("ID: " + cidade.getId());
-                System.out.println("Nome: " + cidade.getNome());
-                System.out.println("UF: " + cidade.getUf());
-            }
-            return true;
+            return ResponseEntity.badRequest().body("Não foi possível deletar o endereço.");
+
         } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
-            return false;
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 }
-

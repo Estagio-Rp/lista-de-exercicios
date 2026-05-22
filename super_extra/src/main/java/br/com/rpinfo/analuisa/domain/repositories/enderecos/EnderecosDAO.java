@@ -1,19 +1,16 @@
 package br.com.rpinfo.analuisa.domain.repositories.enderecos;
 
 import br.com.rpinfo.analuisa.domain.model.entity.Endereco;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
-public interface EnderecosDAO {
+@Repository
+public interface EnderecosDAO extends JpaRepository<Endereco, Integer> {
 
-    void cadastrar(Endereco endereco);
+    List<Endereco> findAllByOrderByIdAsc();
 
-    List<Endereco> listarTodos();
-
-    Endereco buscarPorId(Integer id);
-
-    boolean existePorId(Integer id);
-
-    void atualizar(Endereco endereco);
-
-    void deletar(Integer id);
+    boolean existsByCidadeId(Integer cidadeId);
 }
+

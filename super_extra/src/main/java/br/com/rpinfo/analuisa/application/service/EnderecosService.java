@@ -1,63 +1,94 @@
 package br.com.rpinfo.analuisa.application.service;
 
+import br.com.rpinfo.analuisa.application.dto.enderecos.EnderecosDTO;
 import br.com.rpinfo.analuisa.domain.exceptions.CampoInvalidoException;
 import br.com.rpinfo.analuisa.domain.exceptions.RegistroNaoEncontradoException;
 import br.com.rpinfo.analuisa.domain.model.entity.Endereco;
 import br.com.rpinfo.analuisa.domain.repositories.cidades.CidadesDAO;
-import br.com.rpinfo.analuisa.domain.repositories.cidades.CidadesDAOImpl;
+import br.com.rpinfo.analuisa.domain.repositories.clientes.ClientesDAO;
 import br.com.rpinfo.analuisa.domain.repositories.enderecos.EnderecosDAO;
-import br.com.rpinfo.analuisa.domain.repositories.enderecos.EnderecosDAOImpl;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Connection;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class EnderecosService extends ServiceBase {
+@Service
+public class EnderecosService {
 
     private final EnderecosDAO enderecosDAO;
     private final CidadesDAO cidadesDAO;
+    private final ClientesDAO clientesDAO;
 
-    public EnderecosService(Connection connection) {
-        super(connection);
-        this.enderecosDAO = new EnderecosDAOImpl(connection);
-        this.cidadesDAO = new CidadesDAOImpl(connection);
+    public EnderecosService(EnderecosDAO enderecosDAO, CidadesDAO cidadesDAO, ClientesDAO clientesDAO) {
+        this.enderecosDAO = enderecosDAO;
+        this.cidadesDAO = cidadesDAO;
+        this.clientesDAO = clientesDAO;
     }
 
-    public void cadastrarEndereco(Endereco endereco) {
-        validarEndereco(endereco);
-
-        this.enderecosDAO.cadastrar(endereco);
-
-        System.out.println("Endereço cadastrado com sucesso!");
-    }
-
-    public List<Endereco> listarEnderecos() {
-        return this.enderecosDAO.listarTodos();
-    }
-
-    public void atualizarEndereco(Endereco endereco) {
-        validarId(endereco.getId());
-
-        if (!this.enderecosDAO.existePorId(endereco.getId())) {
-            throw new RegistroNaoEncontradoException("Endereço não encontrado.");
-        }
+    @Transactional
+    public boolean inserirEndereco(EnderecosDTO dto) {
+        Endereco endereco = dto.toEntity();
 
         validarEndereco(endereco);
 
-        this.enderecosDAO.atualizar(endereco);
+        Endereco enderecoSalvo = enderecosDAO.save(endereco);
 
-        System.out.println("Endereço atualizado com sucesso!");
+        return enderecoSalvo.getId() != null;
     }
 
-    public void deletarEndereco(Integer id) {
+    public List<EnderecosDTO> listarEnderecos() {
+        return enderecosDAO.findAllByOrderByIdAsc()
+                .stream()
+                .map(EnderecosDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    public EnderecosDTO buscarPorId(Integer id) {
         validarId(id);
 
-        if (!this.enderecosDAO.existePorId(id)) {
+        Endereco endereco = enderecosDAO.findById(id)
+                .orElseThrow(() -> new RegistroNaoEncontradoException("Endereço não encontrado."));
+
+        return EnderecosDTO.fromEntity(endereco);
+    }
+
+    @Transactional
+    public EnderecosDTO atualizarEndereco(Integer id, EnderecosDTO dto) {
+        validarId(id);
+
+        Endereco enderecoAtual = enderecosDAO.findById(id)
+                .orElseThrow(() -> new RegistroNaoEncontradoException("Endereço não encontrado."));
+
+        enderecoAtual.setCep(dto.getCep());
+        enderecoAtual.setRua(dto.getRua());
+        enderecoAtual.setNumero(dto.getNumero());
+        enderecoAtual.setComplemento(dto.getComplemento());
+        enderecoAtual.setBairro(dto.getBairro());
+        enderecoAtual.setCidadeId(dto.getCidadeId());
+
+        validarEndereco(enderecoAtual);
+
+        Endereco enderecoSalvo = enderecosDAO.save(enderecoAtual);
+
+        return EnderecosDTO.fromEntity(enderecoSalvo);
+    }
+
+    @Transactional
+    public boolean deletarEndereco(Integer id) {
+        validarId(id);
+
+        if (!enderecosDAO.existsById(id)) {
             throw new RegistroNaoEncontradoException("Endereço não encontrado.");
         }
 
-        this.enderecosDAO.deletar(id);
+        if (clientesDAO.existsByEnderecoId(id)) {
+            throw new CampoInvalidoException("Não é possível excluir um endereço vinculado a cliente.");
+        }
 
-        System.out.println("Endereço deletado com sucesso!");
+        enderecosDAO.deleteById(id);
+
+        return true;
     }
 
     private void validarEndereco(Endereco endereco) {
@@ -69,9 +100,7 @@ public class EnderecosService extends ServiceBase {
             throw new CampoInvalidoException("A rua é obrigatória.");
         }
 
-        String rua = endereco.getRua().trim();
-
-        if (rua.matches("\\d+")) {
+        if (endereco.getRua().trim().matches("\\d+")) {
             throw new CampoInvalidoException("A rua não pode ser apenas numérica.");
         }
 
@@ -79,21 +108,16 @@ public class EnderecosService extends ServiceBase {
             throw new CampoInvalidoException("O número deve ser maior que zero.");
         }
 
-        if (endereco.getComplemento() != null && !endereco.getComplemento().isBlank()) {
-            String complemento = endereco.getComplemento().trim();
-
-            if (complemento.matches("\\d+")) {
-                throw new CampoInvalidoException("O complemento não pode ser apenas numérico.");
-            }
+        if (endereco.getComplemento() != null && !endereco.getComplemento().isBlank()
+                && endereco.getComplemento().trim().matches("\\d+")) {
+            throw new CampoInvalidoException("O complemento não pode ser apenas numérico.");
         }
 
         if (endereco.getBairro() == null || endereco.getBairro().isBlank()) {
             throw new CampoInvalidoException("O bairro é obrigatório.");
         }
 
-        String bairro = endereco.getBairro().trim();
-
-        if (bairro.matches("\\d+")) {
+        if (endereco.getBairro().trim().matches("\\d+")) {
             throw new CampoInvalidoException("O bairro não pode ser apenas numérico.");
         }
 
@@ -101,14 +125,14 @@ public class EnderecosService extends ServiceBase {
             throw new CampoInvalidoException("O ID da cidade é obrigatório.");
         }
 
-        if (!this.cidadesDAO.existePorId(endereco.getCidadeId())) {
+        if (!cidadesDAO.existsById(endereco.getCidadeId())) {
             throw new RegistroNaoEncontradoException("A cidade informada não existe.");
         }
     }
 
     private void validarId(Integer id) {
         if (id == null || id <= 0) {
-            throw new CampoInvalidoException("ID inválido!");
+            throw new CampoInvalidoException("ID inválido.");
         }
     }
 }
