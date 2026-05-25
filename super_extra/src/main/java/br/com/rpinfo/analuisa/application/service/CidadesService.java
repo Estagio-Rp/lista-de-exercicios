@@ -89,7 +89,9 @@ public class CidadesService {
             throw new CampoInvalidoException("O nome da cidade é obrigatório.");
         }
 
-        if (cidade.getNome().trim().matches("\\d+")) {
+        String nome = cidade.getNome().trim();
+
+        if (nome.matches("\\d+")) {
             throw new CampoInvalidoException("O nome da cidade não pode ser apenas numérico.");
         }
 
@@ -103,6 +105,7 @@ public class CidadesService {
             throw new CampoInvalidoException("A UF deve ter exatamente 2 letras.");
         }
 
+        cidade.setNome(nome);
         cidade.setUf(uf);
     }
 
