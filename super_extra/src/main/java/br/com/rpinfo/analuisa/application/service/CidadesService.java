@@ -57,10 +57,33 @@ public class CidadesService {
         Cidade cidadeAtual = cidadesDAO.findById(id)
                 .orElseThrow(() -> new RegistroNaoEncontradoException("Cidade não encontrada."));
 
-        cidadeAtual.setNome(dto.getNome());
-        cidadeAtual.setUf(dto.getUf());
+        if (dto.getNome() != null) {
+            if (dto.getNome().isBlank()) {
+                throw new CampoInvalidoException("O nome da cidade é obrigatório.");
+            }
 
-        validarCidade(cidadeAtual);
+            String nome = dto.getNome().trim();
+
+            if (nome.matches("\\d+")) {
+                throw new CampoInvalidoException("O nome da cidade não pode ser apenas numérico.");
+            }
+
+            cidadeAtual.setNome(nome);
+        }
+
+        if (dto.getUf() != null) {
+            if (dto.getUf().isBlank()) {
+                throw new CampoInvalidoException("A UF é obrigatória.");
+            }
+
+            String uf = dto.getUf().trim().toUpperCase();
+
+            if (!uf.matches("[A-Z]{2}")) {
+                throw new CampoInvalidoException("A UF deve ter exatamente 2 letras.");
+            }
+
+            cidadeAtual.setUf(uf);
+        }
 
         Cidade cidadeSalva = cidadesDAO.save(cidadeAtual);
 
