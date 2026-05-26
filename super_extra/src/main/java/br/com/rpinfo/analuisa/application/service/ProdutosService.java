@@ -55,12 +55,49 @@ public class ProdutosService {
         Produto produtoAtual = produtosDAO.findById(id)
                 .orElseThrow(() -> new RegistroNaoEncontradoException("Produto não encontrado."));
 
-        produtoAtual.setNome(dto.getNome());
-        produtoAtual.setPreco(dto.getPreco());
-        produtoAtual.setCategoria(dto.getCategoria());
-        produtoAtual.setEstoque(dto.getEstoque());
+        if (dto.getNome() != null) {
+            if (dto.getNome().isBlank()) {
+                throw new CampoInvalidoException("O nome do produto é obrigatório.");
+            }
 
-        validarProduto(produtoAtual);
+            String nome = dto.getNome().trim();
+
+            if (nome.matches("\\d+")) {
+                throw new CampoInvalidoException("O nome do produto não pode ser apenas numérico.");
+            }
+
+            produtoAtual.setNome(nome);
+        }
+
+        if (dto.getPreco() != null) {
+            if (dto.getPreco().compareTo(BigDecimal.ZERO) < 0) {
+                throw new CampoInvalidoException("O preço do produto não pode ser negativo.");
+            }
+
+            produtoAtual.setPreco(dto.getPreco());
+        }
+
+        if (dto.getCategoria() != null) {
+            if (dto.getCategoria().isBlank()) {
+                throw new CampoInvalidoException("A categoria do produto é obrigatória.");
+            }
+
+            String categoria = dto.getCategoria().trim();
+
+            if (categoria.matches("\\d+")) {
+                throw new CampoInvalidoException("A categoria do produto não pode ser apenas numérica.");
+            }
+
+            produtoAtual.setCategoria(categoria);
+        }
+
+        if (dto.getEstoque() != null) {
+            if (dto.getEstoque() < 0) {
+                throw new CampoInvalidoException("O estoque do produto não pode ser negativo.");
+            }
+
+            produtoAtual.setEstoque(dto.getEstoque());
+        }
 
         Produto produtoSalvo = produtosDAO.save(produtoAtual);
 
