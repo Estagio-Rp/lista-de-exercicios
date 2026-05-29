@@ -1,7 +1,6 @@
 package br.com.rpinfo.analuisa.shared;
 
 import br.com.rpinfo.analuisa.application.usecase.logs.GravaLogUseCase;
-import br.com.rpinfo.analuisa.domain.model.entity.LogOperacao;
 import org.springframework.stereotype.Component;
 
 @Component
