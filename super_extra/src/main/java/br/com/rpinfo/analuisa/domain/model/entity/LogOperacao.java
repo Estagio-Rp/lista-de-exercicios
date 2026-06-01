@@ -1,6 +1,5 @@
 package br.com.rpinfo.analuisa.domain.model.entity;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "logoperacao")
+@Table(name = "logoperacoes")
 public class LogOperacao {
 
     @Id
@@ -36,5 +35,4 @@ public class LogOperacao {
 
     @Column(name = "log_agrupamento", nullable = false, length = 255)
     private String agrupamento;
-
 }

@@ -5,6 +5,8 @@ import br.com.rpinfo.analuisa.domain.exceptions.CampoInvalidoException;
 import br.com.rpinfo.analuisa.domain.exceptions.RegistroNaoEncontradoException;
 import br.com.rpinfo.analuisa.domain.model.entity.Produto;
 import br.com.rpinfo.analuisa.domain.repositories.produtos.ProdutosDAO;
+import br.com.rpinfo.analuisa.shared.DocumentoUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +18,9 @@ import java.util.stream.Collectors;
 public class ProdutosService {
 
     private final ProdutosDAO produtosDAO;
+
+    @Autowired
+    private DocumentoUtils documentoUtils;
 
     public ProdutosService(ProdutosDAO produtosDAO) {
         this.produtosDAO = produtosDAO;
@@ -29,14 +34,20 @@ public class ProdutosService {
 
         Produto produtoSalvo = produtosDAO.save(produto);
 
+        documentoUtils.gravaLog(1, "Cadastro de novo produto");
+
         return produtoSalvo.getId() != null;
     }
 
     public List<ProdutosDTO> listarProdutos() {
-        return produtosDAO.findAllByOrderByIdAsc()
+        List<ProdutosDTO> produtos = produtosDAO.findAllByOrderByIdAsc()
                 .stream()
                 .map(ProdutosDTO::fromEntity)
                 .collect(Collectors.toList());
+
+        documentoUtils.gravaLog(2, "Consulta de todos os produtos");
+
+        return produtos;
     }
 
     public ProdutosDTO buscarPorId(Integer id) {
@@ -44,6 +55,8 @@ public class ProdutosService {
 
         Produto produto = produtosDAO.findById(id)
                 .orElseThrow(() -> new RegistroNaoEncontradoException("Produto não encontrado."));
+
+        documentoUtils.gravaLog(2, "Consulta de produto específico por ID: " + id);
 
         return ProdutosDTO.fromEntity(produto);
     }
@@ -101,6 +114,8 @@ public class ProdutosService {
 
         Produto produtoSalvo = produtosDAO.save(produtoAtual);
 
+        documentoUtils.gravaLog(3, "Atualização de produto por ID: " + id);
+
         return ProdutosDTO.fromEntity(produtoSalvo);
     }
 
@@ -113,6 +128,8 @@ public class ProdutosService {
         }
 
         produtosDAO.deleteById(id);
+
+        documentoUtils.gravaLog(4, "Exclusão de produto por ID: " + id);
 
         return true;
     }
@@ -145,6 +162,9 @@ public class ProdutosService {
         if (produto.getEstoque() == null || produto.getEstoque() < 0) {
             throw new CampoInvalidoException("O estoque do produto não pode ser negativo.");
         }
+
+        produto.setNome(nome);
+        produto.setCategoria(categoria);
     }
 
     private void validarId(Integer id) {
@@ -153,3 +173,4 @@ public class ProdutosService {
         }
     }
 }
+
