@@ -6,6 +6,8 @@ import br.com.rpinfo.analuisa.domain.exceptions.RegistroNaoEncontradoException;
 import br.com.rpinfo.analuisa.domain.model.entity.Cliente;
 import br.com.rpinfo.analuisa.domain.repositories.clientes.ClientesDAO;
 import br.com.rpinfo.analuisa.domain.repositories.enderecos.EnderecosDAO;
+import br.com.rpinfo.analuisa.shared.DocumentoUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,9 @@ public class ClientesService {
 
     private final ClientesDAO clientesDAO;
     private final EnderecosDAO enderecosDAO;
+
+    @Autowired
+    private DocumentoUtils documentoUtils;
 
     public ClientesService(ClientesDAO clientesDAO, EnderecosDAO enderecosDAO) {
         this.clientesDAO = clientesDAO;
@@ -35,14 +40,20 @@ public class ClientesService {
 
         Cliente clienteSalvo = clientesDAO.save(cliente);
 
+        documentoUtils.gravaLog(13, "Cadastro de novo cliente");
+
         return clienteSalvo.getId() != null;
     }
 
     public List<ClientesDTO> listarClientes() {
-        return clientesDAO.findAllByOrderByIdAsc()
+        List<ClientesDTO> clientes = clientesDAO.findAllByOrderByIdAsc()
                 .stream()
                 .map(ClientesDTO::fromEntity)
                 .collect(Collectors.toList());
+
+        documentoUtils.gravaLog(14, "Consulta de todos os clientes");
+
+        return clientes;
     }
 
     public ClientesDTO buscarPorId(Integer id) {
@@ -50,6 +61,8 @@ public class ClientesService {
 
         Cliente cliente = clientesDAO.findById(id)
                 .orElseThrow(() -> new RegistroNaoEncontradoException("Cliente não encontrado."));
+
+        documentoUtils.gravaLog(14, "Consulta de cliente específico por ID: " + id);
 
         return ClientesDTO.fromEntity(cliente);
     }
@@ -121,6 +134,8 @@ public class ClientesService {
 
         Cliente clienteSalvo = clientesDAO.save(clienteAtual);
 
+        documentoUtils.gravaLog(15, "Atualização de cliente específico por ID: " + id);
+
         return ClientesDTO.fromEntity(clienteSalvo);
     }
 
@@ -134,6 +149,8 @@ public class ClientesService {
 
         clientesDAO.deleteById(id);
 
+        documentoUtils.gravaLog(16, "Exclusão de cliente específico por ID: " + id);
+
         return true;
     }
 
@@ -142,7 +159,9 @@ public class ClientesService {
             throw new CampoInvalidoException("O nome do cliente é obrigatório.");
         }
 
-        if (cliente.getNome().trim().matches("\\d+")) {
+        String nome = cliente.getNome().trim();
+
+        if (nome.matches("\\d+")) {
             throw new CampoInvalidoException("O nome do cliente não pode ser apenas numérico.");
         }
 
@@ -165,6 +184,11 @@ public class ClientesService {
         if (!enderecosDAO.existsById(cliente.getEnderecoId())) {
             throw new RegistroNaoEncontradoException("O endereço informado não existe.");
         }
+
+        cliente.setNome(nome);
+        cliente.setEmail(cliente.getEmail().trim());
+        cliente.setCpf(cliente.getCpf().trim());
+        cliente.setTelefone(cliente.getTelefone().trim());
     }
 
     private void validarId(Integer id) {
