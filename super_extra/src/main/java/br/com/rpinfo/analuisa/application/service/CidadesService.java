@@ -6,6 +6,8 @@ import br.com.rpinfo.analuisa.domain.exceptions.RegistroNaoEncontradoException;
 import br.com.rpinfo.analuisa.domain.model.entity.Cidade;
 import br.com.rpinfo.analuisa.domain.repositories.cidades.CidadesDAO;
 import br.com.rpinfo.analuisa.domain.repositories.enderecos.EnderecosDAO;
+import br.com.rpinfo.analuisa.shared.DocumentoUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,9 @@ public class CidadesService {
 
     private final CidadesDAO cidadesDAO;
     private final EnderecosDAO enderecosDAO;
+
+    @Autowired
+    private DocumentoUtils documentoUtils;
 
     public CidadesService(CidadesDAO cidadesDAO, EnderecosDAO enderecosDAO) {
         this.cidadesDAO = cidadesDAO;
@@ -31,14 +36,20 @@ public class CidadesService {
 
         Cidade cidadeSalva = cidadesDAO.save(cidade);
 
+        documentoUtils.gravaLog(5, "Cadastro de nova cidade");
+
         return cidadeSalva.getId() != null;
     }
 
     public List<CidadesDTO> listarCidades() {
-        return cidadesDAO.findAllByOrderByIdAsc()
+        List<CidadesDTO> cidades = cidadesDAO.findAllByOrderByIdAsc()
                 .stream()
                 .map(CidadesDTO::fromEntity)
                 .collect(Collectors.toList());
+
+        documentoUtils.gravaLog(6, "Consulta de todas as cidades");
+
+        return cidades;
     }
 
     public CidadesDTO buscarPorId(Integer id) {
@@ -46,6 +57,8 @@ public class CidadesService {
 
         Cidade cidade = cidadesDAO.findById(id)
                 .orElseThrow(() -> new RegistroNaoEncontradoException("Cidade não encontrada."));
+
+        documentoUtils.gravaLog(6, "Consulta de cidade específica por ID: " + id);
 
         return CidadesDTO.fromEntity(cidade);
     }
@@ -87,6 +100,8 @@ public class CidadesService {
 
         Cidade cidadeSalva = cidadesDAO.save(cidadeAtual);
 
+        documentoUtils.gravaLog(7, "Atualização de cidade específica por ID: " + id);
+
         return CidadesDTO.fromEntity(cidadeSalva);
     }
 
@@ -103,6 +118,8 @@ public class CidadesService {
         }
 
         cidadesDAO.deleteById(id);
+
+        documentoUtils.gravaLog(8, "Exclusão de cidade específica por ID: " + id);
 
         return true;
     }
