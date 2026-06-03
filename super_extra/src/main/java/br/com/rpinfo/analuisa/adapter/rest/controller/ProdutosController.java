@@ -56,10 +56,11 @@ public class ProdutosController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody ProdutosDTO dto) {
+    public ResponseEntity<String> atualizar(@PathVariable Integer id, @RequestBody ProdutosDTO dto) {
         try {
-            ProdutosDTO produto = produtosUseCase.atualizarProduto(id, dto);
-            return ResponseEntity.ok(produto);
+            produtosUseCase.atualizarProduto(id, dto);
+
+            return ResponseEntity.ok("Produto atualizado com sucesso.");
 
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

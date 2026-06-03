@@ -56,10 +56,11 @@ public class CidadesController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody CidadesDTO dto) {
+    public ResponseEntity<String> atualizar(@PathVariable Integer id, @RequestBody CidadesDTO dto) {
         try {
-            CidadesDTO cidade = cidadesUseCase.atualizarCidade(id, dto);
-            return ResponseEntity.ok(cidade);
+            cidadesUseCase.atualizarCidade(id, dto);
+
+            return ResponseEntity.ok("Cidade atualizada com sucesso.");
 
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

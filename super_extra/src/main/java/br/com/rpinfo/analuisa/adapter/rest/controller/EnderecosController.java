@@ -56,10 +56,11 @@ public class EnderecosController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody EnderecosDTO dto) {
+    public ResponseEntity<String> atualizar(@PathVariable Integer id, @RequestBody EnderecosDTO dto) {
         try {
-            EnderecosDTO endereco = enderecosUseCase.atualizarEndereco(id, dto);
-            return ResponseEntity.ok(endereco);
+            enderecosUseCase.atualizarEndereco(id, dto);
+
+            return ResponseEntity.ok( "Endereço atualizado com sucesso.");
 
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
