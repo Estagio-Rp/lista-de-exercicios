@@ -10,18 +10,19 @@ public class Produto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "prod_id")
     private Integer id;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "prod_nome", nullable = false, length = 100)
     private String nome;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(name = "prod_preco", nullable = false, precision = 10, scale = 2)
     private BigDecimal preco;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "prod_categoria", nullable = false, length = 50)
     private String categoria;
 
-    @Column(nullable = false)
+    @Column(name = "prod_estoque", nullable = false)
     private Integer estoque;
 
     public Produto() {

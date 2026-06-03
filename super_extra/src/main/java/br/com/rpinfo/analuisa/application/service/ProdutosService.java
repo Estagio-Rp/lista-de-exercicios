@@ -68,12 +68,12 @@ public class ProdutosService {
         Produto produtoAtual = produtosDAO.findById(id)
                 .orElseThrow(() -> new RegistroNaoEncontradoException("Produto não encontrado."));
 
-        if (dto.getNome() != null) {
-            if (dto.getNome().isBlank()) {
+        if (dto.getProdNome() != null) {
+            if (dto.getProdNome().isBlank()) {
                 throw new CampoInvalidoException("O nome do produto é obrigatório.");
             }
 
-            String nome = dto.getNome().trim();
+            String nome = dto.getProdNome().trim();
 
             if (nome.matches("\\d+")) {
                 throw new CampoInvalidoException("O nome do produto não pode ser apenas numérico.");
@@ -82,20 +82,20 @@ public class ProdutosService {
             produtoAtual.setNome(nome);
         }
 
-        if (dto.getPreco() != null) {
-            if (dto.getPreco().compareTo(BigDecimal.ZERO) < 0) {
+        if (dto.getProdPreco() != null) {
+            if (dto.getProdPreco().compareTo(BigDecimal.ZERO) < 0) {
                 throw new CampoInvalidoException("O preço do produto não pode ser negativo.");
             }
 
-            produtoAtual.setPreco(dto.getPreco());
+            produtoAtual.setPreco(dto.getProdPreco());
         }
 
-        if (dto.getCategoria() != null) {
-            if (dto.getCategoria().isBlank()) {
+        if (dto.getProdCategoria() != null) {
+            if (dto.getProdCategoria().isBlank()) {
                 throw new CampoInvalidoException("A categoria do produto é obrigatória.");
             }
 
-            String categoria = dto.getCategoria().trim();
+            String categoria = dto.getProdCategoria().trim();
 
             if (categoria.matches("\\d+")) {
                 throw new CampoInvalidoException("A categoria do produto não pode ser apenas numérica.");
@@ -104,17 +104,17 @@ public class ProdutosService {
             produtoAtual.setCategoria(categoria);
         }
 
-        if (dto.getEstoque() != null) {
-            if (dto.getEstoque() < 0) {
+        if (dto.getProdEstoque() != null) {
+            if (dto.getProdEstoque() < 0) {
                 throw new CampoInvalidoException("O estoque do produto não pode ser negativo.");
             }
 
-            produtoAtual.setEstoque(dto.getEstoque());
+            produtoAtual.setEstoque(dto.getProdEstoque());
         }
 
         Produto produtoSalvo = produtosDAO.save(produtoAtual);
 
-        documentoUtils.gravaLog(3, "Atualização de produto por ID: " + id);
+        documentoUtils.gravaLog(3, "Atualização de produto específico por ID: " + id);
 
         return ProdutosDTO.fromEntity(produtoSalvo);
     }

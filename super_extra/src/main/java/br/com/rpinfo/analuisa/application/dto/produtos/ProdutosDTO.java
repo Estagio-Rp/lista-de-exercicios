@@ -8,27 +8,28 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProdutosDTO {
 
-    private Integer id;
-    private String nome;
-    private BigDecimal preco;
-    private String categoria;
-    private Integer estoque;
+    private Integer prodId;
+    private String prodNome;
+    private BigDecimal prodPreco;
+    private String prodCategoria;
+    private Integer prodEstoque;
 
     public Produto toEntity() {
-        return new Produto(
-                this.id,
-                this.nome,
-                this.preco,
-                this.categoria,
-                this.estoque
-        );
+        Produto produto = new Produto();
+
+        produto.setId(this.prodId);
+        produto.setNome(this.prodNome);
+        produto.setPreco(this.prodPreco);
+        produto.setCategoria(this.prodCategoria);
+        produto.setEstoque(this.prodEstoque);
+
+        return produto;
     }
 
     public static ProdutosDTO fromEntity(Produto produto) {
