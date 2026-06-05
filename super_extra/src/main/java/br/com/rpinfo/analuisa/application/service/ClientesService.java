@@ -74,12 +74,12 @@ public class ClientesService {
         Cliente clienteAtual = clientesDAO.findById(id)
                 .orElseThrow(() -> new RegistroNaoEncontradoException("Cliente não encontrado."));
 
-        if (dto.getNome() != null) {
-            if (dto.getNome().isBlank()) {
+        if (dto.getClieNome() != null) {
+            if (dto.getClieNome().isBlank()) {
                 throw new CampoInvalidoException("O nome do cliente é obrigatório.");
             }
 
-            String nome = dto.getNome().trim();
+            String nome = dto.getClieNome().trim();
 
             if (nome.matches("\\d+")) {
                 throw new CampoInvalidoException("O nome do cliente não pode ser apenas numérico.");
@@ -88,16 +88,16 @@ public class ClientesService {
             clienteAtual.setNome(nome);
         }
 
-        if (dto.getEmail() != null) {
-            if (dto.getEmail().isBlank() || !dto.getEmail().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+        if (dto.getClieEmail() != null) {
+            if (dto.getClieEmail().isBlank() || !dto.getClieEmail().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
                 throw new CampoInvalidoException("O email informado é inválido.");
             }
 
-            clienteAtual.setEmail(dto.getEmail().trim());
+            clienteAtual.setEmail(dto.getClieEmail().trim());
         }
 
-        if (dto.getCpf() != null) {
-            String cpf = dto.getCpf().trim();
+        if (dto.getClieCpf() != null) {
+            String cpf = dto.getClieCpf().trim();
 
             if (!cpf.matches("\\d{11}")) {
                 throw new CampoInvalidoException("O CPF deve conter exatamente 11 números.");
@@ -110,8 +110,8 @@ public class ClientesService {
             clienteAtual.setCpf(cpf);
         }
 
-        if (dto.getTelefone() != null) {
-            String telefone = dto.getTelefone().trim();
+        if (dto.getClieTelefone() != null) {
+            String telefone = dto.getClieTelefone().trim();
 
             if (!telefone.matches("\\d{10,11}")) {
                 throw new CampoInvalidoException("O telefone deve conter 10 ou 11 números.");
@@ -120,16 +120,16 @@ public class ClientesService {
             clienteAtual.setTelefone(telefone);
         }
 
-        if (dto.getEnderecoId() != null) {
-            if (dto.getEnderecoId() <= 0) {
+        if (dto.getClieEndeId() != null) {
+            if (dto.getClieEndeId() <= 0) {
                 throw new CampoInvalidoException("ID do endereço inválido.");
             }
 
-            if (!enderecosDAO.existsById(dto.getEnderecoId())) {
+            if (!enderecosDAO.existsById(dto.getClieEndeId())) {
                 throw new RegistroNaoEncontradoException("O endereço informado não existe.");
             }
 
-            clienteAtual.setEnderecoId(dto.getEnderecoId());
+            clienteAtual.setEnderecoId(dto.getClieEndeId());
         }
 
         Cliente clienteSalvo = clientesDAO.save(clienteAtual);

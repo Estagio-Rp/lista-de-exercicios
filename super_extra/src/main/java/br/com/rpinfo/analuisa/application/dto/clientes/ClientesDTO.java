@@ -15,27 +15,27 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ClientesDTO {
 
-    private Integer id;
-    private String nome;
-    private String email;
-    private String cpf;
-    private String telefone;
+    private Integer clieId;
+    private String clieNome;
+    private String clieEmail;
+    private String clieCpf;
+    private String clieTelefone;
 
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private LocalDateTime dataCadastro;
+    private LocalDateTime clieDataCadastro;
 
-    private Integer enderecoId;
+    private Integer clieEndeId;
 
     public Cliente toEntity() {
         Cliente cliente = new Cliente();
 
-        cliente.setId(this.id);
-        cliente.setNome(this.nome);
-        cliente.setEmail(this.email);
-        cliente.setCpf(this.cpf);
-        cliente.setTelefone(this.telefone);
-        cliente.setDataCadastro(this.dataCadastro);
-        cliente.setEnderecoId(this.enderecoId);
+        cliente.setId(this.clieId);
+        cliente.setNome(this.clieNome);
+        cliente.setEmail(this.clieEmail);
+        cliente.setCpf(this.clieCpf);
+        cliente.setTelefone(this.clieTelefone);
+        cliente.setDataCadastro(this.clieDataCadastro);
+        cliente.setEnderecoId(this.clieEndeId);
 
         return cliente;
     }
