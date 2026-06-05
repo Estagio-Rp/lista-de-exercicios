@@ -73,8 +73,8 @@ public class EnderecosService {
         Endereco enderecoAtual = enderecosDAO.findById(id)
                 .orElseThrow(() -> new RegistroNaoEncontradoException("Endereço não encontrado."));
 
-        if (dto.getCep() != null) {
-            String cep = dto.getCep().trim();
+        if (dto.getEndeCep() != null) {
+            String cep = dto.getEndeCep().trim();
 
             if (!cep.matches("\\d{8}")) {
                 throw new CampoInvalidoException("O CEP deve conter exatamente 8 números.");
@@ -83,12 +83,12 @@ public class EnderecosService {
             enderecoAtual.setCep(cep);
         }
 
-        if (dto.getRua() != null) {
-            if (dto.getRua().isBlank()) {
+        if (dto.getEndeRua() != null) {
+            if (dto.getEndeRua().isBlank()) {
                 throw new CampoInvalidoException("A rua é obrigatória.");
             }
 
-            String rua = dto.getRua().trim();
+            String rua = dto.getEndeRua().trim();
 
             if (rua.matches("\\d+")) {
                 throw new CampoInvalidoException("A rua não pode ser apenas numérica.");
@@ -97,16 +97,16 @@ public class EnderecosService {
             enderecoAtual.setRua(rua);
         }
 
-        if (dto.getNumero() != null) {
-            if (dto.getNumero() <= 0) {
+        if (dto.getEndeNumero() != null) {
+            if (dto.getEndeNumero() <= 0) {
                 throw new CampoInvalidoException("O número deve ser maior que zero.");
             }
 
-            enderecoAtual.setNumero(dto.getNumero());
+            enderecoAtual.setNumero(dto.getEndeNumero());
         }
 
-        if (dto.getComplemento() != null) {
-            String complemento = dto.getComplemento().trim();
+        if (dto.getEndeComplemento() != null) {
+            String complemento = dto.getEndeComplemento().trim();
 
             if (complemento.isBlank()) {
                 enderecoAtual.setComplemento(null);
@@ -119,12 +119,12 @@ public class EnderecosService {
             }
         }
 
-        if (dto.getBairro() != null) {
-            if (dto.getBairro().isBlank()) {
+        if (dto.getEndeBairro() != null) {
+            if (dto.getEndeBairro().isBlank()) {
                 throw new CampoInvalidoException("O bairro é obrigatório.");
             }
 
-            String bairro = dto.getBairro().trim();
+            String bairro = dto.getEndeBairro().trim();
 
             if (bairro.matches("\\d+")) {
                 throw new CampoInvalidoException("O bairro não pode ser apenas numérico.");
@@ -133,16 +133,16 @@ public class EnderecosService {
             enderecoAtual.setBairro(bairro);
         }
 
-        if (dto.getCidadeId() != null) {
-            if (dto.getCidadeId() <= 0) {
+        if (dto.getEndeCidaId() != null) {
+            if (dto.getEndeCidaId() <= 0) {
                 throw new CampoInvalidoException("ID da cidade inválido.");
             }
 
-            if (!cidadesDAO.existsById(dto.getCidadeId())) {
+            if (!cidadesDAO.existsById(dto.getEndeCidaId())) {
                 throw new RegistroNaoEncontradoException("A cidade informada não existe.");
             }
 
-            enderecoAtual.setCidadeId(dto.getCidadeId());
+            enderecoAtual.setCidadeId(dto.getEndeCidaId());
         }
 
         Endereco enderecoSalvo = enderecosDAO.save(enderecoAtual);

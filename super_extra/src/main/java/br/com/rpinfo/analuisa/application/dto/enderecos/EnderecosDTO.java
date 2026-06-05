@@ -8,22 +8,32 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class EnderecosDTO {
-    private Integer id;
-    private String cep;
-    private String rua;
-    private Integer numero;
-    private String complemento;
-    private String bairro;
-    private Integer cidadeId;
+
+    private Integer endeId;
+    private String endeCep;
+    private String endeRua;
+    private Integer endeNumero;
+    private String endeComplemento;
+    private String endeBairro;
+    private Integer endeCidaId;
 
     public Endereco toEntity() {
-        return new Endereco(this.id, this.cep, this.rua, this.numero, this.complemento, this.bairro, this.cidadeId);
+        Endereco endereco = new Endereco();
+
+        endereco.setId(this.endeId);
+        endereco.setCep(this.endeCep);
+        endereco.setRua(this.endeRua);
+        endereco.setNumero(this.endeNumero);
+        endereco.setComplemento(this.endeComplemento);
+        endereco.setBairro(this.endeBairro);
+        endereco.setCidadeId(this.endeCidaId);
+
+        return endereco;
     }
 
-    //conversão de entidade para DTO
     public static EnderecosDTO fromEntity(Endereco endereco) {
         return new EnderecosDTO(
                 endereco.getId(),
