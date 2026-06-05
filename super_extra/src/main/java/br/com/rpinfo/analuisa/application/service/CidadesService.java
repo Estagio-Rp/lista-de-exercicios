@@ -70,12 +70,12 @@ public class CidadesService {
         Cidade cidadeAtual = cidadesDAO.findById(id)
                 .orElseThrow(() -> new RegistroNaoEncontradoException("Cidade não encontrada."));
 
-        if (dto.getNome() != null) {
-            if (dto.getNome().isBlank()) {
+        if (dto.getCidaNome() != null) {
+            if (dto.getCidaNome().isBlank()) {
                 throw new CampoInvalidoException("O nome da cidade é obrigatório.");
             }
 
-            String nome = dto.getNome().trim();
+            String nome = dto.getCidaNome().trim();
 
             if (nome.matches("\\d+")) {
                 throw new CampoInvalidoException("O nome da cidade não pode ser apenas numérico.");
@@ -84,12 +84,12 @@ public class CidadesService {
             cidadeAtual.setNome(nome);
         }
 
-        if (dto.getUf() != null) {
-            if (dto.getUf().isBlank()) {
+        if (dto.getCidaUf() != null) {
+            if (dto.getCidaUf().isBlank()) {
                 throw new CampoInvalidoException("A UF é obrigatória.");
             }
 
-            String uf = dto.getUf().trim().toUpperCase();
+            String uf = dto.getCidaUf().trim().toUpperCase();
 
             if (!uf.matches("[A-Z]{2}")) {
                 throw new CampoInvalidoException("A UF deve ter exatamente 2 letras.");

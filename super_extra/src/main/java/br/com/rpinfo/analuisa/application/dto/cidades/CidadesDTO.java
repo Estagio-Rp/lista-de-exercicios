@@ -12,16 +12,18 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CidadesDTO {
 
-    private Integer id;
-    private String nome;
-    private String uf;
+    private Integer cidaId;
+    private String cidaNome;
+    private String cidaUf;
 
     public Cidade toEntity() {
-        return new Cidade(
-                this.id,
-                this.nome,
-                this.uf
-        );
+        Cidade cidade = new Cidade();
+
+        cidade.setId(this.cidaId);
+        cidade.setNome(this.cidaNome);
+        cidade.setUf(this.cidaUf);
+
+        return cidade;
     }
 
     public static CidadesDTO fromEntity(Cidade cidade) {
