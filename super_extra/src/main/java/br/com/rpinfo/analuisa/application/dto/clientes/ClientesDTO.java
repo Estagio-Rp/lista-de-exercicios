@@ -2,6 +2,7 @@ package br.com.rpinfo.analuisa.application.dto.clientes;
 
 import br.com.rpinfo.analuisa.domain.model.entity.Cliente;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,12 +16,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ClientesDTO {
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer clieId;
+
     private String clieNome;
     private String clieEmail;
     private String clieCpf;
     private String clieTelefone;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime clieDataCadastro;
 
@@ -29,12 +33,10 @@ public class ClientesDTO {
     public Cliente toEntity() {
         Cliente cliente = new Cliente();
 
-        cliente.setId(this.clieId);
         cliente.setNome(this.clieNome);
         cliente.setEmail(this.clieEmail);
         cliente.setCpf(this.clieCpf);
         cliente.setTelefone(this.clieTelefone);
-        cliente.setDataCadastro(this.clieDataCadastro);
         cliente.setEnderecoId(this.clieEndeId);
 
         return cliente;
