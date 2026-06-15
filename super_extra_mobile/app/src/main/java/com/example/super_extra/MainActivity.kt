@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.super_extra.presentation.menu.MenuScreen
+import com.example.super_extra.presentation.product.ProdutosScreen
 import com.example.super_extra.presentation.splash.SplashScreen
 import com.example.super_extra.ui.theme.Super_extraTheme
 
@@ -34,13 +35,21 @@ class MainActivity : ComponentActivity() {
                     "menu" -> {
                         MenuScreen(
                             onProdutosClick = {
-                                //tela de produtos
+                                telaAtual = "produtos"
                             },
                             onClientesClick = {
-                                //tela de clientes
+                                //Tela de clientes
                             },
                             onEnderecosClick = {
-                                //tela de endereços
+                                //Tela de endereços
+                            }
+                        )
+                    }
+
+                    "produtos" -> {
+                        ProdutosScreen(
+                            onVoltarClick = {
+                                telaAtual = "menu"
                             }
                         )
                     }

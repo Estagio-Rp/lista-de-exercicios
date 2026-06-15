@@ -13,8 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,9 +48,10 @@ fun MenuScreen(
 
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 14.dp)
-                .padding(top = 42.dp)
+                .padding(top = 42.dp, bottom = 40.dp)
         ) {
             Text(
                 text = "Bem-vindo ao painel!",
@@ -120,21 +122,15 @@ private fun LogoSuperExtra() {
         Row(
             verticalAlignment = Alignment.Bottom
         ) {
-            BarraLogo(
-                altura = 30
-            )
+            BarraLogo(altura = 30)
 
             Spacer(modifier = Modifier.width(6.dp))
 
-            BarraLogo(
-                altura = 30
-            )
+            BarraLogo(altura = 30)
 
             Spacer(modifier = Modifier.width(6.dp))
 
-            BarraLogo(
-                altura = 20
-            )
+            BarraLogo(altura = 20)
         }
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -193,12 +189,7 @@ private fun MenuCard(
             )
 
             Box(
-                modifier = Modifier
-                    .size(38.dp)
-                    .background(
-                        color = Color.Transparent,
-                        shape = RoundedCornerShape(6.dp)
-                    ),
+                modifier = Modifier.size(38.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
