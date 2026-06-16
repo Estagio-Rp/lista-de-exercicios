@@ -9,8 +9,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.super_extra.domain.model.Produto
+import com.example.super_extra.presentation.components.SuccessDialog
 import com.example.super_extra.presentation.menu.MenuScreen
 import com.example.super_extra.presentation.product.DetalhesProdutoScreen
+import com.example.super_extra.presentation.product.FormularioProdutoScreen
 import com.example.super_extra.presentation.product.ProdutosScreen
 import com.example.super_extra.presentation.product.ProdutosViewModel
 import com.example.super_extra.presentation.splash.SplashScreen
@@ -31,6 +33,10 @@ class MainActivity : ComponentActivity() {
 
                 var produtoSelecionado by remember {
                     mutableStateOf<Produto?>(null)
+                }
+
+                var mostrarSucessoCadastro by remember {
+                    mutableStateOf(false)
                 }
 
                 when (telaAtual) {
@@ -65,8 +71,43 @@ class MainActivity : ComponentActivity() {
                             onVisualizarClick = { produto ->
                                 produtoSelecionado = produto
                                 telaAtual = "detalhesProduto"
+                            },
+                            onNovoProdutoClick = {
+                                mostrarSucessoCadastro = false
+                                telaAtual = "formularioProduto"
                             }
                         )
+                    }
+
+                    "formularioProduto" -> {
+                        FormularioProdutoScreen(
+                            onVoltarClick = {
+                                telaAtual = "produtos"
+                            },
+                            onCancelarClick = {
+                                telaAtual = "produtos"
+                            },
+                            onSalvarClick = { produto ->
+                                produtosViewModel.cadastrarProduto(
+                                    produto = produto,
+                                    aoFinalizar = {
+                                        mostrarSucessoCadastro = true
+                                    }
+                                )
+                            }
+                        )
+
+                        if (mostrarSucessoCadastro) {
+                            SuccessDialog(
+                                titulo = "Sucesso!",
+                                mensagem = "Produto cadastrado com sucesso.",
+                                textoBotao = "Voltar",
+                                onBotaoClick = {
+                                    mostrarSucessoCadastro = false
+                                    telaAtual = "produtos"
+                                }
+                            )
+                        }
                     }
 
                     "detalhesProduto" -> {
@@ -79,7 +120,7 @@ class MainActivity : ComponentActivity() {
                                     telaAtual = "produtos"
                                 },
                                 onEditarClick = {
-                                    // Tela de edição será feita depois
+                                    // Tela de edição
                                 },
                                 onDeletarClick = {
                                     produtosViewModel.deletarProduto(

@@ -6,6 +6,7 @@ import com.example.super_extra.core.network.RetrofitFactory
 import com.example.super_extra.data.repository.ProdutosRepositoryImpl
 import com.example.super_extra.domain.model.Produto
 import com.example.super_extra.domain.usecase.BuscarProdutosUseCase
+import com.example.super_extra.domain.usecase.CadastrarProdutoUseCase
 import com.example.super_extra.domain.usecase.DeletarProdutoUseCase
 import com.example.super_extra.presentation.components.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +20,10 @@ class ProdutosViewModel : ViewModel() {
     )
 
     private val buscarProdutosUseCase = BuscarProdutosUseCase(
+        repository = repository
+    )
+
+    private val cadastrarProdutoUseCase = CadastrarProdutoUseCase(
         repository = repository
     )
 
@@ -50,6 +55,28 @@ class ProdutosViewModel : ViewModel() {
         }
     }
 
+    fun cadastrarProduto(
+        produto: Produto,
+        aoFinalizar: () -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            try {
+                cadastrarProdutoUseCase.execute(produto)
+
+                val produtosAtualizados = buscarProdutosUseCase.execute()
+
+                _state.value = UiState.Success(produtosAtualizados)
+
+                aoFinalizar()
+
+            } catch (e: Exception) {
+                _state.value = UiState.Error(
+                    "Erro ao cadastrar produto"
+                )
+            }
+        }
+    }
+
     fun deletarProduto(
         id: Int,
         aoFinalizar: () -> Unit = {}
@@ -72,5 +99,3 @@ class ProdutosViewModel : ViewModel() {
         }
     }
 }
-
-

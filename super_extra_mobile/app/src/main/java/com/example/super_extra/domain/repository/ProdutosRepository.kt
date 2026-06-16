@@ -6,5 +6,7 @@ interface ProdutosRepository {
 
     suspend fun buscarProdutos(): List<Produto>
 
+    suspend fun cadastrarProduto(produto: Produto)
+
     suspend fun deletarProduto(id: Int)
 }

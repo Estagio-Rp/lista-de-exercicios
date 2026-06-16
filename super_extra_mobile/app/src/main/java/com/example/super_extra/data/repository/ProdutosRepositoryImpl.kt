@@ -1,6 +1,7 @@
 package com.example.super_extra.data.repository
 
 import com.example.super_extra.data.remote.api.ProdutosApi
+import com.example.super_extra.data.remote.dto.ProdutoRequestDTO
 import com.example.super_extra.domain.model.Produto
 import com.example.super_extra.domain.repository.ProdutosRepository
 
@@ -18,6 +19,17 @@ class ProdutosRepositoryImpl(
                 estoque = dto.prodEstoque
             )
         }
+    }
+
+    override suspend fun cadastrarProduto(produto: Produto) {
+        val produtoRequest = ProdutoRequestDTO(
+            prodNome = produto.nome,
+            prodPreco = produto.preco,
+            prodCategoria = produto.categoria,
+            prodEstoque = produto.estoque
+        )
+
+        api.cadastrarProduto(produtoRequest)
     }
 
     override suspend fun deletarProduto(id: Int) {

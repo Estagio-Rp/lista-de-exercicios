@@ -13,10 +13,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -34,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -54,7 +58,8 @@ private val PretoIcone = Color(0xFF30323A)
 fun ProdutosScreen(
     viewModel: ProdutosViewModel = viewModel(),
     onVoltarClick: () -> Unit = {},
-    onVisualizarClick: (Produto) -> Unit = {}
+    onVisualizarClick: (Produto) -> Unit = {},
+    onNovoProdutoClick: () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -94,9 +99,7 @@ fun ProdutosScreen(
                 )
 
                 Button(
-                    onClick = {
-                        // Cadastro de produto será feito depois
-                    },
+                    onClick = onNovoProdutoClick,
                     modifier = Modifier.height(34.dp),
                     shape = RoundedCornerShape(2.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -164,7 +167,7 @@ private fun HeaderProdutos() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        LogoTopo()
+        LogoSuperExtra()
 
         Text(
             text = "Olá, usuário!",
@@ -175,85 +178,60 @@ private fun HeaderProdutos() {
 }
 
 @Composable
-private fun LogoTopo() {
-    Column(
-        horizontalAlignment = Alignment.Start
-    ) {
-        Row(
-            verticalAlignment = Alignment.Bottom
-        ) {
-            BarraLogo(altura = 28)
-
-            Spacer(modifier = Modifier.width(5.dp))
-
-            BarraLogo(altura = 28)
-
-            Spacer(modifier = Modifier.width(5.dp))
-
-            BarraLogo(altura = 18)
+private fun LogoSuperExtra() {
+    Column(horizontalAlignment = Alignment.Start) {
+        Row(verticalAlignment = Alignment.Bottom) {
+            BarraLogo(altura = 22)
+            Spacer(modifier = Modifier.width(4.dp))
+            BarraLogo(altura = 22)
+            Spacer(modifier = Modifier.width(4.dp))
+            BarraLogo(altura = 15)
         }
-
-        Spacer(modifier = Modifier.height(3.dp))
-
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = "SUPER EXTRA",
             fontSize = 8.sp,
             fontWeight = FontWeight.Black,
-            color = Color.White
+            color = Color.White,
+            letterSpacing = 0.5.sp
         )
     }
 }
 
 @Composable
-private fun BarraLogo(
-    altura: Int
-) {
+private fun BarraLogo(altura: Int) {
     Box(
         modifier = Modifier
-            .width(9.dp)
+            .width(7.dp)
             .height(altura.dp)
+            .clip(RoundedCornerShape(1.dp))
             .background(Color.White)
     )
 }
 
 @Composable
-private fun LinhaNavegacao(
-    onVoltarClick: () -> Unit
-) {
+private fun LinhaNavegacao(onVoltarClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(32.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Box(
+        Icon(
+            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+            contentDescription = "Voltar",
+            tint = PretoIcone,
             modifier = Modifier
-                .width(36.dp)
-                .height(32.dp)
-                .clickable {
-                    onVoltarClick()
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "←",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Black,
-                color = PretoIcone
-            )
-        }
-
+                .size(18.dp)
+                .clickable { onVoltarClick() }
+        )
         Text(
             text = "Painel",
             fontSize = 11.sp,
             color = PretoIcone,
-            modifier = Modifier.clickable {
-                onVoltarClick()
-            }
+            modifier = Modifier.clickable { onVoltarClick() }
         )
-
-        Spacer(modifier = Modifier.width(4.dp))
-
         Text(
             text = "> Produtos",
             fontSize = 11.sp,
@@ -261,7 +239,6 @@ private fun LinhaNavegacao(
         )
     }
 }
-
 @Composable
 private fun CampoPesquisa(
     termoBusca: String,

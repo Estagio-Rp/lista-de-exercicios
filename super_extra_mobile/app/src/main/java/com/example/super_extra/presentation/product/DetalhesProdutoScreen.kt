@@ -1,7 +1,6 @@
 package com.example.super_extra.presentation.product
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,13 +12,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,13 +30,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.example.super_extra.R
 import com.example.super_extra.domain.model.Produto
 import java.util.Locale
 
@@ -68,10 +73,19 @@ fun DetalhesProdutoScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 18.dp)
-                .padding(top = 14.dp)
+                .padding(top = 10.dp)
         ) {
-            LinhaTituloDetalhamento(
+            LinhaNavegacaoDetalhes(
                 onVoltarClick = onVoltarClick
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Text(
+                text = "Detalhamento",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Black,
+                color = Color.Black
             )
 
             Spacer(modifier = Modifier.height(28.dp))
@@ -147,6 +161,194 @@ fun DetalhesProdutoScreen(
                 onDeletarClick()
             }
         )
+    }
+}
+
+@Composable
+private fun HeaderDetalhesProduto() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp)
+            .background(AzulSuperExtra)
+            .padding(horizontal = 18.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        LogoSuperExtra()
+
+        IconeUsuario()
+    }
+}
+
+@Composable
+private fun LogoSuperExtra() {
+    Column(horizontalAlignment = Alignment.Start) {
+        Row(verticalAlignment = Alignment.Bottom) {
+            BarraLogo(altura = 22)
+            Spacer(modifier = Modifier.width(4.dp))
+            BarraLogo(altura = 22)
+            Spacer(modifier = Modifier.width(4.dp))
+            BarraLogo(altura = 15)
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = "SUPER EXTRA",
+            fontSize = 8.sp,
+            fontWeight = FontWeight.Black,
+            color = Color.White,
+            letterSpacing = 0.5.sp
+        )
+    }
+}
+
+@Composable
+private fun BarraLogo(
+    altura: Int
+) {
+    Box(
+        modifier = Modifier
+            .width(7.dp)
+            .height(altura.dp)
+            .clip(RoundedCornerShape(1.dp))
+            .background(Color.White)
+    )
+}
+
+@Composable
+private fun IconeUsuario() {
+    Icon(
+        painter = painterResource(id = R.drawable.ic_user),
+        contentDescription = "Usuário",
+        tint = Color.White,
+        modifier = Modifier
+            .width(42.dp)
+            .height(42.dp)
+    )
+}
+
+@Composable
+private fun LinhaNavegacaoDetalhes(
+    onVoltarClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(32.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+            contentDescription = "Voltar",
+            tint = PretoIcone,
+            modifier = Modifier
+                .size(18.dp)
+                .clickable {
+                    onVoltarClick()
+                }
+        )
+
+        Text(
+            text = "Produtos",
+            fontSize = 11.sp,
+            color = PretoIcone,
+            modifier = Modifier.clickable {
+                onVoltarClick()
+            }
+        )
+
+        Text(
+            text = "> Detalhamento",
+            fontSize = 11.sp,
+            color = CinzaTexto
+        )
+    }
+}
+
+@Composable
+private fun CardDetalhamentoProduto(
+    produto: Produto
+) {
+    val precoFormatado = String.format(
+        Locale("pt", "BR"),
+        "R$ %.2f",
+        produto.preco
+    )
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 18.dp, vertical = 18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = produto.nome,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Black,
+                color = PretoIcone,
+                textAlign = TextAlign.Center,
+                lineHeight = 24.sp
+            )
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            Text(
+                text = "Produto cadastrado no sistema Super Extra.",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = CinzaTexto,
+                textAlign = TextAlign.Center,
+                lineHeight = 20.sp
+            )
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(
+                        elevation = 6.dp,
+                        shape = RoundedCornerShape(2.dp)
+                    )
+                    .background(Color.White)
+                    .padding(vertical = 22.dp, horizontal = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = precoFormatado,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Black,
+                        color = PretoIcone
+                    )
+
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    Text(
+                        text = "ID: ${produto.id} | Estoque: ${produto.estoque} | Categoria: ${produto.categoria}",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Black,
+                        color = CinzaTexto,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -245,204 +447,6 @@ private fun ConfirmarExclusaoDialog(
                             color = Color.White
                         )
                     }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun HeaderDetalhesProduto() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(82.dp)
-            .background(AzulSuperExtra)
-            .padding(horizontal = 18.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        LogoDetalhes()
-
-        IconeUsuario()
-    }
-}
-
-@Composable
-private fun LogoDetalhes() {
-    Column(
-        horizontalAlignment = Alignment.Start
-    ) {
-        Row(
-            verticalAlignment = Alignment.Bottom
-        ) {
-            BarraLogoDetalhes(altura = 36)
-
-            Spacer(modifier = Modifier.width(7.dp))
-
-            BarraLogoDetalhes(altura = 48)
-
-            Spacer(modifier = Modifier.width(7.dp))
-
-            BarraLogoDetalhes(altura = 26)
-        }
-
-        Spacer(modifier = Modifier.height(5.dp))
-
-        Text(
-            text = "SUPER EXTRA",
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Black,
-            color = Color.White
-        )
-    }
-}
-
-@Composable
-private fun BarraLogoDetalhes(
-    altura: Int
-) {
-    Box(
-        modifier = Modifier
-            .width(15.dp)
-            .height(altura.dp)
-            .background(
-                color = Color.White,
-                shape = RoundedCornerShape(2.dp)
-            )
-    )
-}
-
-@Composable
-private fun IconeUsuario() {
-    Box(
-        modifier = Modifier
-            .width(40.dp)
-            .height(40.dp)
-            .border(
-                width = 3.dp,
-                color = Color.White,
-                shape = CircleShape
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "◉",
-            fontSize = 23.sp,
-            color = Color.White
-        )
-    }
-}
-
-@Composable
-private fun LinhaTituloDetalhamento(
-    onVoltarClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "←",
-            fontSize = 34.sp,
-            fontWeight = FontWeight.Black,
-            color = PretoIcone,
-            modifier = Modifier
-                .width(34.dp)
-                .clickable {
-                    onVoltarClick()
-                }
-        )
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Text(
-            text = "Detalhamento",
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Black,
-            color = Color.Black
-        )
-    }
-}
-
-@Composable
-private fun CardDetalhamentoProduto(
-    produto: Produto
-) {
-    val precoFormatado = String.format(
-        Locale("pt", "BR"),
-        "R$ %.2f",
-        produto.preco
-    )
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = 18.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = produto.nome,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Black,
-                color = PretoIcone,
-                textAlign = TextAlign.Center,
-                lineHeight = 24.sp
-            )
-
-            Spacer(modifier = Modifier.height(28.dp))
-
-            Text(
-                text = "Produto cadastrado no sistema Super Extra.",
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
-                color = CinzaTexto,
-                textAlign = TextAlign.Center,
-                lineHeight = 20.sp
-            )
-
-            Spacer(modifier = Modifier.height(28.dp))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(
-                        elevation = 6.dp,
-                        shape = RoundedCornerShape(2.dp)
-                    )
-                    .background(Color.White)
-                    .padding(vertical = 22.dp, horizontal = 12.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = precoFormatado,
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Black,
-                        color = PretoIcone
-                    )
-
-                    Spacer(modifier = Modifier.height(18.dp))
-
-                    Text(
-                        text = "ID: ${produto.id} | Estoque: ${produto.estoque} | Categoria: ${produto.categoria}",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Black,
-                        color = CinzaTexto,
-                        textAlign = TextAlign.Center
-                    )
                 }
             }
         }
