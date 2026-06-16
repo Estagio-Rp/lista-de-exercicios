@@ -7,7 +7,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.example.super_extra.domain.model.Produto
 import com.example.super_extra.presentation.menu.MenuScreen
+import com.example.super_extra.presentation.product.DetalhesProdutoScreen
 import com.example.super_extra.presentation.product.ProdutosScreen
 import com.example.super_extra.presentation.splash.SplashScreen
 import com.example.super_extra.ui.theme.Super_extraTheme
@@ -21,6 +23,10 @@ class MainActivity : ComponentActivity() {
             Super_extraTheme {
                 var telaAtual by remember {
                     mutableStateOf("splash")
+                }
+
+                var produtoSelecionado by remember {
+                    mutableStateOf<Produto?>(null)
                 }
 
                 when (telaAtual) {
@@ -38,10 +44,10 @@ class MainActivity : ComponentActivity() {
                                 telaAtual = "produtos"
                             },
                             onClientesClick = {
-                                //Tela de clientes
+                                // Tela de clientes será feita depois
                             },
                             onEnderecosClick = {
-                                //Tela de endereços
+                                // Tela de endereços será feita depois
                             }
                         )
                     }
@@ -50,8 +56,27 @@ class MainActivity : ComponentActivity() {
                         ProdutosScreen(
                             onVoltarClick = {
                                 telaAtual = "menu"
+                            },
+                            onVisualizarClick = { produto ->
+                                produtoSelecionado = produto
+                                telaAtual = "detalhesProduto"
                             }
                         )
+                    }
+
+                    "detalhesProduto" -> {
+                        val produto = produtoSelecionado
+
+                        if (produto != null) {
+                            DetalhesProdutoScreen(
+                                produto = produto,
+                                onVoltarClick = {
+                                    telaAtual = "produtos"
+                                }
+                            )
+                        } else {
+                            telaAtual = "produtos"
+                        }
                     }
                 }
             }

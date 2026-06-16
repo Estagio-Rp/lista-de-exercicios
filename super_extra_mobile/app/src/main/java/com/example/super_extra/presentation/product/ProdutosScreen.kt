@@ -54,7 +54,8 @@ private val PretoIcone = Color(0xFF30323A)
 @Composable
 fun ProdutosScreen(
     viewModel: ProdutosViewModel = viewModel(),
-    onVoltarClick: () -> Unit = {}
+    onVoltarClick: () -> Unit = {},
+    onVisualizarClick: (Produto) -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -135,7 +136,8 @@ fun ProdutosScreen(
                     }
 
                     ListaProdutos(
-                        produtos = produtosFiltrados
+                        produtos = produtosFiltrados,
+                        onVisualizarClick = onVisualizarClick
                     )
                 }
 
@@ -311,7 +313,8 @@ private fun CarregandoProdutos() {
 
 @Composable
 private fun ListaProdutos(
-    produtos: List<Produto>
+    produtos: List<Produto>,
+    onVisualizarClick: (Produto) -> Unit
 ) {
     if (produtos.isEmpty()) {
         Text(
@@ -327,7 +330,8 @@ private fun ListaProdutos(
         ) {
             items(produtos) { produto ->
                 ProdutoItem(
-                    produto = produto
+                    produto = produto,
+                    onVisualizarClick = onVisualizarClick
                 )
             }
         }
@@ -336,7 +340,8 @@ private fun ListaProdutos(
 
 @Composable
 private fun ProdutoItem(
-    produto: Produto
+    produto: Produto,
+    onVisualizarClick: (Produto) -> Unit
 ) {
     val precoFormatado = String.format(
         Locale("pt", "BR"),
@@ -394,7 +399,7 @@ private fun ProdutoItem(
                     .width(36.dp)
                     .height(36.dp)
                     .clickable {
-                        // Visualização do produto será feita depois
+                        onVisualizarClick(produto)
                     },
                 contentAlignment = Alignment.Center
             ) {
