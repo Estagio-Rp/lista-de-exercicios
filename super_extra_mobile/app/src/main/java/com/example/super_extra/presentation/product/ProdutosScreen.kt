@@ -44,7 +44,6 @@ import com.example.super_extra.R
 import com.example.super_extra.domain.model.Produto
 import com.example.super_extra.presentation.components.UiState
 import java.util.Locale
-
 private val AzulSuperExtra = Color(0xFF1F238F)
 private val FundoTela = Color(0xFFF4F4F7)
 private val CinzaTexto = Color(0xFF777777)

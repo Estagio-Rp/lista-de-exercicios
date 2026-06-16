@@ -6,6 +6,7 @@ import com.example.super_extra.core.network.RetrofitFactory
 import com.example.super_extra.data.repository.ProdutosRepositoryImpl
 import com.example.super_extra.domain.model.Produto
 import com.example.super_extra.domain.usecase.BuscarProdutosUseCase
+import com.example.super_extra.domain.usecase.DeletarProdutoUseCase
 import com.example.super_extra.presentation.components.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,10 +14,16 @@ import kotlinx.coroutines.launch
 
 class ProdutosViewModel : ViewModel() {
 
+    private val repository = ProdutosRepositoryImpl(
+        api = RetrofitFactory.produtosApi
+    )
+
     private val buscarProdutosUseCase = BuscarProdutosUseCase(
-        repository = ProdutosRepositoryImpl(
-            api = RetrofitFactory.produtosApi
-        )
+        repository = repository
+    )
+
+    private val deletarProdutoUseCase = DeletarProdutoUseCase(
+        repository = repository
     )
 
     private val _state = MutableStateFlow<UiState<List<Produto>>>(UiState.Loading)
@@ -42,4 +49,28 @@ class ProdutosViewModel : ViewModel() {
             }
         }
     }
+
+    fun deletarProduto(
+        id: Int,
+        aoFinalizar: () -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            try {
+                deletarProdutoUseCase.execute(id)
+
+                val produtosAtualizados = buscarProdutosUseCase.execute()
+
+                _state.value = UiState.Success(produtosAtualizados)
+
+                aoFinalizar()
+
+            } catch (e: Exception) {
+                _state.value = UiState.Error(
+                    "Erro ao deletar produto"
+                )
+            }
+        }
+    }
 }
+
+

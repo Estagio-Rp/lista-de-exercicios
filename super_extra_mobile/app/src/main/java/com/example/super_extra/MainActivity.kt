@@ -7,10 +7,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.super_extra.domain.model.Produto
 import com.example.super_extra.presentation.menu.MenuScreen
 import com.example.super_extra.presentation.product.DetalhesProdutoScreen
 import com.example.super_extra.presentation.product.ProdutosScreen
+import com.example.super_extra.presentation.product.ProdutosViewModel
 import com.example.super_extra.presentation.splash.SplashScreen
 import com.example.super_extra.ui.theme.Super_extraTheme
 
@@ -21,6 +23,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             Super_extraTheme {
+                val produtosViewModel: ProdutosViewModel = viewModel()
+
                 var telaAtual by remember {
                     mutableStateOf("splash")
                 }
@@ -44,16 +48,17 @@ class MainActivity : ComponentActivity() {
                                 telaAtual = "produtos"
                             },
                             onClientesClick = {
-                                // Tela de clientes será feita depois
+                                // Tela de clientes
                             },
                             onEnderecosClick = {
-                                // Tela de endereços será feita depois
+                                // Tela de endereços
                             }
                         )
                     }
 
                     "produtos" -> {
                         ProdutosScreen(
+                            viewModel = produtosViewModel,
                             onVoltarClick = {
                                 telaAtual = "menu"
                             },
@@ -72,6 +77,18 @@ class MainActivity : ComponentActivity() {
                                 produto = produto,
                                 onVoltarClick = {
                                     telaAtual = "produtos"
+                                },
+                                onEditarClick = {
+                                    // Tela de edição será feita depois
+                                },
+                                onDeletarClick = {
+                                    produtosViewModel.deletarProduto(
+                                        id = produto.id,
+                                        aoFinalizar = {
+                                            produtoSelecionado = null
+                                            telaAtual = "produtos"
+                                        }
+                                    )
                                 }
                             )
                         } else {

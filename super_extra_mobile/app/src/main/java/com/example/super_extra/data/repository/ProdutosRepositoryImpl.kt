@@ -19,4 +19,8 @@ class ProdutosRepositoryImpl(
             )
         }
     }
+
+    override suspend fun deletarProduto(id: Int) {
+        api.deletarProduto(id)
+    }
 }
