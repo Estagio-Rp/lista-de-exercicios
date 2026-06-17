@@ -35,8 +35,8 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf<Produto?>(null)
                 }
 
-                var mostrarSucessoCadastro by remember {
-                    mutableStateOf(false)
+                var mensagemSucesso by remember {
+                    mutableStateOf("")
                 }
 
                 when (telaAtual) {
@@ -73,14 +73,15 @@ class MainActivity : ComponentActivity() {
                                 telaAtual = "detalhesProduto"
                             },
                             onNovoProdutoClick = {
-                                mostrarSucessoCadastro = false
-                                telaAtual = "formularioProduto"
+                                produtoSelecionado = null
+                                telaAtual = "formularioCadastroProduto"
                             }
                         )
                     }
 
-                    "formularioProduto" -> {
+                    "formularioCadastroProduto" -> {
                         FormularioProdutoScreen(
+                            produtoParaEditar = null,
                             onVoltarClick = {
                                 telaAtual = "produtos"
                             },
@@ -91,22 +92,37 @@ class MainActivity : ComponentActivity() {
                                 produtosViewModel.cadastrarProduto(
                                     produto = produto,
                                     aoFinalizar = {
-                                        mostrarSucessoCadastro = true
+                                        mensagemSucesso = "Produto cadastrado com sucesso."
                                     }
                                 )
                             }
                         )
+                    }
 
-                        if (mostrarSucessoCadastro) {
-                            SuccessDialog(
-                                titulo = "Sucesso!",
-                                mensagem = "Produto cadastrado com sucesso.",
-                                textoBotao = "Voltar",
-                                onBotaoClick = {
-                                    mostrarSucessoCadastro = false
-                                    telaAtual = "produtos"
+                    "formularioEdicaoProduto" -> {
+                        val produto = produtoSelecionado
+
+                        if (produto != null) {
+                            FormularioProdutoScreen(
+                                produtoParaEditar = produto,
+                                onVoltarClick = {
+                                    telaAtual = "detalhesProduto"
+                                },
+                                onCancelarClick = {
+                                    telaAtual = "detalhesProduto"
+                                },
+                                onSalvarClick = { produtoAtualizado ->
+                                    produtosViewModel.atualizarProduto(
+                                        produto = produtoAtualizado,
+                                        aoFinalizar = {
+                                            produtoSelecionado = produtoAtualizado
+                                            mensagemSucesso = "Produto atualizado com sucesso."
+                                        }
+                                    )
                                 }
                             )
+                        } else {
+                            telaAtual = "produtos"
                         }
                     }
 
@@ -120,13 +136,14 @@ class MainActivity : ComponentActivity() {
                                     telaAtual = "produtos"
                                 },
                                 onEditarClick = {
-                                    // Tela de edição
+                                    telaAtual = "formularioEdicaoProduto"
                                 },
                                 onDeletarClick = {
                                     produtosViewModel.deletarProduto(
                                         id = produto.id,
                                         aoFinalizar = {
                                             produtoSelecionado = null
+                                            mensagemSucesso = "Produto removido com sucesso."
                                             telaAtual = "produtos"
                                         }
                                     )
@@ -136,6 +153,18 @@ class MainActivity : ComponentActivity() {
                             telaAtual = "produtos"
                         }
                     }
+                }
+
+                if (mensagemSucesso.isNotBlank()) {
+                    SuccessDialog(
+                        titulo = "Sucesso!",
+                        mensagem = mensagemSucesso,
+                        textoBotao = "Voltar",
+                        onBotaoClick = {
+                            mensagemSucesso = ""
+                            telaAtual = "produtos"
+                        }
+                    )
                 }
             }
         }

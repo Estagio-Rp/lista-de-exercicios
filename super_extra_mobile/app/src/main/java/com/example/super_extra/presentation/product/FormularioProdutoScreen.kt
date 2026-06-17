@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.super_extra.R
 import com.example.super_extra.domain.model.Produto
+import java.util.Locale
 
 private val AzulSuperExtra = Color(0xFF1F238F)
 private val FundoTela = Color(0xFFF4F4F7)
@@ -53,24 +54,31 @@ private val VermelhoErro = Color(0xFFD83A42)
 
 @Composable
 fun FormularioProdutoScreen(
+    produtoParaEditar: Produto? = null,
     onVoltarClick: () -> Unit = {},
     onCancelarClick: () -> Unit = {},
     onSalvarClick: (Produto) -> Unit = {}
 ) {
-    var nome by remember {
-        mutableStateOf("")
+    val modoEdicao = produtoParaEditar != null
+
+    var nome by remember(produtoParaEditar?.id) {
+        mutableStateOf(produtoParaEditar?.nome ?: "")
     }
 
-    var preco by remember {
-        mutableStateOf("")
+    var preco by remember(produtoParaEditar?.id) {
+        mutableStateOf(
+            produtoParaEditar?.preco?.let {
+                String.format(Locale.US, "%.2f", it)
+            } ?: ""
+        )
     }
 
-    var categoria by remember {
-        mutableStateOf("")
+    var categoria by remember(produtoParaEditar?.id) {
+        mutableStateOf(produtoParaEditar?.categoria ?: "")
     }
 
-    var estoque by remember {
-        mutableStateOf("")
+    var estoque by remember(produtoParaEditar?.id) {
+        mutableStateOf(produtoParaEditar?.estoque?.toString() ?: "")
     }
 
     var mensagemErro by remember {
@@ -93,13 +101,14 @@ fun FormularioProdutoScreen(
                 .padding(top = 10.dp, bottom = 40.dp)
         ) {
             LinhaNavegacaoFormulario(
-                onVoltarClick = onVoltarClick
+                onVoltarClick = onVoltarClick,
+                modoEdicao = modoEdicao
             )
 
             Spacer(modifier = Modifier.height(14.dp))
 
             Text(
-                text = "Cadastrar Novo Produto",
+                text = if (modoEdicao) "Editar Produto" else "Cadastrar Novo Produto",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Black,
                 color = Color.Black
@@ -215,7 +224,7 @@ fun FormularioProdutoScreen(
                         }
 
                         val produto = Produto(
-                            id = 0,
+                            id = produtoParaEditar?.id ?: 0,
                             nome = nome.trim(),
                             preco = precoConvertido,
                             categoria = categoria.trim(),
@@ -314,7 +323,8 @@ private fun IconeUsuarioFormulario() {
 
 @Composable
 private fun LinhaNavegacaoFormulario(
-    onVoltarClick: () -> Unit
+    onVoltarClick: () -> Unit,
+    modoEdicao: Boolean
 ) {
     Row(
         modifier = Modifier
@@ -344,7 +354,7 @@ private fun LinhaNavegacaoFormulario(
         )
 
         Text(
-            text = "> Cadastro",
+            text = if (modoEdicao) "> Edição" else "> Cadastro",
             fontSize = 11.sp,
             color = CinzaTexto
         )

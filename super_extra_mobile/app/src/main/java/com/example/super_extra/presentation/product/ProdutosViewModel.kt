@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.super_extra.core.network.RetrofitFactory
 import com.example.super_extra.data.repository.ProdutosRepositoryImpl
 import com.example.super_extra.domain.model.Produto
+import com.example.super_extra.domain.usecase.AtualizarProdutoUseCase
 import com.example.super_extra.domain.usecase.BuscarProdutosUseCase
 import com.example.super_extra.domain.usecase.CadastrarProdutoUseCase
 import com.example.super_extra.domain.usecase.DeletarProdutoUseCase
@@ -24,6 +25,10 @@ class ProdutosViewModel : ViewModel() {
     )
 
     private val cadastrarProdutoUseCase = CadastrarProdutoUseCase(
+        repository = repository
+    )
+
+    private val atualizarProdutoUseCase = AtualizarProdutoUseCase(
         repository = repository
     )
 
@@ -72,6 +77,28 @@ class ProdutosViewModel : ViewModel() {
             } catch (e: Exception) {
                 _state.value = UiState.Error(
                     "Erro ao cadastrar produto"
+                )
+            }
+        }
+    }
+
+    fun atualizarProduto(
+        produto: Produto,
+        aoFinalizar: () -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            try {
+                atualizarProdutoUseCase.execute(produto)
+
+                val produtosAtualizados = buscarProdutosUseCase.execute()
+
+                _state.value = UiState.Success(produtosAtualizados)
+
+                aoFinalizar()
+
+            } catch (e: Exception) {
+                _state.value = UiState.Error(
+                    "Erro ao atualizar produto"
                 )
             }
         }

@@ -8,5 +8,7 @@ interface ProdutosRepository {
 
     suspend fun cadastrarProduto(produto: Produto)
 
+    suspend fun atualizarProduto(produto: Produto)
+
     suspend fun deletarProduto(id: Int)
 }

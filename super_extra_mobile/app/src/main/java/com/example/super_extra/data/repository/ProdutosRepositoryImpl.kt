@@ -32,6 +32,20 @@ class ProdutosRepositoryImpl(
         api.cadastrarProduto(produtoRequest)
     }
 
+    override suspend fun atualizarProduto(produto: Produto) {
+        val produtoRequest = ProdutoRequestDTO(
+            prodNome = produto.nome,
+            prodPreco = produto.preco,
+            prodCategoria = produto.categoria,
+            prodEstoque = produto.estoque
+        )
+
+        api.atualizarProduto(
+            id = produto.id,
+            produto = produtoRequest
+        )
+    }
+
     override suspend fun deletarProduto(id: Int) {
         api.deletarProduto(id)
     }
