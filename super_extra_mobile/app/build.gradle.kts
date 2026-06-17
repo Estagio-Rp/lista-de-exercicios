@@ -56,6 +56,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
 
     implementation ("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.animation:animation")
 
     testImplementation(libs.junit)
 

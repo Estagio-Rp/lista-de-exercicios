@@ -3,6 +3,12 @@ package com.example.super_extra
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,118 +45,165 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf("")
                 }
 
-                when (telaAtual) {
-                    "splash" -> {
-                        SplashScreen(
-                            onSplashFinished = {
-                                telaAtual = "menu"
-                            }
-                        )
-                    }
+                AnimatedContent(
+                    targetState = telaAtual,
+                    transitionSpec = {
+                        val indoParaFrente = ordemTela(targetState) >= ordemTela(initialState)
 
-                    "menu" -> {
-                        MenuScreen(
-                            onProdutosClick = {
-                                telaAtual = "produtos"
-                            },
-                            onClientesClick = {
-                                // Tela de clientes
-                            },
-                            onEnderecosClick = {
-                                // Tela de endereços
-                            }
-                        )
-                    }
-
-                    "produtos" -> {
-                        ProdutosScreen(
-                            viewModel = produtosViewModel,
-                            onVoltarClick = {
-                                telaAtual = "menu"
-                            },
-                            onVisualizarClick = { produto ->
-                                produtoSelecionado = produto
-                                telaAtual = "detalhesProduto"
-                            },
-                            onNovoProdutoClick = {
-                                produtoSelecionado = null
-                                telaAtual = "formularioCadastroProduto"
-                            }
-                        )
-                    }
-
-                    "formularioCadastroProduto" -> {
-                        FormularioProdutoScreen(
-                            produtoParaEditar = null,
-                            onVoltarClick = {
-                                telaAtual = "produtos"
-                            },
-                            onCancelarClick = {
-                                telaAtual = "produtos"
-                            },
-                            onSalvarClick = { produto ->
-                                produtosViewModel.cadastrarProduto(
-                                    produto = produto,
-                                    aoFinalizar = {
-                                        mensagemSucesso = "Produto cadastrado com sucesso."
-                                    }
-                                )
-                            }
-                        )
-                    }
-
-                    "formularioEdicaoProduto" -> {
-                        val produto = produtoSelecionado
-
-                        if (produto != null) {
-                            FormularioProdutoScreen(
-                                produtoParaEditar = produto,
-                                onVoltarClick = {
-                                    telaAtual = "detalhesProduto"
-                                },
-                                onCancelarClick = {
-                                    telaAtual = "detalhesProduto"
-                                },
-                                onSalvarClick = { produtoAtualizado ->
-                                    produtosViewModel.atualizarProduto(
-                                        produto = produtoAtualizado,
-                                        aoFinalizar = {
-                                            produtoSelecionado = produtoAtualizado
-                                            mensagemSucesso = "Produto atualizado com sucesso."
-                                        }
-                                    )
+                        if (indoParaFrente) {
+                            slideInHorizontally(
+                                animationSpec = tween(
+                                    durationMillis = 320,
+                                    easing = FastOutSlowInEasing
+                                ),
+                                initialOffsetX = { larguraTela ->
+                                    larguraTela
+                                }
+                            ) togetherWith slideOutHorizontally(
+                                animationSpec = tween(
+                                    durationMillis = 320,
+                                    easing = FastOutSlowInEasing
+                                ),
+                                targetOffsetX = { larguraTela ->
+                                    -larguraTela / 3
                                 }
                             )
                         } else {
-                            telaAtual = "produtos"
+                            slideInHorizontally(
+                                animationSpec = tween(
+                                    durationMillis = 320,
+                                    easing = FastOutSlowInEasing
+                                ),
+                                initialOffsetX = { larguraTela ->
+                                    -larguraTela
+                                }
+                            ) togetherWith slideOutHorizontally(
+                                animationSpec = tween(
+                                    durationMillis = 320,
+                                    easing = FastOutSlowInEasing
+                                ),
+                                targetOffsetX = { larguraTela ->
+                                    larguraTela / 3
+                                }
+                            )
                         }
-                    }
+                    },
+                    label = "transicao_telas"
+                ) { tela ->
 
-                    "detalhesProduto" -> {
-                        val produto = produtoSelecionado
+                    when (tela) {
+                        "splash" -> {
+                            SplashScreen(
+                                onSplashFinished = {
+                                    telaAtual = "menu"
+                                }
+                            )
+                        }
 
-                        if (produto != null) {
-                            DetalhesProdutoScreen(
-                                produto = produto,
+                        "menu" -> {
+                            MenuScreen(
+                                onProdutosClick = {
+                                    telaAtual = "produtos"
+                                },
+                                onClientesClick = {
+                                    // Tela de clientes
+                                },
+                                onEnderecosClick = {
+                                    // Tela de endereços
+                                }
+                            )
+                        }
+
+                        "produtos" -> {
+                            ProdutosScreen(
+                                viewModel = produtosViewModel,
+                                onVoltarClick = {
+                                    telaAtual = "menu"
+                                },
+                                onVisualizarClick = { produto ->
+                                    produtoSelecionado = produto
+                                    telaAtual = "detalhesProduto"
+                                },
+                                onNovoProdutoClick = {
+                                    produtoSelecionado = null
+                                    telaAtual = "formularioCadastroProduto"
+                                }
+                            )
+                        }
+
+                        "formularioCadastroProduto" -> {
+                            FormularioProdutoScreen(
+                                produtoParaEditar = null,
                                 onVoltarClick = {
                                     telaAtual = "produtos"
                                 },
-                                onEditarClick = {
-                                    telaAtual = "formularioEdicaoProduto"
+                                onCancelarClick = {
+                                    telaAtual = "produtos"
                                 },
-                                onDeletarClick = {
-                                    produtosViewModel.deletarProduto(
-                                        id = produto.id,
+                                onSalvarClick = { produto ->
+                                    produtosViewModel.cadastrarProduto(
+                                        produto = produto,
                                         aoFinalizar = {
-                                            produtoSelecionado = null
-                                            mensagemSucesso = "Produto removido com sucesso."
-                                            telaAtual = "produtos"
+                                            mensagemSucesso = "Produto cadastrado com sucesso."
                                         }
                                     )
                                 }
                             )
-                        } else {
-                            telaAtual = "produtos"
+                        }
+
+                        "formularioEdicaoProduto" -> {
+                            val produto = produtoSelecionado
+
+                            if (produto != null) {
+                                FormularioProdutoScreen(
+                                    produtoParaEditar = produto,
+                                    onVoltarClick = {
+                                        telaAtual = "detalhesProduto"
+                                    },
+                                    onCancelarClick = {
+                                        telaAtual = "detalhesProduto"
+                                    },
+                                    onSalvarClick = { produtoAtualizado ->
+                                        produtosViewModel.atualizarProduto(
+                                            produto = produtoAtualizado,
+                                            aoFinalizar = {
+                                                produtoSelecionado = produtoAtualizado
+                                                mensagemSucesso = "Produto atualizado com sucesso."
+                                            }
+                                        )
+                                    }
+                                )
+                            } else {
+                                telaAtual = "produtos"
+                            }
+                        }
+
+                        "detalhesProduto" -> {
+                            val produto = produtoSelecionado
+
+                            if (produto != null) {
+                                DetalhesProdutoScreen(
+                                    produto = produto,
+                                    onVoltarClick = {
+                                        telaAtual = "produtos"
+                                    },
+                                    onEditarClick = {
+                                        telaAtual = "formularioEdicaoProduto"
+                                    },
+                                    onDeletarClick = {
+                                        produtosViewModel.deletarProduto(
+                                            id = produto.id,
+                                            aoFinalizar = {
+                                                produtoSelecionado = null
+                                                mensagemSucesso = "Produto removido com sucesso."
+                                                telaAtual = "produtos"
+                                            }
+                                        )
+                                    }
+                                )
+                            } else {
+                                telaAtual = "produtos"
+                            }
                         }
                     }
                 }
@@ -168,5 +221,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+}
+
+private fun ordemTela(tela: String): Int {
+    return when (tela) {
+        "splash" -> 0
+        "menu" -> 1
+        "produtos" -> 2
+        "detalhesProduto" -> 3
+        "formularioCadastroProduto" -> 3
+        "formularioEdicaoProduto" -> 4
+        else -> 0
     }
 }

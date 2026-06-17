@@ -390,16 +390,20 @@ private fun CampoFormulario(
             }
         }
 
-        Spacer(modifier = Modifier.height(5.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         OutlinedTextField(
             value = valor,
             onValueChange = onValorChange,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp),
+                .height(58.dp),
             singleLine = true,
             shape = RoundedCornerShape(8.dp),
+            textStyle = androidx.compose.ui.text.TextStyle(
+                fontSize = 14.sp,
+                color = Color.Black
+            ),
             keyboardOptions = KeyboardOptions(
                 keyboardType = keyboardType
             ),
@@ -407,7 +411,10 @@ private fun CampoFormulario(
                 focusedBorderColor = AzulSuperExtra,
                 unfocusedBorderColor = Color(0xFFD0D0D0),
                 focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
+                unfocusedContainerColor = Color.White,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                cursorColor = AzulSuperExtra
             )
         )
     }

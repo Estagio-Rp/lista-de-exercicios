@@ -24,9 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 private val AzulSuperExtra = Color(0xFF1F238F)
-private val AzulClaro      = Color(0xFFEEF0FF)
-private val FundoTela      = Color(0xFFF4F4F7)
-private val TextoPrimario  = Color(0xFF1A1A2E)
+private val AzulClaro = Color(0xFFEEF0FF)
+private val FundoTela = Color(0xFFF4F4F7)
+private val TextoPrimario = Color(0xFF1A1A2E)
 private val TextoSecundario = Color(0xFF999999)
 
 @Composable

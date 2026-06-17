@@ -44,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material3.IconButton
 import com.example.super_extra.R
 import com.example.super_extra.domain.model.Produto
 import com.example.super_extra.presentation.components.UiState
@@ -369,23 +370,17 @@ private fun ProdutoItem(
                     color = CinzaTexto
                 )
             }
-
-            Box(
-                modifier = Modifier
-                    .width(36.dp)
-                    .height(36.dp)
-                    .clickable {
-                        onVisualizarClick(produto)
-                    },
-                contentAlignment = Alignment.Center
+            IconButton(
+                onClick = {
+                    onVisualizarClick(produto)
+                },
+                modifier = Modifier.size(40.dp)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_eye),
                     contentDescription = "Visualizar produto",
                     tint = PretoIcone,
-                    modifier = Modifier
-                        .width(20.dp)
-                        .height(20.dp)
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
