@@ -37,13 +37,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.super_extra.R
 import com.example.super_extra.domain.model.Produto
+import com.example.super_extra.presentation.components.AppMessageHost
+import com.example.super_extra.presentation.components.AppMessageType
 import java.util.Locale
 
 private val AzulSuperExtra = Color(0xFF1F238F)
@@ -54,7 +56,6 @@ private val PretoIcone = Color(0xFF30323A)
 private val VermelhoErro = Color(0xFFD83A42)
 
 @Composable
-@Preview
 fun FormularioProdutoScreen(
     produtoParaEditar: Produto? = null,
     onVoltarClick: () -> Unit = {},
@@ -83,179 +84,253 @@ fun FormularioProdutoScreen(
         mutableStateOf(produtoParaEditar?.estoque?.toString() ?: "")
     }
 
-    var mensagemErro by remember {
+    var mensagemBarra by remember {
         mutableStateOf("")
     }
 
-    Column(
+    var tipoMensagem by remember {
+        mutableStateOf(AppMessageType.ERROR)
+    }
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(FundoTela)
     ) {
-        HeaderFormularioProduto()
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .imePadding()
-                .padding(horizontal = 20.dp)
-                .padding(top = 10.dp, bottom = 40.dp)
+                .background(FundoTela)
         ) {
-            LinhaNavegacaoFormulario(
-                onVoltarClick = onVoltarClick,
-                modoEdicao = modoEdicao
-            )
+            HeaderFormularioProduto()
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .imePadding()
+                    .padding(horizontal = 20.dp)
+                    .padding(top = 10.dp, bottom = 40.dp)
+            ) {
+                LinhaNavegacaoFormulario(
+                    onVoltarClick = onVoltarClick,
+                    modoEdicao = modoEdicao
+                )
 
-            Text(
-                text = if (modoEdicao) "Editar Produto" else "Cadastrar novo Produto",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Black,
-                color = Color.Black
-            )
-
-            Spacer(modifier = Modifier.height(26.dp))
-
-            CampoFormulario(
-                label = "Nome",
-                obrigatorio = true,
-                valor = nome,
-                onValorChange = {
-                    nome = it
-                }
-            )
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            CampoFormulario(
-                label = "Preço",
-                obrigatorio = true,
-                valor = preco,
-                onValorChange = {
-                    preco = it
-                },
-                keyboardType = KeyboardType.Decimal
-            )
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            CampoFormulario(
-                label = "Categoria",
-                obrigatorio = true,
-                valor = categoria,
-                onValorChange = {
-                    categoria = it
-                }
-            )
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            CampoFormulario(
-                label = "Estoque",
-                obrigatorio = true,
-                valor = estoque,
-                onValorChange = {
-                    estoque = it
-                },
-                keyboardType = KeyboardType.Number
-            )
-
-            if (mensagemErro.isNotBlank()) {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 Text(
-                    text = mensagemErro,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = VermelhoErro
+                    text = if (modoEdicao) "Editar Produto" else "Cadastrar Novo Produto",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.Black
                 )
-            }
 
-            Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(26.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Button(
-                    onClick = onCancelarClick,
-                    modifier = Modifier
-                        .width(120.dp)
-                        .height(46.dp),
-                    shape = RoundedCornerShape(22.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = CinzaBotao
-                    ),
-                    contentPadding = PaddingValues(horizontal = 12.dp)
-                ) {
-                    Text(
-                        text = "Cancelar",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = CinzaTexto
-                    )
-                }
+                CampoFormulario(
+                    label = "Nome",
+                    obrigatorio = true,
+                    valor = nome,
+                    onValorChange = {
+                        nome = it
+                    }
+                )
 
-                Button(
-                    onClick = {
-                        val precoConvertido = preco
-                            .replace("R$", "")
-                            .replace(",", ".")
-                            .trim()
-                            .toDoubleOrNull()
+                Spacer(modifier = Modifier.height(14.dp))
 
-                        val estoqueConvertido = estoque
-                            .trim()
-                            .toIntOrNull()
-
-                        if (nome.isBlank() || preco.isBlank() || categoria.isBlank() || estoque.isBlank()) {
-                            mensagemErro = "Preencha todos os campos obrigatórios."
-                            return@Button
-                        }
-
-                        if (precoConvertido == null) {
-                            mensagemErro = "Informe um preço válido."
-                            return@Button
-                        }
-
-                        if (estoqueConvertido == null) {
-                            mensagemErro = "Informe um estoque válido."
-                            return@Button
-                        }
-
-                        val produto = Produto(
-                            id = produtoParaEditar?.id ?: 0,
-                            nome = nome.trim(),
-                            preco = precoConvertido,
-                            categoria = categoria.trim(),
-                            estoque = estoqueConvertido
-                        )
-
-                        onSalvarClick(produto)
+                CampoFormulario(
+                    label = "Preço",
+                    obrigatorio = true,
+                    valor = preco,
+                    onValorChange = {
+                        preco = it
                     },
-                    modifier = Modifier
-                        .width(120.dp)
-                        .height(46.dp),
-                    shape = RoundedCornerShape(22.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = AzulSuperExtra
-                    ),
-                    contentPadding = PaddingValues(horizontal = 12.dp)
-                ) {
-                    Text(
-                        text = "Salvar",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                }
-            }
+                    keyboardType = KeyboardType.Decimal
+                )
 
-            Spacer(modifier = Modifier.height(80.dp))
+                Spacer(modifier = Modifier.height(14.dp))
+
+                CampoFormulario(
+                    label = "Categoria",
+                    obrigatorio = true,
+                    valor = categoria,
+                    onValorChange = {
+                        categoria = it
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                CampoFormulario(
+                    label = "Estoque",
+                    obrigatorio = true,
+                    valor = estoque,
+                    onValorChange = {
+                        estoque = it
+                    },
+                    keyboardType = KeyboardType.Number
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(
+                        onClick = onCancelarClick,
+                        modifier = Modifier
+                            .width(120.dp)
+                            .height(46.dp),
+                        shape = RoundedCornerShape(22.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = CinzaBotao
+                        ),
+                        contentPadding = PaddingValues(horizontal = 12.dp)
+                    ) {
+                        Text(
+                            text = "Cancelar",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = CinzaTexto
+                        )
+                    }
+
+                    Button(
+                        onClick = {
+                            val erroValidacao = validarCamposProduto(
+                                nome = nome,
+                                preco = preco,
+                                categoria = categoria,
+                                estoque = estoque
+                            )
+
+                            if (erroValidacao != null) {
+                                tipoMensagem = AppMessageType.ERROR
+                                mensagemBarra = erroValidacao
+                                return@Button
+                            }
+
+                            val precoConvertido = preco
+                                .replace("R$", "")
+                                .replace(",", ".")
+                                .trim()
+                                .toDouble()
+
+                            val estoqueConvertido = estoque
+                                .trim()
+                                .toInt()
+
+                            val produto = Produto(
+                                id = produtoParaEditar?.id ?: 0,
+                                nome = nome.trim(),
+                                preco = precoConvertido,
+                                categoria = categoria.trim(),
+                                estoque = estoqueConvertido
+                            )
+
+                            onSalvarClick(produto)
+                        },
+                        modifier = Modifier
+                            .width(120.dp)
+                            .height(46.dp),
+                        shape = RoundedCornerShape(22.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = AzulSuperExtra
+                        ),
+                        contentPadding = PaddingValues(horizontal = 12.dp)
+                    ) {
+                        Text(
+                            text = "Salvar",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(80.dp))
+            }
         }
+
+        AppMessageHost(
+            message = mensagemBarra,
+            type = tipoMensagem,
+            topPadding = 104.dp,
+            onDismiss = {
+                mensagemBarra = ""
+            }
+        )
     }
+}
+
+private fun validarCamposProduto(
+    nome: String,
+    preco: String,
+    categoria: String,
+    estoque: String
+): String? {
+    val nomeLimpo = nome.trim()
+    val precoLimpo = preco
+        .replace("R$", "")
+        .replace(",", ".")
+        .trim()
+    val categoriaLimpa = categoria.trim()
+    val estoqueLimpo = estoque.trim()
+
+    val temLetra = Regex("[A-Za-zÀ-ÿ]")
+    val temNumero = Regex("\\d")
+
+    if (nomeLimpo.isBlank()) {
+        return "Informe o nome do produto."
+    }
+
+    if (!temLetra.containsMatchIn(nomeLimpo)) {
+        return "O nome do produto não pode ser apenas número."
+    }
+
+    if (precoLimpo.isBlank()) {
+        return "Informe o preço do produto."
+    }
+
+    val precoConvertido = precoLimpo.toDoubleOrNull()
+
+    if (precoConvertido == null) {
+        return "O preço deve conter apenas números."
+    }
+
+    if (precoConvertido <= 0.0) {
+        return "O preço deve ser maior que zero."
+    }
+
+    if (categoriaLimpa.isBlank()) {
+        return "Informe a categoria do produto."
+    }
+
+    if (!temLetra.containsMatchIn(categoriaLimpa)) {
+        return "A categoria não pode ser apenas número."
+    }
+
+    if (temNumero.containsMatchIn(categoriaLimpa)) {
+        return "A categoria não deve conter números."
+    }
+
+    if (estoqueLimpo.isBlank()) {
+        return "Informe o estoque do produto."
+    }
+
+    val estoqueConvertido = estoqueLimpo.toIntOrNull()
+
+    if (estoqueConvertido == null) {
+        return "O estoque deve conter apenas números inteiros."
+    }
+
+    if (estoqueConvertido < 0) {
+        return "O estoque não pode ser negativo."
+    }
+
+    return null
 }
 
 @Composable
@@ -402,7 +477,7 @@ private fun CampoFormulario(
                 .height(58.dp),
             singleLine = true,
             shape = RoundedCornerShape(8.dp),
-            textStyle = androidx.compose.ui.text.TextStyle(
+            textStyle = TextStyle(
                 fontSize = 14.sp,
                 color = Color.Black
             ),
