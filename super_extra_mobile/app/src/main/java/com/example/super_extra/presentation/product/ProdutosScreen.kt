@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.IconButton
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.super_extra.R
 import com.example.super_extra.domain.model.Produto
 import com.example.super_extra.presentation.components.UiState
@@ -56,6 +57,7 @@ private val CinzaBorda = Color(0xFFBDBDBD)
 private val PretoIcone = Color(0xFF30323A)
 
 @Composable
+@Preview
 fun ProdutosScreen(
     viewModel: ProdutosViewModel = viewModel(),
     onVoltarClick: () -> Unit = {},

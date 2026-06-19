@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.super_extra.R
@@ -53,6 +54,7 @@ private val PretoIcone = Color(0xFF30323A)
 private val VermelhoErro = Color(0xFFD83A42)
 
 @Composable
+@Preview
 fun FormularioProdutoScreen(
     produtoParaEditar: Produto? = null,
     onVoltarClick: () -> Unit = {},
@@ -108,7 +110,7 @@ fun FormularioProdutoScreen(
             Spacer(modifier = Modifier.height(14.dp))
 
             Text(
-                text = if (modoEdicao) "Editar Produto" else "Cadastrar Novo Produto",
+                text = if (modoEdicao) "Editar Produto" else "Cadastrar novo Produto",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Black,
                 color = Color.Black

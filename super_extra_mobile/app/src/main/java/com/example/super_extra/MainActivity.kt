@@ -106,10 +106,8 @@ class MainActivity : ComponentActivity() {
                                     telaAtual = "produtos"
                                 },
                                 onClientesClick = {
-                                    // Tela de clientes
                                 },
                                 onEnderecosClick = {
-                                    // Tela de endereços
                                 }
                             )
                         }

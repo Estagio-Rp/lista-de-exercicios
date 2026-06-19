@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -30,6 +31,7 @@ private val TextoPrimario = Color(0xFF1A1A2E)
 private val TextoSecundario = Color(0xFF999999)
 
 @Composable
+@Preview
 fun MenuScreen(
     nomeUsuario: String = "Usuário",
     onProdutosClick: () -> Unit = {},
