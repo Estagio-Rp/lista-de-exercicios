@@ -18,6 +18,7 @@ import com.example.super_extra.domain.model.Cliente
 import com.example.super_extra.domain.model.Produto
 import com.example.super_extra.presentation.client.ClientesScreen
 import com.example.super_extra.presentation.client.ClientesViewModel
+import com.example.super_extra.presentation.client.DetalhesClienteScreen
 import com.example.super_extra.presentation.components.SuccessDialog
 import com.example.super_extra.presentation.menu.MenuScreen
 import com.example.super_extra.presentation.product.DetalhesProdutoScreen
@@ -51,6 +52,10 @@ class MainActivity : ComponentActivity() {
 
                 var mensagemSucesso by remember {
                     mutableStateOf("")
+                }
+
+                var telaAposSucesso by remember {
+                    mutableStateOf("produtos")
                 }
 
                 AnimatedContent(
@@ -117,6 +122,7 @@ class MainActivity : ComponentActivity() {
                                     telaAtual = "clientes"
                                 },
                                 onEnderecosClick = {
+                                    // Tela de endereços será feita depois
                                 }
                             )
                         }
@@ -151,6 +157,7 @@ class MainActivity : ComponentActivity() {
                                     produtosViewModel.cadastrarProduto(
                                         produto = produto,
                                         aoFinalizar = {
+                                            telaAposSucesso = "produtos"
                                             mensagemSucesso = "Produto cadastrado com sucesso."
                                         }
                                     )
@@ -175,6 +182,7 @@ class MainActivity : ComponentActivity() {
                                             produto = produtoAtualizado,
                                             aoFinalizar = {
                                                 produtoSelecionado = produtoAtualizado
+                                                telaAposSucesso = "produtos"
                                                 mensagemSucesso = "Produto atualizado com sucesso."
                                             }
                                         )
@@ -202,6 +210,7 @@ class MainActivity : ComponentActivity() {
                                             id = produto.id,
                                             aoFinalizar = {
                                                 produtoSelecionado = null
+                                                telaAposSucesso = "produtos"
                                                 mensagemSucesso = "Produto removido com sucesso."
                                                 telaAtual = "produtos"
                                             }
@@ -221,11 +230,42 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onVisualizarClick = { cliente ->
                                     clienteSelecionado = cliente
+                                    telaAtual = "detalhesCliente"
                                 },
                                 onNovoClienteClick = {
                                     clienteSelecionado = null
+                                    // Tela de cadastro de cliente será feita depois
                                 }
                             )
+                        }
+
+                        "detalhesCliente" -> {
+                            val cliente = clienteSelecionado
+
+                            if (cliente != null) {
+                                DetalhesClienteScreen(
+                                    cliente = cliente,
+                                    onVoltarClick = {
+                                        telaAtual = "clientes"
+                                    },
+                                    onEditarClick = {
+                                        // Tela de edição de cliente será feita depois
+                                    },
+                                    onDeletarClick = {
+                                        clientesViewModel.deletarCliente(
+                                            id = cliente.id,
+                                            aoFinalizar = {
+                                                clienteSelecionado = null
+                                                telaAposSucesso = "clientes"
+                                                mensagemSucesso = "Cliente removido com sucesso."
+                                                telaAtual = "clientes"
+                                            }
+                                        )
+                                    }
+                                )
+                            } else {
+                                telaAtual = "clientes"
+                            }
                         }
                     }
                 }
@@ -237,7 +277,7 @@ class MainActivity : ComponentActivity() {
                         textoBotao = "Voltar",
                         onBotaoClick = {
                             mensagemSucesso = ""
-                            telaAtual = "produtos"
+                            telaAtual = telaAposSucesso
                         }
                     )
                 }
@@ -253,6 +293,7 @@ private fun ordemTela(tela: String): Int {
         "produtos" -> 2
         "clientes" -> 2
         "detalhesProduto" -> 3
+        "detalhesCliente" -> 3
         "formularioCadastroProduto" -> 3
         "formularioEdicaoProduto" -> 4
         else -> 0

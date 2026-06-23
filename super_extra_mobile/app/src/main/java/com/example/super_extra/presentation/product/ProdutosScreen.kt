@@ -39,17 +39,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.material3.IconButton
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.super_extra.R
 import com.example.super_extra.domain.model.Produto
+import com.example.super_extra.presentation.components.BotaoVisualizar
 import com.example.super_extra.presentation.components.UiState
 import java.util.Locale
+
 private val AzulSuperExtra = Color(0xFF1F238F)
 private val FundoTela = Color(0xFFF4F4F7)
 private val CinzaTexto = Color(0xFF777777)
@@ -57,7 +55,6 @@ private val CinzaBorda = Color(0xFFBDBDBD)
 private val PretoIcone = Color(0xFF30323A)
 
 @Composable
-@Preview
 fun ProdutosScreen(
     viewModel: ProdutosViewModel = viewModel(),
     onVoltarClick: () -> Unit = {},
@@ -185,12 +182,18 @@ private fun LogoSuperExtra() {
     Column(horizontalAlignment = Alignment.Start) {
         Row(verticalAlignment = Alignment.Bottom) {
             BarraLogo(altura = 22)
+
             Spacer(modifier = Modifier.width(4.dp))
+
             BarraLogo(altura = 22)
+
             Spacer(modifier = Modifier.width(4.dp))
+
             BarraLogo(altura = 15)
         }
+
         Spacer(modifier = Modifier.height(4.dp))
+
         Text(
             text = "SUPER EXTRA",
             fontSize = 8.sp,
@@ -202,7 +205,9 @@ private fun LogoSuperExtra() {
 }
 
 @Composable
-private fun BarraLogo(altura: Int) {
+private fun BarraLogo(
+    altura: Int
+) {
     Box(
         modifier = Modifier
             .width(7.dp)
@@ -213,7 +218,9 @@ private fun BarraLogo(altura: Int) {
 }
 
 @Composable
-private fun LinhaNavegacao(onVoltarClick: () -> Unit) {
+private fun LinhaNavegacao(
+    onVoltarClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -227,14 +234,20 @@ private fun LinhaNavegacao(onVoltarClick: () -> Unit) {
             tint = PretoIcone,
             modifier = Modifier
                 .size(18.dp)
-                .clickable { onVoltarClick() }
+                .clickable {
+                    onVoltarClick()
+                }
         )
+
         Text(
             text = "Painel",
             fontSize = 11.sp,
             color = PretoIcone,
-            modifier = Modifier.clickable { onVoltarClick() }
+            modifier = Modifier.clickable {
+                onVoltarClick()
+            }
         )
+
         Text(
             text = "> Produtos",
             fontSize = 11.sp,
@@ -242,6 +255,7 @@ private fun LinhaNavegacao(onVoltarClick: () -> Unit) {
         )
     }
 }
+
 @Composable
 private fun CampoPesquisa(
     termoBusca: String,
@@ -372,19 +386,12 @@ private fun ProdutoItem(
                     color = CinzaTexto
                 )
             }
-            IconButton(
+
+            BotaoVisualizar(
                 onClick = {
                     onVisualizarClick(produto)
-                },
-                modifier = Modifier.size(40.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_eye),
-                    contentDescription = "Visualizar produto",
-                    tint = PretoIcone,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
+                }
+            )
         }
     }
 }

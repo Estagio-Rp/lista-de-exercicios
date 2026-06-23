@@ -17,15 +17,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -46,6 +42,8 @@ import com.example.super_extra.R
 import com.example.super_extra.domain.model.Produto
 import com.example.super_extra.presentation.components.AppMessageHost
 import com.example.super_extra.presentation.components.AppMessageType
+import com.example.super_extra.presentation.components.CampoFormularioObrigatorio
+import com.example.super_extra.presentation.components.LegendaCampoObrigatorio
 import java.util.Locale
 
 private val AzulSuperExtra = Color(0xFF1F238F)
@@ -53,7 +51,6 @@ private val FundoTela = Color(0xFFF4F4F7)
 private val CinzaTexto = Color(0xFF777777)
 private val CinzaBotao = Color(0xFFD4D4D4)
 private val PretoIcone = Color(0xFF30323A)
-private val VermelhoErro = Color(0xFFD83A42)
 
 @Composable
 fun FormularioProdutoScreen(
@@ -83,6 +80,11 @@ fun FormularioProdutoScreen(
     var estoque by remember(produtoParaEditar?.id) {
         mutableStateOf(produtoParaEditar?.estoque?.toString() ?: "")
     }
+
+    var erroNome by remember { mutableStateOf("") }
+    var erroPreco by remember { mutableStateOf("") }
+    var erroCategoria by remember { mutableStateOf("") }
+    var erroEstoque by remember { mutableStateOf("") }
 
     var mensagemBarra by remember {
         mutableStateOf("")
@@ -126,49 +128,57 @@ fun FormularioProdutoScreen(
                     color = Color.Black
                 )
 
-                Spacer(modifier = Modifier.height(26.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-                CampoFormulario(
+                LegendaCampoObrigatorio()
+
+                Spacer(modifier = Modifier.height(22.dp))
+
+                CampoFormularioObrigatorio(
                     label = "Nome",
-                    obrigatorio = true,
                     valor = nome,
                     onValorChange = {
                         nome = it
-                    }
+                        erroNome = ""
+                    },
+                    erro = erroNome
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                CampoFormulario(
+                CampoFormularioObrigatorio(
                     label = "Preço",
-                    obrigatorio = true,
                     valor = preco,
                     onValorChange = {
                         preco = it
+                        erroPreco = ""
                     },
+                    erro = erroPreco,
                     keyboardType = KeyboardType.Decimal
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                CampoFormulario(
+                CampoFormularioObrigatorio(
                     label = "Categoria",
-                    obrigatorio = true,
                     valor = categoria,
                     onValorChange = {
                         categoria = it
-                    }
+                        erroCategoria = ""
+                    },
+                    erro = erroCategoria
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                CampoFormulario(
+                CampoFormularioObrigatorio(
                     label = "Estoque",
-                    obrigatorio = true,
                     valor = estoque,
                     onValorChange = {
                         estoque = it
+                        erroEstoque = ""
                     },
+                    erro = erroEstoque,
                     keyboardType = KeyboardType.Number
                 )
 
@@ -199,16 +209,26 @@ fun FormularioProdutoScreen(
 
                     Button(
                         onClick = {
-                            val erroValidacao = validarCamposProduto(
+                            erroNome = ""
+                            erroPreco = ""
+                            erroCategoria = ""
+                            erroEstoque = ""
+
+                            val resultadoValidacao = validarCamposProdutoDetalhado(
                                 nome = nome,
                                 preco = preco,
                                 categoria = categoria,
                                 estoque = estoque
                             )
 
-                            if (erroValidacao != null) {
+                            erroNome = resultadoValidacao.erroNome
+                            erroPreco = resultadoValidacao.erroPreco
+                            erroCategoria = resultadoValidacao.erroCategoria
+                            erroEstoque = resultadoValidacao.erroEstoque
+
+                            if (resultadoValidacao.temErro()) {
                                 tipoMensagem = AppMessageType.ERROR
-                                mensagemBarra = erroValidacao
+                                mensagemBarra = "Verifique os campos obrigatórios."
                                 return@Button
                             }
 
@@ -265,12 +285,26 @@ fun FormularioProdutoScreen(
     }
 }
 
-private fun validarCamposProduto(
+private data class ResultadoValidacaoProduto(
+    val erroNome: String = "",
+    val erroPreco: String = "",
+    val erroCategoria: String = "",
+    val erroEstoque: String = ""
+) {
+    fun temErro(): Boolean {
+        return erroNome.isNotBlank() ||
+                erroPreco.isNotBlank() ||
+                erroCategoria.isNotBlank() ||
+                erroEstoque.isNotBlank()
+    }
+}
+
+private fun validarCamposProdutoDetalhado(
     nome: String,
     preco: String,
     categoria: String,
     estoque: String
-): String? {
+): ResultadoValidacaoProduto {
     val nomeLimpo = nome.trim()
     val precoLimpo = preco
         .replace("R$", "")
@@ -282,55 +316,55 @@ private fun validarCamposProduto(
     val temLetra = Regex("[A-Za-zÀ-ÿ]")
     val temNumero = Regex("\\d")
 
-    if (nomeLimpo.isBlank()) {
-        return "Informe o nome do produto."
-    }
+    var erroNome = ""
+    var erroPreco = ""
+    var erroCategoria = ""
+    var erroEstoque = ""
 
-    if (!temLetra.containsMatchIn(nomeLimpo)) {
-        return "O nome do produto não pode ser apenas número."
+    if (nomeLimpo.isBlank()) {
+        erroNome = "Obrigatório o preenchimento do campo."
+    } else if (!temLetra.containsMatchIn(nomeLimpo)) {
+        erroNome = "O nome do produto não pode ser apenas número."
     }
 
     if (precoLimpo.isBlank()) {
-        return "Informe o preço do produto."
-    }
+        erroPreco = "Obrigatório o preenchimento do campo."
+    } else {
+        val precoConvertido = precoLimpo.toDoubleOrNull()
 
-    val precoConvertido = precoLimpo.toDoubleOrNull()
-
-    if (precoConvertido == null) {
-        return "O preço deve conter apenas números."
-    }
-
-    if (precoConvertido <= 0.0) {
-        return "O preço deve ser maior que zero."
+        if (precoConvertido == null) {
+            erroPreco = "O preço deve conter apenas números."
+        } else if (precoConvertido <= 0.0) {
+            erroPreco = "O preço deve ser maior que zero."
+        }
     }
 
     if (categoriaLimpa.isBlank()) {
-        return "Informe a categoria do produto."
-    }
-
-    if (!temLetra.containsMatchIn(categoriaLimpa)) {
-        return "A categoria não pode ser apenas número."
-    }
-
-    if (temNumero.containsMatchIn(categoriaLimpa)) {
-        return "A categoria não deve conter números."
+        erroCategoria = "Obrigatório o preenchimento do campo."
+    } else if (!temLetra.containsMatchIn(categoriaLimpa)) {
+        erroCategoria = "A categoria não pode ser apenas número."
+    } else if (temNumero.containsMatchIn(categoriaLimpa)) {
+        erroCategoria = "A categoria não deve conter números."
     }
 
     if (estoqueLimpo.isBlank()) {
-        return "Informe o estoque do produto."
+        erroEstoque = "Obrigatório o preenchimento do campo."
+    } else {
+        val estoqueConvertido = estoqueLimpo.toIntOrNull()
+
+        if (estoqueConvertido == null) {
+            erroEstoque = "O estoque deve conter apenas números inteiros."
+        } else if (estoqueConvertido < 0) {
+            erroEstoque = "O estoque não pode ser negativo."
+        }
     }
 
-    val estoqueConvertido = estoqueLimpo.toIntOrNull()
-
-    if (estoqueConvertido == null) {
-        return "O estoque deve conter apenas números inteiros."
-    }
-
-    if (estoqueConvertido < 0) {
-        return "O estoque não pode ser negativo."
-    }
-
-    return null
+    return ResultadoValidacaoProduto(
+        erroNome = erroNome,
+        erroPreco = erroPreco,
+        erroCategoria = erroCategoria,
+        erroEstoque = erroEstoque
+    )
 }
 
 @Composable
@@ -434,65 +468,6 @@ private fun LinhaNavegacaoFormulario(
             text = if (modoEdicao) "> Edição" else "> Cadastro",
             fontSize = 11.sp,
             color = CinzaTexto
-        )
-    }
-}
-
-@Composable
-private fun CampoFormulario(
-    label: String,
-    obrigatorio: Boolean,
-    valor: String,
-    onValorChange: (String) -> Unit,
-    keyboardType: KeyboardType = KeyboardType.Text
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row {
-            Text(
-                text = label,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Black,
-                color = Color.Black
-            )
-
-            if (obrigatorio) {
-                Text(
-                    text = "*",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Black,
-                    color = VermelhoErro
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(6.dp))
-
-        OutlinedTextField(
-            value = valor,
-            onValueChange = onValorChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(58.dp),
-            singleLine = true,
-            shape = RoundedCornerShape(8.dp),
-            textStyle = TextStyle(
-                fontSize = 14.sp,
-                color = Color.Black
-            ),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = keyboardType
-            ),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = AzulSuperExtra,
-                unfocusedBorderColor = Color(0xFFD0D0D0),
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                cursorColor = AzulSuperExtra
-            )
         )
     }
 }
