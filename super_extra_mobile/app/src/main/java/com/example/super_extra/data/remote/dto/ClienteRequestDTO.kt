@@ -1,9 +1,9 @@
 package com.example.super_extra.data.remote.dto
 
 data class ClienteRequestDTO(
-    val nome: String,
-    val email: String,
-    val cpf: String,
-    val telefone: String,
-    val enderecoId: Int
+    val clieNome: String,
+    val clieEmail: String,
+    val clieCpf: String,
+    val clieTelefone: String,
+    val clieEndeId: Int
 )

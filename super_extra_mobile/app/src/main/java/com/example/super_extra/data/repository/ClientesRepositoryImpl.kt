@@ -12,24 +12,24 @@ class ClientesRepositoryImpl(
     override suspend fun buscarClientes(): List<Cliente> {
         return api.buscarClientes().map { dto ->
             Cliente(
-                id = dto.id,
-                nome = dto.nome,
-                email = dto.email,
-                cpf = dto.cpf,
-                telefone = dto.telefone,
-                dataCadastro = dto.dataCadastro,
-                enderecoId = dto.enderecoId
+                id = dto.clieId,
+                nome = dto.clieNome,
+                email = dto.clieEmail,
+                cpf = dto.clieCpf,
+                telefone = dto.clieTelefone,
+                dataCadastro = dto.clieDataCadastro,
+                enderecoId = dto.clieEndeId
             )
         }
     }
 
     override suspend fun cadastrarCliente(cliente: Cliente) {
         val clienteRequest = ClienteRequestDTO(
-            nome = cliente.nome,
-            email = cliente.email,
-            cpf = cliente.cpf,
-            telefone = cliente.telefone,
-            enderecoId = cliente.enderecoId
+            clieNome = cliente.nome,
+            clieEmail = cliente.email,
+            clieCpf = cliente.cpf,
+            clieTelefone = cliente.telefone,
+            clieEndeId = cliente.enderecoId
         )
 
         api.cadastrarCliente(clienteRequest)
@@ -37,11 +37,11 @@ class ClientesRepositoryImpl(
 
     override suspend fun atualizarCliente(cliente: Cliente) {
         val clienteRequest = ClienteRequestDTO(
-            nome = cliente.nome,
-            email = cliente.email,
-            cpf = cliente.cpf,
-            telefone = cliente.telefone,
-            enderecoId = cliente.enderecoId
+            clieNome = cliente.nome,
+            clieEmail = cliente.email,
+            clieCpf = cliente.cpf,
+            clieTelefone = cliente.telefone,
+            clieEndeId = cliente.enderecoId
         )
 
         api.atualizarCliente(

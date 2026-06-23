@@ -14,7 +14,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.super_extra.domain.model.Cliente
 import com.example.super_extra.domain.model.Produto
+import com.example.super_extra.presentation.client.ClientesScreen
+import com.example.super_extra.presentation.client.ClientesViewModel
 import com.example.super_extra.presentation.components.SuccessDialog
 import com.example.super_extra.presentation.menu.MenuScreen
 import com.example.super_extra.presentation.product.DetalhesProdutoScreen
@@ -32,6 +35,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             Super_extraTheme {
                 val produtosViewModel: ProdutosViewModel = viewModel()
+                val clientesViewModel: ClientesViewModel = viewModel()
 
                 var telaAtual by remember {
                     mutableStateOf("splash")
@@ -39,6 +43,10 @@ class MainActivity : ComponentActivity() {
 
                 var produtoSelecionado by remember {
                     mutableStateOf<Produto?>(null)
+                }
+
+                var clienteSelecionado by remember {
+                    mutableStateOf<Cliente?>(null)
                 }
 
                 var mensagemSucesso by remember {
@@ -106,6 +114,7 @@ class MainActivity : ComponentActivity() {
                                     telaAtual = "produtos"
                                 },
                                 onClientesClick = {
+                                    telaAtual = "clientes"
                                 },
                                 onEnderecosClick = {
                                 }
@@ -203,6 +212,21 @@ class MainActivity : ComponentActivity() {
                                 telaAtual = "produtos"
                             }
                         }
+
+                        "clientes" -> {
+                            ClientesScreen(
+                                viewModel = clientesViewModel,
+                                onVoltarClick = {
+                                    telaAtual = "menu"
+                                },
+                                onVisualizarClick = { cliente ->
+                                    clienteSelecionado = cliente
+                                },
+                                onNovoClienteClick = {
+                                    clienteSelecionado = null
+                                }
+                            )
+                        }
                     }
                 }
 
@@ -227,6 +251,7 @@ private fun ordemTela(tela: String): Int {
         "splash" -> 0
         "menu" -> 1
         "produtos" -> 2
+        "clientes" -> 2
         "detalhesProduto" -> 3
         "formularioCadastroProduto" -> 3
         "formularioEdicaoProduto" -> 4
