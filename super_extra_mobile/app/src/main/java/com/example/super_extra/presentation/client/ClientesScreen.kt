@@ -27,10 +27,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -49,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.super_extra.R
 import com.example.super_extra.domain.model.Cliente
+import com.example.super_extra.presentation.components.BotaoVisualizar
 import com.example.super_extra.presentation.components.UiState
 
 private val AzulSuperExtra = Color(0xFF1F238F)
@@ -57,7 +56,6 @@ private val CinzaTexto = Color(0xFF777777)
 private val CinzaBorda = Color(0xFFBDBDBD)
 private val PretoIcone = Color(0xFF30323A)
 private val MarromAvatar = Color(0xFF3B2D2F)
-private val FundoIconeOlho = Color(0xFFF1F1F4)
 
 @Composable
 fun ClientesScreen(
@@ -395,25 +393,11 @@ private fun ClienteItem(
                 )
             }
 
-            Surface(
-                modifier = Modifier.size(36.dp),
-                shape = CircleShape,
-                color = FundoIconeOlho
-            ) {
-                IconButton(
-                    onClick = {
-                        onVisualizarClick(cliente)
-                    },
-                    modifier = Modifier.size(36.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_eye),
-                        contentDescription = "Visualizar cliente",
-                        tint = PretoIcone,
-                        modifier = Modifier.size(17.dp)
-                    )
+            BotaoVisualizar(
+                onClick = {
+                    onVisualizarClick(cliente)
                 }
-            }
+            )
         }
     }
 }

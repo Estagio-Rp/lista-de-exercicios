@@ -19,6 +19,7 @@ import com.example.super_extra.domain.model.Produto
 import com.example.super_extra.presentation.client.ClientesScreen
 import com.example.super_extra.presentation.client.ClientesViewModel
 import com.example.super_extra.presentation.client.DetalhesClienteScreen
+import com.example.super_extra.presentation.client.FormularioClienteScreen
 import com.example.super_extra.presentation.components.SuccessDialog
 import com.example.super_extra.presentation.menu.MenuScreen
 import com.example.super_extra.presentation.product.DetalhesProdutoScreen
@@ -234,9 +235,58 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNovoClienteClick = {
                                     clienteSelecionado = null
-                                    // Tela de cadastro de cliente será feita depois
+                                    telaAtual = "formularioCadastroCliente"
                                 }
                             )
+                        }
+
+                        "formularioCadastroCliente" -> {
+                            FormularioClienteScreen(
+                                clienteParaEditar = null,
+                                onVoltarClick = {
+                                    telaAtual = "clientes"
+                                },
+                                onCancelarClick = {
+                                    telaAtual = "clientes"
+                                },
+                                onSalvarClick = { cliente ->
+                                    clientesViewModel.cadastrarCliente(
+                                        cliente = cliente,
+                                        aoFinalizar = {
+                                            telaAposSucesso = "clientes"
+                                            mensagemSucesso = "Cliente cadastrado com sucesso."
+                                        }
+                                    )
+                                }
+                            )
+                        }
+
+                        "formularioEdicaoCliente" -> {
+                            val cliente = clienteSelecionado
+
+                            if (cliente != null) {
+                                FormularioClienteScreen(
+                                    clienteParaEditar = cliente,
+                                    onVoltarClick = {
+                                        telaAtual = "detalhesCliente"
+                                    },
+                                    onCancelarClick = {
+                                        telaAtual = "detalhesCliente"
+                                    },
+                                    onSalvarClick = { clienteAtualizado ->
+                                        clientesViewModel.atualizarCliente(
+                                            cliente = clienteAtualizado,
+                                            aoFinalizar = {
+                                                clienteSelecionado = clienteAtualizado
+                                                telaAposSucesso = "clientes"
+                                                mensagemSucesso = "Cliente atualizado com sucesso."
+                                            }
+                                        )
+                                    }
+                                )
+                            } else {
+                                telaAtual = "clientes"
+                            }
                         }
 
                         "detalhesCliente" -> {
@@ -249,7 +299,7 @@ class MainActivity : ComponentActivity() {
                                         telaAtual = "clientes"
                                     },
                                     onEditarClick = {
-                                        // Tela de edição de cliente será feita depois
+                                        telaAtual = "formularioEdicaoCliente"
                                     },
                                     onDeletarClick = {
                                         clientesViewModel.deletarCliente(
@@ -295,7 +345,9 @@ private fun ordemTela(tela: String): Int {
         "detalhesProduto" -> 3
         "detalhesCliente" -> 3
         "formularioCadastroProduto" -> 3
+        "formularioCadastroCliente" -> 3
         "formularioEdicaoProduto" -> 4
+        "formularioEdicaoCliente" -> 4
         else -> 0
     }
 }
