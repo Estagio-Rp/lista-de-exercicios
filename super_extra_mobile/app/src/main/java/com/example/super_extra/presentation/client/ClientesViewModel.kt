@@ -136,8 +136,7 @@ class ClientesViewModel : ViewModel() {
                 aoErro(
                     tratarErroCliente(
                         acao = "excluir",
-                        erro = e
-                    )
+                        erro = e                    )
                 )
             }
         }
@@ -150,6 +149,15 @@ private fun tratarErroCliente(
 ): String {
     return when (erro) {
         is HttpException -> {
+            val mensagemServidor = erro.response()
+                ?.errorBody()
+                ?.string()
+                ?.trim()
+
+            if (!mensagemServidor.isNullOrBlank()) {
+                return mensagemServidor
+            }
+
             when (erro.code()) {
                 400 -> "Erro ao $acao cliente. Verifique os dados informados."
                 404 -> "Erro ao $acao cliente. Registro ou endereço não encontrado."

@@ -186,7 +186,7 @@ fun FormularioClienteScreen(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 CampoFormularioObrigatorio(
-                    label = "Endereço",
+                    label = "ID do endereço",
                     valor = enderecoId,
                     onValorChange = {
                         enderecoId = it
@@ -350,6 +350,8 @@ private fun validarCamposClienteDetalhado(
         erroCpf = "Obrigatório o preenchimento do campo."
     } else if (cpfNumeros.length != 11) {
         erroCpf = "O CPF deve conter 11 números."
+    } else if (!cpfValido(cpfNumeros)) {
+        erroCpf = "CPF inválido."
     }
 
     if (telefoneNumeros.isBlank()) {
@@ -377,6 +379,46 @@ private fun validarCamposClienteDetalhado(
         erroTelefone = erroTelefone,
         erroEndereco = erroEndereco
     )
+}
+
+private fun cpfValido(cpf: String): Boolean {
+    if (cpf.length != 11 || cpf.all { it == cpf.first() }) {
+        return false
+    }
+
+    val numeros = cpf.map { it.digitToInt() }
+
+    val primeiroDigito = calcularDigitoCpf(
+        numeros = numeros,
+        quantidade = 9,
+        pesoInicial = 10
+    )
+
+    val segundoDigito = calcularDigitoCpf(
+        numeros = numeros,
+        quantidade = 10,
+        pesoInicial = 11
+    )
+
+    return numeros[9] == primeiroDigito && numeros[10] == segundoDigito
+}
+
+private fun calcularDigitoCpf(
+    numeros: List<Int>,
+    quantidade: Int,
+    pesoInicial: Int
+): Int {
+    val soma = (0 until quantidade).sumOf { indice ->
+        numeros[indice] * (pesoInicial - indice)
+    }
+
+    val resto = soma % 11
+
+    return if (resto < 2) {
+        0
+    } else {
+        11 - resto
+    }
 }
 
 @Composable

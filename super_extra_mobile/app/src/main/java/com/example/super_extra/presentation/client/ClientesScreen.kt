@@ -136,11 +136,10 @@ fun ClientesScreen(
                 }
 
                 is UiState.Success -> {
-                    val clientesFiltrados = currentState.data.filter { cliente ->
-                        cliente.nome.contains(termoBusca, ignoreCase = true) ||
-                                cliente.email.contains(termoBusca, ignoreCase = true) ||
-                                cliente.cpf.contains(termoBusca, ignoreCase = true)
-                    }
+                    val clientesFiltrados = filtrarClientes(
+                        clientes = currentState.data,
+                        termoBusca = termoBusca
+                    )
 
                     ListaClientes(
                         clientes = clientesFiltrados,
@@ -158,6 +157,27 @@ fun ClientesScreen(
                 }
             }
         }
+    }
+}
+
+private fun filtrarClientes(
+    clientes: List<Cliente>,
+    termoBusca: String
+): List<Cliente> {
+    val termoTexto = termoBusca.trim()
+    val termoNumeros = termoBusca.filter { it.isDigit() }
+
+    if (termoTexto.isBlank()) {
+        return clientes
+    }
+
+    return clientes.filter { cliente ->
+        cliente.nome.contains(termoTexto, ignoreCase = true) ||
+                cliente.email.contains(termoTexto, ignoreCase = true) ||
+                cliente.id.toString().contains(termoTexto) ||
+                cliente.enderecoId.toString().contains(termoTexto) ||
+                cliente.cpf.contains(termoNumeros) ||
+                cliente.telefone.contains(termoNumeros)
     }
 }
 
@@ -274,7 +294,7 @@ private fun CampoPesquisaClientes(
             .height(50.dp),
         placeholder = {
             Text(
-                text = "Pesquisar por nome...",
+                text = "Pesquisar por nome, CPF, telefone ou endereço...",
                 fontSize = 12.sp,
                 color = CinzaTexto
             )
@@ -388,6 +408,14 @@ private fun ClienteItem(
 
                 Text(
                     text = cliente.email,
+                    fontSize = 10.sp,
+                    color = CinzaTexto
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "ID do endereço: ${cliente.enderecoId}",
                     fontSize = 10.sp,
                     color = CinzaTexto
                 )

@@ -339,8 +339,8 @@ private fun CardDetalhamentoCliente(
             Spacer(modifier = Modifier.height(8.dp))
 
             CampoDetalheCliente(
-                label = "Endereço",
-                valor = "ID do endereço: ${cliente.enderecoId}"
+                label = "ID do endereço",
+                valor = cliente.enderecoId.toString()
             )
         }
     }
