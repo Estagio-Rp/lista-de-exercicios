@@ -1,6 +1,7 @@
 package com.example.super_extra.core.network
 
 import com.example.super_extra.data.remote.api.ClientesApi
+import com.example.super_extra.data.remote.api.EnderecosApi
 import com.example.super_extra.data.remote.api.ProdutosApi
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -22,5 +23,9 @@ object RetrofitFactory {
 
     val clientesApi: ClientesApi by lazy {
         retrofit.create(ClientesApi::class.java)
+    }
+
+    val enderecosApi: EnderecosApi by lazy {
+        retrofit.create(EnderecosApi::class.java)
     }
 }
