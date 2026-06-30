@@ -13,6 +13,8 @@ import com.example.super_extra.presentation.components.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 
 class ClientesViewModel : ViewModel() {
 
@@ -54,7 +56,10 @@ class ClientesViewModel : ViewModel() {
 
             } catch (e: Exception) {
                 _state.value = UiState.Error(
-                    "Erro ao buscar clientes"
+                    tratarErroCliente(
+                        acao = "buscar",
+                        erro = e
+                    )
                 )
             }
         }
@@ -62,7 +67,8 @@ class ClientesViewModel : ViewModel() {
 
     fun cadastrarCliente(
         cliente: Cliente,
-        aoFinalizar: () -> Unit = {}
+        aoFinalizar: () -> Unit = {},
+        aoErro: (String) -> Unit = {}
     ) {
         viewModelScope.launch {
             try {
@@ -75,8 +81,11 @@ class ClientesViewModel : ViewModel() {
                 aoFinalizar()
 
             } catch (e: Exception) {
-                _state.value = UiState.Error(
-                    "Erro ao cadastrar cliente"
+                aoErro(
+                    tratarErroCliente(
+                        acao = "cadastrar",
+                        erro = e
+                    )
                 )
             }
         }
@@ -84,7 +93,8 @@ class ClientesViewModel : ViewModel() {
 
     fun atualizarCliente(
         cliente: Cliente,
-        aoFinalizar: () -> Unit = {}
+        aoFinalizar: () -> Unit = {},
+        aoErro: (String) -> Unit = {}
     ) {
         viewModelScope.launch {
             try {
@@ -97,8 +107,11 @@ class ClientesViewModel : ViewModel() {
                 aoFinalizar()
 
             } catch (e: Exception) {
-                _state.value = UiState.Error(
-                    "Erro ao atualizar cliente"
+                aoErro(
+                    tratarErroCliente(
+                        acao = "atualizar",
+                        erro = e
+                    )
                 )
             }
         }
@@ -106,7 +119,8 @@ class ClientesViewModel : ViewModel() {
 
     fun deletarCliente(
         id: Int,
-        aoFinalizar: () -> Unit = {}
+        aoFinalizar: () -> Unit = {},
+        aoErro: (String) -> Unit = {}
     ) {
         viewModelScope.launch {
             try {
@@ -119,10 +133,38 @@ class ClientesViewModel : ViewModel() {
                 aoFinalizar()
 
             } catch (e: Exception) {
-                _state.value = UiState.Error(
-                    "Erro ao deletar cliente"
+                aoErro(
+                    tratarErroCliente(
+                        acao = "excluir",
+                        erro = e
+                    )
                 )
             }
+        }
+    }
+}
+
+private fun tratarErroCliente(
+    acao: String,
+    erro: Exception
+): String {
+    return when (erro) {
+        is HttpException -> {
+            when (erro.code()) {
+                400 -> "Erro ao $acao cliente. Verifique os dados informados."
+                404 -> "Erro ao $acao cliente. Registro ou endereço não encontrado."
+                409 -> "Erro ao $acao cliente. Já existe um registro com esses dados."
+                500 -> "Erro no servidor ao $acao cliente."
+                else -> "Erro ao $acao cliente. Código: ${erro.code()}."
+            }
+        }
+
+        is IOException -> {
+            "Falha de conexão com o servidor."
+        }
+
+        else -> {
+            "Erro ao $acao cliente."
         }
     }
 }

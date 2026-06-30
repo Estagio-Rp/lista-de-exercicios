@@ -20,6 +20,8 @@ import com.example.super_extra.presentation.client.ClientesScreen
 import com.example.super_extra.presentation.client.ClientesViewModel
 import com.example.super_extra.presentation.client.DetalhesClienteScreen
 import com.example.super_extra.presentation.client.FormularioClienteScreen
+import com.example.super_extra.presentation.components.AppMessageHost
+import com.example.super_extra.presentation.components.AppMessageType
 import com.example.super_extra.presentation.components.SuccessDialog
 import com.example.super_extra.presentation.menu.MenuScreen
 import com.example.super_extra.presentation.product.DetalhesProdutoScreen
@@ -52,6 +54,10 @@ class MainActivity : ComponentActivity() {
                 }
 
                 var mensagemSucesso by remember {
+                    mutableStateOf("")
+                }
+
+                var mensagemErro by remember {
                     mutableStateOf("")
                 }
 
@@ -255,6 +261,9 @@ class MainActivity : ComponentActivity() {
                                         aoFinalizar = {
                                             telaAposSucesso = "clientes"
                                             mensagemSucesso = "Cliente cadastrado com sucesso."
+                                        },
+                                        aoErro = { erro ->
+                                            mensagemErro = erro
                                         }
                                     )
                                 }
@@ -280,6 +289,9 @@ class MainActivity : ComponentActivity() {
                                                 clienteSelecionado = clienteAtualizado
                                                 telaAposSucesso = "clientes"
                                                 mensagemSucesso = "Cliente atualizado com sucesso."
+                                            },
+                                            aoErro = { erro ->
+                                                mensagemErro = erro
                                             }
                                         )
                                     }
@@ -309,6 +321,9 @@ class MainActivity : ComponentActivity() {
                                                 telaAposSucesso = "clientes"
                                                 mensagemSucesso = "Cliente removido com sucesso."
                                                 telaAtual = "clientes"
+                                            },
+                                            aoErro = { erro ->
+                                                mensagemErro = erro
                                             }
                                         )
                                     }
@@ -331,6 +346,16 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 }
+
+                if (mensagemErro.isNotBlank()) {
+                    AppMessageHost(
+                        message = mensagemErro,
+                        type = AppMessageType.ERROR,
+                        onDismiss = {
+                            mensagemErro = ""
+                        }
+                    )
+                }
             }
         }
     }
@@ -340,14 +365,19 @@ private fun ordemTela(tela: String): Int {
     return when (tela) {
         "splash" -> 0
         "menu" -> 1
+
         "produtos" -> 2
         "clientes" -> 2
+
         "detalhesProduto" -> 3
         "detalhesCliente" -> 3
+
         "formularioCadastroProduto" -> 3
         "formularioCadastroCliente" -> 3
+
         "formularioEdicaoProduto" -> 4
         "formularioEdicaoCliente" -> 4
+
         else -> 0
     }
 }
