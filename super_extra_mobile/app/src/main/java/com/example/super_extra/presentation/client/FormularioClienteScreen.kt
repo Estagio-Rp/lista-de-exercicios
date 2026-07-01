@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.super_extra.R
@@ -52,6 +53,7 @@ private val CinzaBotao = Color(0xFFD4D4D4)
 private val PretoIcone = Color(0xFF30323A)
 
 @Composable
+@Preview
 fun FormularioClienteScreen(
     clienteParaEditar: Cliente? = null,
     onVoltarClick: () -> Unit = {},

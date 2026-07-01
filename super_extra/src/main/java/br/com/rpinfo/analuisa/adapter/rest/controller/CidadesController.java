@@ -67,6 +67,7 @@ public class CidadesController {
         }
     }
 
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletar(@PathVariable Integer id) {
         try {
