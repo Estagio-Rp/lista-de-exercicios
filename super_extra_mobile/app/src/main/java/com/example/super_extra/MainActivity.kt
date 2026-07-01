@@ -16,6 +16,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.super_extra.domain.model.Cliente
 import com.example.super_extra.domain.model.Produto
+import com.example.super_extra.presentation.address.EnderecosScreen
+import com.example.super_extra.presentation.address.EnderecosViewModel
+import com.example.super_extra.presentation.address.FormularioEnderecoScreen
 import com.example.super_extra.presentation.client.ClientesScreen
 import com.example.super_extra.presentation.client.ClientesViewModel
 import com.example.super_extra.presentation.client.DetalhesClienteScreen
@@ -40,6 +43,7 @@ class MainActivity : ComponentActivity() {
             Super_extraTheme {
                 val produtosViewModel: ProdutosViewModel = viewModel()
                 val clientesViewModel: ClientesViewModel = viewModel()
+                val enderecosViewModel: EnderecosViewModel = viewModel()
 
                 var telaAtual by remember {
                     mutableStateOf("splash")
@@ -129,7 +133,7 @@ class MainActivity : ComponentActivity() {
                                     telaAtual = "clientes"
                                 },
                                 onEnderecosClick = {
-                                    // Tela de endereços será feita depois
+                                    telaAtual = "enderecos"
                                 }
                             )
                         }
@@ -332,6 +336,46 @@ class MainActivity : ComponentActivity() {
                                 telaAtual = "clientes"
                             }
                         }
+
+                        "enderecos" -> {
+                            EnderecosScreen(
+                                viewModel = enderecosViewModel,
+                                onVoltarClick = {
+                                    telaAtual = "menu"
+                                },
+                                onVisualizarClick = {
+                                    mensagemErro = "Detalhamento de endereço será ligado na próxima etapa."
+                                },
+                                onNovoEnderecoClick = {
+                                    telaAtual = "formularioCadastroEndereco"
+                                }
+                            )
+                        }
+
+                        "formularioCadastroEndereco" -> {
+                            FormularioEnderecoScreen(
+                                enderecoParaEditar = null,
+                                viewModel = enderecosViewModel,
+                                onVoltarClick = {
+                                    telaAtual = "enderecos"
+                                },
+                                onCancelarClick = {
+                                    telaAtual = "enderecos"
+                                },
+                                onSalvarClick = { endereco ->
+                                    enderecosViewModel.cadastrarEndereco(
+                                        endereco = endereco,
+                                        aoFinalizar = {
+                                            telaAposSucesso = "enderecos"
+                                            mensagemSucesso = "Endereço cadastrado com sucesso."
+                                        },
+                                        aoErro = { erro ->
+                                            mensagemErro = erro
+                                        }
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
 
@@ -368,12 +412,14 @@ private fun ordemTela(tela: String): Int {
 
         "produtos" -> 2
         "clientes" -> 2
+        "enderecos" -> 2
 
         "detalhesProduto" -> 3
         "detalhesCliente" -> 3
 
         "formularioCadastroProduto" -> 3
         "formularioCadastroCliente" -> 3
+        "formularioCadastroEndereco" -> 3
 
         "formularioEdicaoProduto" -> 4
         "formularioEdicaoCliente" -> 4
