@@ -15,7 +15,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.super_extra.domain.model.Cliente
+import com.example.super_extra.domain.model.Endereco
 import com.example.super_extra.domain.model.Produto
+import com.example.super_extra.presentation.address.DetalhesEnderecoScreen
 import com.example.super_extra.presentation.address.EnderecosScreen
 import com.example.super_extra.presentation.address.EnderecosViewModel
 import com.example.super_extra.presentation.address.FormularioEnderecoScreen
@@ -55,6 +57,10 @@ class MainActivity : ComponentActivity() {
 
                 var clienteSelecionado by remember {
                     mutableStateOf<Cliente?>(null)
+                }
+
+                var enderecoSelecionado by remember {
+                    mutableStateOf<Endereco?>(null)
                 }
 
                 var mensagemSucesso by remember {
@@ -343,10 +349,12 @@ class MainActivity : ComponentActivity() {
                                 onVoltarClick = {
                                     telaAtual = "menu"
                                 },
-                                onVisualizarClick = {
-                                    mensagemErro = "Detalhamento de endereço será ligado na próxima etapa."
+                                onVisualizarClick = { endereco ->
+                                    enderecoSelecionado = endereco
+                                    telaAtual = "detalhesEndereco"
                                 },
                                 onNovoEnderecoClick = {
+                                    enderecoSelecionado = null
                                     telaAtual = "formularioCadastroEndereco"
                                 }
                             )
@@ -375,6 +383,70 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                             )
+                        }
+
+                        "formularioEdicaoEndereco" -> {
+                            val endereco = enderecoSelecionado
+
+                            if (endereco != null) {
+                                FormularioEnderecoScreen(
+                                    enderecoParaEditar = endereco,
+                                    viewModel = enderecosViewModel,
+                                    onVoltarClick = {
+                                        telaAtual = "detalhesEndereco"
+                                    },
+                                    onCancelarClick = {
+                                        telaAtual = "detalhesEndereco"
+                                    },
+                                    onSalvarClick = { enderecoAtualizado ->
+                                        enderecosViewModel.atualizarEndereco(
+                                            endereco = enderecoAtualizado,
+                                            aoFinalizar = {
+                                                enderecoSelecionado = enderecoAtualizado
+                                                telaAposSucesso = "enderecos"
+                                                mensagemSucesso = "Endereço atualizado com sucesso."
+                                            },
+                                            aoErro = { erro ->
+                                                mensagemErro = erro
+                                            }
+                                        )
+                                    }
+                                )
+                            } else {
+                                telaAtual = "enderecos"
+                            }
+                        }
+
+                        "detalhesEndereco" -> {
+                            val endereco = enderecoSelecionado
+
+                            if (endereco != null) {
+                                DetalhesEnderecoScreen(
+                                    endereco = endereco,
+                                    onVoltarClick = {
+                                        telaAtual = "enderecos"
+                                    },
+                                    onEditarClick = {
+                                        telaAtual = "formularioEdicaoEndereco"
+                                    },
+                                    onDeletarClick = {
+                                        enderecosViewModel.deletarEndereco(
+                                            id = endereco.id,
+                                            aoFinalizar = {
+                                                enderecoSelecionado = null
+                                                telaAposSucesso = "enderecos"
+                                                mensagemSucesso = "Endereço removido com sucesso."
+                                                telaAtual = "enderecos"
+                                            },
+                                            aoErro = { erro ->
+                                                mensagemErro = erro
+                                            }
+                                        )
+                                    }
+                                )
+                            } else {
+                                telaAtual = "enderecos"
+                            }
                         }
                     }
                 }
@@ -416,6 +488,7 @@ private fun ordemTela(tela: String): Int {
 
         "detalhesProduto" -> 3
         "detalhesCliente" -> 3
+        "detalhesEndereco" -> 3
 
         "formularioCadastroProduto" -> 3
         "formularioCadastroCliente" -> 3
@@ -423,6 +496,7 @@ private fun ordemTela(tela: String): Int {
 
         "formularioEdicaoProduto" -> 4
         "formularioEdicaoCliente" -> 4
+        "formularioEdicaoEndereco" -> 4
 
         else -> 0
     }
