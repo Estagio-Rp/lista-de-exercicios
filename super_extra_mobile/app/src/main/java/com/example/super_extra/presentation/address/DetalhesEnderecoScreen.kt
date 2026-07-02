@@ -101,7 +101,7 @@ fun DetalhesEnderecoScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 12.dp)
-                .padding(top = 8.dp, bottom = 28.dp)
+                .padding(top = 8.dp, bottom = 100.dp)
         ) {
             LinhaNavegacaoDetalhesEndereco(
                 onVoltarClick = onVoltarClick
@@ -147,60 +147,14 @@ fun DetalhesEnderecoScreen(
                 cidadeDescricao = cidadeDescricao
             )
 
-            Spacer(modifier = Modifier.height(34.dp))
+            Spacer(modifier = Modifier.height(36.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
-                    onClick = onEditarClick,
-                    modifier = Modifier
-                        .width(96.dp)
-                        .height(42.dp)
-                        .shadow(
-                            elevation = 8.dp,
-                            shape = RoundedCornerShape(24.dp)
-                        ),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = CinzaBotao
-                    ),
-                    contentPadding = PaddingValues(horizontal = 12.dp)
-                ) {
-                    Text(
-                        text = "Editar",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+            BotoesAcaoEndereco(
+                onEditarClick = onEditarClick,
+                onDeletarClick = {
+                    mostrarConfirmacaoDelete = true
                 }
-
-                Button(
-                    onClick = {
-                        mostrarConfirmacaoDelete = true
-                    },
-                    modifier = Modifier
-                        .width(96.dp)
-                        .height(42.dp)
-                        .shadow(
-                            elevation = 8.dp,
-                            shape = RoundedCornerShape(24.dp)
-                        ),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = VermelhoBotao
-                    ),
-                    contentPadding = PaddingValues(horizontal = 12.dp)
-                ) {
-                    Text(
-                        text = "deletar",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                }
-            }
+            )
         }
     }
 
@@ -388,6 +342,65 @@ private fun MapaEnderecoPlaceholder(
                     textAlign = TextAlign.Center
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun BotoesAcaoEndereco(
+    onEditarClick: () -> Unit,
+    onDeletarClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 14.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Button(
+            onClick = onEditarClick,
+            modifier = Modifier
+                .width(140.dp)
+                .height(50.dp)
+                .shadow(
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(24.dp)
+                ),
+            shape = RoundedCornerShape(24.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = CinzaBotao
+            ),
+            contentPadding = PaddingValues(horizontal = 12.dp)
+        ) {
+            Text(
+                text = "Editar",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+        }
+
+        Button(
+            onClick = onDeletarClick,
+            modifier = Modifier
+                .width(140.dp)
+                .height(50.dp)
+                .shadow(
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(24.dp)
+                ),
+            shape = RoundedCornerShape(24.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = VermelhoBotao
+            ),
+            contentPadding = PaddingValues(horizontal = 12.dp)
+        ) {
+            Text(
+                text = "Deletar",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
         }
     }
 }
