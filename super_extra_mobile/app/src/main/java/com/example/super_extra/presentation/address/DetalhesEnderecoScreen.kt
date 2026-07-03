@@ -1,5 +1,7 @@
 package com.example.super_extra.presentation.address
 
+import android.content.Context
+import android.location.Geocoder
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,16 +48,24 @@ import androidx.compose.ui.window.Dialog
 import com.example.super_extra.R
 import com.example.super_extra.core.network.RetrofitFactory
 import com.example.super_extra.domain.model.Endereco
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
+import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private val AzulSuperExtra = Color(0xFF1F238F)
 private val FundoTela = Color(0xFFF4F4F7)
 private val CinzaTexto = Color(0xFF777777)
 private val CinzaBotao = Color(0xFF8A8A8A)
-private val CinzaBotaoClaro = Color(0xFFD4D4D4)
 private val VermelhoBotao = Color(0xFFD83A42)
 private val PretoIcone = Color(0xFF202124)
-private val MapaFundo = Color(0xFFE8EEF2)
-private val VermelhoPin = Color(0xFFE53935)
 
 @Composable
 fun DetalhesEnderecoScreen(
@@ -101,7 +111,7 @@ fun DetalhesEnderecoScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 12.dp)
-                .padding(top = 8.dp, bottom = 100.dp)
+                .padding(top = 8.dp, bottom = 110.dp)
         ) {
             LinhaNavegacaoDetalhesEndereco(
                 onVoltarClick = onVoltarClick
@@ -118,7 +128,7 @@ fun DetalhesEnderecoScreen(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(3.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Text(
                 text = "${formatarCep(endereco.cep)}, ${endereco.bairro}, $cidadeDescricao",
@@ -129,7 +139,7 @@ fun DetalhesEnderecoScreen(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(3.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Text(
                 text = "ID: ${endereco.id}",
@@ -140,9 +150,9 @@ fun DetalhesEnderecoScreen(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
-            MapaEnderecoPlaceholder(
+            MapaEnderecoGoogle(
                 endereco = endereco,
                 cidadeDescricao = cidadeDescricao
             )
@@ -198,9 +208,13 @@ private fun LogoSuperExtra() {
     Column(horizontalAlignment = Alignment.Start) {
         Row(verticalAlignment = Alignment.Bottom) {
             BarraLogo(altura = 26)
+
             Spacer(modifier = Modifier.width(5.dp))
+
             BarraLogo(altura = 26)
+
             Spacer(modifier = Modifier.width(5.dp))
+
             BarraLogo(altura = 16)
         }
 
@@ -261,87 +275,78 @@ private fun LinhaNavegacaoDetalhesEndereco(
 }
 
 @Composable
-private fun MapaEnderecoPlaceholder(
+private fun MapaEnderecoGoogle(
     endereco: Endereco,
     cidadeDescricao: String
 ) {
+    val context = LocalContext.current
+
+    val posicaoPadrao = remember {
+        LatLng(-26.2295, -52.6706)
+    }
+
+    var posicaoMapa by remember {
+        mutableStateOf(posicaoPadrao)
+    }
+
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(posicaoMapa, 15f)
+    }
+
+    val uiSettings = remember {
+        MapUiSettings(
+            zoomControlsEnabled = false,
+            mapToolbarEnabled = false,
+            compassEnabled = false
+        )
+    }
+
+    val enderecoCompleto = remember(endereco, cidadeDescricao) {
+        "${endereco.rua}, ${endereco.numero}, ${endereco.bairro}, $cidadeDescricao, Brasil"
+    }
+
+    LaunchedEffect(enderecoCompleto) {
+        if (cidadeDescricao.isBlank()) {
+            return@LaunchedEffect
+        }
+
+        val novaPosicao = buscarCoordenadasPorEndereco(
+            context = context,
+            enderecoCompleto = enderecoCompleto
+        )
+
+        if (novaPosicao != null) {
+            posicaoMapa = novaPosicao
+
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newLatLngZoom(novaPosicao, 16f),
+                durationMs = 800
+            )
+        }
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(300.dp),
+            .height(320.dp),
         shape = RoundedCornerShape(2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MapaFundo
+            containerColor = Color.White
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp
+            defaultElevation = 2.dp
         )
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MapaFundo)
+        GoogleMap(
+            modifier = Modifier.fillMaxSize(),
+            cameraPositionState = cameraPositionState,
+            uiSettings = uiSettings
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(14.dp),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                repeat(7) { linha ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        repeat(3) { coluna ->
-                            Text(
-                                text = nomeMapaFalso(linha, coluna),
-                                fontSize = 8.sp,
-                                color = Color(0xFF8B9AA3),
-                                lineHeight = 10.sp
-                            )
-                        }
-                    }
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(42.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.LocationOn,
-                    contentDescription = "Localização",
-                    tint = VermelhoPin,
-                    modifier = Modifier.size(42.dp)
-                )
-            }
-
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .background(Color.White.copy(alpha = 0.78f))
-                    .padding(horizontal = 8.dp, vertical = 6.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "${endereco.rua}, ${endereco.numero}",
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = PretoIcone,
-                    textAlign = TextAlign.Center
-                )
-
-                Text(
-                    text = cidadeDescricao,
-                    fontSize = 9.sp,
-                    color = CinzaTexto,
-                    textAlign = TextAlign.Center
-                )
-            }
+            Marker(
+                state = MarkerState(position = posicaoMapa),
+                title = "${endereco.rua}, ${endereco.numero}",
+                snippet = cidadeDescricao
+            )
         }
     }
 }
@@ -405,25 +410,6 @@ private fun BotoesAcaoEndereco(
     }
 }
 
-private fun nomeMapaFalso(
-    linha: Int,
-    coluna: Int
-): String {
-    val nomes = listOf(
-        "Rua Central",
-        "Av. Principal",
-        "Jardim América",
-        "Centro",
-        "Vila Nova",
-        "Rua Paraná",
-        "Praça Norte",
-        "Bairro Sul",
-        "Rua Pedro R."
-    )
-
-    return nomes[(linha + coluna) % nomes.size]
-}
-
 @Composable
 private fun ConfirmarExclusaoEnderecoDialog(
     onCancelar: () -> Unit,
@@ -433,50 +419,32 @@ private fun ConfirmarExclusaoEnderecoDialog(
         onDismissRequest = onCancelar
     ) {
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            shape = RoundedCornerShape(10.dp),
+            shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(
                 containerColor = Color.White
-            ),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 8.dp
             )
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 24.dp),
+                modifier = Modifier.padding(22.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Confirmar Ação",
+                    text = "Excluir endereço?",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Black,
-                    color = Color.Black,
-                    textAlign = TextAlign.Center
+                    color = Color.Black
                 )
 
-                Spacer(modifier = Modifier.height(38.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    text = "Você irá remover esse endereço.",
-                    fontSize = 12.sp,
-                    color = Color.Black,
+                    text = "Essa ação não poderá ser desfeita.",
+                    fontSize = 13.sp,
+                    color = CinzaTexto,
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(2.dp))
-
-                Text(
-                    text = "Deseja continuar?",
-                    fontSize = 12.sp,
-                    color = Color.Black,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(38.dp))
+                Spacer(modifier = Modifier.height(22.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -485,38 +453,34 @@ private fun ConfirmarExclusaoEnderecoDialog(
                     Button(
                         onClick = onCancelar,
                         modifier = Modifier
-                            .width(120.dp)
-                            .height(38.dp),
+                            .width(110.dp)
+                            .height(42.dp),
                         shape = RoundedCornerShape(20.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = CinzaBotaoClaro
-                        ),
-                        contentPadding = PaddingValues(horizontal = 8.dp)
+                            containerColor = CinzaBotao
+                        )
                     ) {
                         Text(
                             text = "Cancelar",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = CinzaTexto
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
                         )
                     }
 
                     Button(
                         onClick = onConfirmar,
                         modifier = Modifier
-                            .width(120.dp)
-                            .height(38.dp),
+                            .width(110.dp)
+                            .height(42.dp),
                         shape = RoundedCornerShape(20.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = AzulSuperExtra
-                        ),
-                        contentPadding = PaddingValues(horizontal = 8.dp)
+                            containerColor = VermelhoBotao
+                        )
                     ) {
                         Text(
-                            text = "Confirmar",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            text = "Excluir",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
@@ -525,30 +489,71 @@ private fun ConfirmarExclusaoEnderecoDialog(
     }
 }
 
-private fun formatarCep(cep: String): String {
-    val apenasNumeros = cep.filter { it.isDigit() }
+@Suppress("DEPRECATION")
+private suspend fun buscarCoordenadasPorEndereco(
+    context: Context,
+    enderecoCompleto: String
+): LatLng? {
+    return withContext(Dispatchers.IO) {
+        try {
+            val geocoder = Geocoder(context, Locale("pt", "BR"))
+            val resultados = geocoder.getFromLocationName(enderecoCompleto, 1)
+            val local = resultados?.firstOrNull()
 
-    return if (apenasNumeros.length == 8) {
-        "${apenasNumeros.substring(0, 5)}-${apenasNumeros.substring(5, 8)}"
-    } else {
-        cep
+            if (local != null) {
+                LatLng(local.latitude, local.longitude)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 }
 
-private fun nomeEstadoPorUf(uf: String): String {
+private fun formatarCep(
+    cep: String
+): String {
+    val numeros = cep.filter { it.isDigit() }
+
+    if (numeros.length != 8) {
+        return cep
+    }
+
+    return "${numeros.substring(0, 5)}-${numeros.substring(5, 8)}"
+}
+
+private fun nomeEstadoPorUf(
+    uf: String
+): String {
     return when (uf.uppercase()) {
-        "PR" -> "Paraná"
-        "SC" -> "Santa Catarina"
-        "RS" -> "Rio Grande do Sul"
-        "SP" -> "São Paulo"
-        "RJ" -> "Rio de Janeiro"
-        "MG" -> "Minas Gerais"
-        "MS" -> "Mato Grosso do Sul"
-        "MT" -> "Mato Grosso"
-        "GO" -> "Goiás"
+        "AC" -> "Acre"
+        "AL" -> "Alagoas"
+        "AP" -> "Amapá"
+        "AM" -> "Amazonas"
         "BA" -> "Bahia"
-        "ES" -> "Espírito Santo"
+        "CE" -> "Ceará"
         "DF" -> "Distrito Federal"
-        else -> uf.uppercase()
+        "ES" -> "Espírito Santo"
+        "GO" -> "Goiás"
+        "MA" -> "Maranhão"
+        "MT" -> "Mato Grosso"
+        "MS" -> "Mato Grosso do Sul"
+        "MG" -> "Minas Gerais"
+        "PA" -> "Pará"
+        "PB" -> "Paraíba"
+        "PR" -> "Paraná"
+        "PE" -> "Pernambuco"
+        "PI" -> "Piauí"
+        "RJ" -> "Rio de Janeiro"
+        "RN" -> "Rio Grande do Norte"
+        "RS" -> "Rio Grande do Sul"
+        "RO" -> "Rondônia"
+        "RR" -> "Roraima"
+        "SC" -> "Santa Catarina"
+        "SP" -> "São Paulo"
+        "SE" -> "Sergipe"
+        "TO" -> "Tocantins"
+        else -> uf
     }
 }
