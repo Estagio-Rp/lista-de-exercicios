@@ -2,6 +2,7 @@ package com.example.super_extra.presentation.address
 
 import android.content.Context
 import android.location.Geocoder
+import android.view.MotionEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -82,6 +84,12 @@ fun DetalhesEnderecoScreen(
         mutableStateOf("")
     }
 
+    var mapaEmInteracao by remember {
+        mutableStateOf(false)
+    }
+
+    val scrollState = rememberScrollState()
+
     LaunchedEffect(endereco.cidadeId) {
         try {
             val cidade = RetrofitFactory.cidadesApi.buscarCidades()
@@ -90,7 +98,7 @@ fun DetalhesEnderecoScreen(
                 }
 
             cidadeDescricao = if (cidade != null) {
-                "${cidade.cidaNome}, ${nomeEstadoPorUf(cidade.cidaUf)}"
+                "${cidade.cidaNome}, ${nomeEstadoPorUf(cidade.cidaUf.orEmpty())}"
             } else {
                 "Cidade ID: ${endereco.cidadeId}"
             }
@@ -109,7 +117,10 @@ fun DetalhesEnderecoScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(
+                    state = scrollState,
+                    enabled = !mapaEmInteracao
+                )
                 .padding(horizontal = 12.dp)
                 .padding(top = 8.dp, bottom = 110.dp)
         ) {
@@ -117,7 +128,7 @@ fun DetalhesEnderecoScreen(
                 onVoltarClick = onVoltarClick
             )
 
-            Spacer(modifier = Modifier.height(26.dp))
+            Spacer(modifier = Modifier.height(22.dp))
 
             Text(
                 text = "${endereco.rua}, ${endereco.numero}",
@@ -154,10 +165,13 @@ fun DetalhesEnderecoScreen(
 
             MapaEnderecoGoogle(
                 endereco = endereco,
-                cidadeDescricao = cidadeDescricao
+                cidadeDescricao = cidadeDescricao,
+                onInteracaoMapaChange = { emInteracao ->
+                    mapaEmInteracao = emInteracao
+                }
             )
 
-            Spacer(modifier = Modifier.height(36.dp))
+            Spacer(modifier = Modifier.height(34.dp))
 
             BotoesAcaoEndereco(
                 onEditarClick = onEditarClick,
@@ -277,7 +291,8 @@ private fun LinhaNavegacaoDetalhesEndereco(
 @Composable
 private fun MapaEnderecoGoogle(
     endereco: Endereco,
-    cidadeDescricao: String
+    cidadeDescricao: String,
+    onInteracaoMapaChange: (Boolean) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -290,14 +305,18 @@ private fun MapaEnderecoGoogle(
     }
 
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(posicaoMapa, 15f)
+        position = CameraPosition.fromLatLngZoom(posicaoMapa, 14.5f)
     }
 
     val uiSettings = remember {
         MapUiSettings(
-            zoomControlsEnabled = false,
+            zoomControlsEnabled = true,
             mapToolbarEnabled = false,
-            compassEnabled = false
+            compassEnabled = true,
+            scrollGesturesEnabled = true,
+            zoomGesturesEnabled = true,
+            rotationGesturesEnabled = false,
+            tiltGesturesEnabled = false
         )
     }
 
@@ -319,7 +338,7 @@ private fun MapaEnderecoGoogle(
             posicaoMapa = novaPosicao
 
             cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLngZoom(novaPosicao, 16f),
+                update = CameraUpdateFactory.newLatLngZoom(novaPosicao, 14.8f),
                 durationMs = 800
             )
         }
@@ -328,7 +347,7 @@ private fun MapaEnderecoGoogle(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(320.dp),
+            .height(400.dp),
         shape = RoundedCornerShape(2.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -338,7 +357,23 @@ private fun MapaEnderecoGoogle(
         )
     ) {
         GoogleMap(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInteropFilter { motionEvent ->
+                    when (motionEvent.action) {
+                        MotionEvent.ACTION_DOWN,
+                        MotionEvent.ACTION_MOVE -> {
+                            onInteracaoMapaChange(true)
+                        }
+
+                        MotionEvent.ACTION_UP,
+                        MotionEvent.ACTION_CANCEL -> {
+                            onInteracaoMapaChange(false)
+                        }
+                    }
+
+                    false
+                },
             cameraPositionState = cameraPositionState,
             uiSettings = uiSettings
         ) {
@@ -350,6 +385,7 @@ private fun MapaEnderecoGoogle(
         }
     }
 }
+
 @Composable
 private fun BotoesAcaoEndereco(
     onEditarClick: () -> Unit,
