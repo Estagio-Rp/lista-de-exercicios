@@ -66,6 +66,7 @@ fun FormularioClienteScreen(
     onSalvarClick: (Cliente) -> Unit = {}
 ) {
     val modoEdicao = clienteParaEditar != null
+    val cpfOriginal = clienteParaEditar?.cpf?.filter { it.isDigit() }.orEmpty()
 
     var nome by remember(clienteParaEditar?.id) {
         mutableStateOf(clienteParaEditar?.nome ?: "")
@@ -241,7 +242,9 @@ fun FormularioClienteScreen(
                                 email = email,
                                 cpf = cpf,
                                 telefone = telefone,
-                                enderecoId = enderecoId
+                                enderecoId = enderecoId,
+                                modoEdicao = modoEdicao,
+                                cpfOriginal = cpfOriginal
                             )
 
                             erroNome = resultadoValidacao.erroNome
@@ -389,13 +392,18 @@ private fun validarCamposClienteDetalhado(
     email: String,
     cpf: String,
     telefone: String,
-    enderecoId: String
+    enderecoId: String,
+    modoEdicao: Boolean,
+    cpfOriginal: String
 ): ResultadoValidacaoCliente {
     val nomeLimpo = nome.trim()
     val emailLimpo = email.trim()
     val cpfNumeros = cpf.filter { it.isDigit() }
     val telefoneNumeros = telefone.filter { it.isDigit() }
     val enderecoLimpo = enderecoId.trim()
+
+    val cpfFoiAlterado = cpfNumeros != cpfOriginal
+    val deveValidarCpfMatematicamente = !modoEdicao || cpfFoiAlterado
 
     val temLetra = Regex("\\p{L}")
     val nomeValido = Regex("^[\\p{L}\\p{M} .'-]+$")
@@ -427,7 +435,7 @@ private fun validarCamposClienteDetalhado(
         erroCpf = "Obrigatório o preenchimento do campo."
     } else if (cpfNumeros.length != 11) {
         erroCpf = "O CPF deve conter 11 números."
-    } else if (!cpfValido(cpfNumeros)) {
+    } else if (deveValidarCpfMatematicamente && !cpfValido(cpfNumeros)) {
         erroCpf = "CPF inválido."
     }
 
