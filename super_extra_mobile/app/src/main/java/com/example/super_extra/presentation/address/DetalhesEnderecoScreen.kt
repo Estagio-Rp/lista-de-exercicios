@@ -60,6 +60,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 private val AzulSuperExtra = Color(0xFF1F238F)
@@ -88,7 +89,23 @@ fun DetalhesEnderecoScreen(
         mutableStateOf(false)
     }
 
+    var ultimoToqueMapa by remember {
+        mutableStateOf(0L)
+    }
+
     val scrollState = rememberScrollState()
+
+    LaunchedEffect(ultimoToqueMapa) {
+        if (ultimoToqueMapa > 0L) {
+            delay(700)
+
+            val tempoSemToque = System.currentTimeMillis() - ultimoToqueMapa
+
+            if (tempoSemToque >= 650L) {
+                mapaEmInteracao = false
+            }
+        }
+    }
 
     LaunchedEffect(endereco.cidadeId) {
         try {
@@ -166,8 +183,12 @@ fun DetalhesEnderecoScreen(
             MapaEnderecoGoogle(
                 endereco = endereco,
                 cidadeDescricao = cidadeDescricao,
-                onInteracaoMapaChange = { emInteracao ->
-                    mapaEmInteracao = emInteracao
+                onToqueMapa = {
+                    mapaEmInteracao = true
+                    ultimoToqueMapa = System.currentTimeMillis()
+                },
+                onSoltarMapa = {
+                    mapaEmInteracao = false
                 }
             )
 
@@ -222,13 +243,9 @@ private fun LogoSuperExtra() {
     Column(horizontalAlignment = Alignment.Start) {
         Row(verticalAlignment = Alignment.Bottom) {
             BarraLogo(altura = 26)
-
             Spacer(modifier = Modifier.width(5.dp))
-
             BarraLogo(altura = 26)
-
             Spacer(modifier = Modifier.width(5.dp))
-
             BarraLogo(altura = 16)
         }
 
@@ -292,7 +309,8 @@ private fun LinhaNavegacaoDetalhesEndereco(
 private fun MapaEnderecoGoogle(
     endereco: Endereco,
     cidadeDescricao: String,
-    onInteracaoMapaChange: (Boolean) -> Unit
+    onToqueMapa: () -> Unit,
+    onSoltarMapa: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -360,15 +378,18 @@ private fun MapaEnderecoGoogle(
             modifier = Modifier
                 .fillMaxSize()
                 .pointerInteropFilter { motionEvent ->
-                    when (motionEvent.action) {
+                    when (motionEvent.actionMasked) {
                         MotionEvent.ACTION_DOWN,
-                        MotionEvent.ACTION_MOVE -> {
-                            onInteracaoMapaChange(true)
+                        MotionEvent.ACTION_MOVE,
+                        MotionEvent.ACTION_POINTER_DOWN,
+                        MotionEvent.ACTION_POINTER_UP -> {
+                            onToqueMapa()
                         }
 
                         MotionEvent.ACTION_UP,
-                        MotionEvent.ACTION_CANCEL -> {
-                            onInteracaoMapaChange(false)
+                        MotionEvent.ACTION_CANCEL,
+                        MotionEvent.ACTION_OUTSIDE -> {
+                            onSoltarMapa()
                         }
                     }
 
