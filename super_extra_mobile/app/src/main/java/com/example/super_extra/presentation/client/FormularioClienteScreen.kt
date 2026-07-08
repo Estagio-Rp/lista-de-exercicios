@@ -17,12 +17,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,9 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.super_extra.R
@@ -51,9 +56,9 @@ private val FundoTela = Color(0xFFF4F4F7)
 private val CinzaTexto = Color(0xFF777777)
 private val CinzaBotao = Color(0xFFD4D4D4)
 private val PretoIcone = Color(0xFF30323A)
+private val VermelhoErro = Color(0xFFD83A42)
 
 @Composable
-@Preview
 fun FormularioClienteScreen(
     clienteParaEditar: Cliente? = null,
     onVoltarClick: () -> Unit = {},
@@ -136,7 +141,7 @@ fun FormularioClienteScreen(
 
                 Spacer(modifier = Modifier.height(22.dp))
 
-                CampoFormularioObrigatorio(
+                CampoNomeCliente(
                     label = "Nome Completo",
                     valor = nome,
                     onValorChange = {
@@ -296,6 +301,73 @@ fun FormularioClienteScreen(
     }
 }
 
+@Composable
+private fun CampoNomeCliente(
+    label: String,
+    valor: String,
+    onValorChange: (String) -> Unit,
+    erro: String = ""
+) {
+    val possuiErro = erro.isNotBlank()
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "$label*",
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Black,
+            color = Color.Black
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        OutlinedTextField(
+            value = valor,
+            onValueChange = onValorChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(58.dp),
+            singleLine = true,
+            shape = RoundedCornerShape(8.dp),
+            textStyle = TextStyle(
+                fontSize = 14.sp,
+                color = Color.Black
+            ),
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Words,
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next
+            ),
+            isError = possuiErro,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = if (possuiErro) VermelhoErro else AzulSuperExtra,
+                unfocusedBorderColor = if (possuiErro) VermelhoErro else Color(0xFFD0D0D0),
+                errorBorderColor = VermelhoErro,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                errorContainerColor = Color.White,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                errorTextColor = Color.Black,
+                cursorColor = if (possuiErro) VermelhoErro else AzulSuperExtra,
+                errorCursorColor = VermelhoErro
+            )
+        )
+
+        if (possuiErro) {
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = erro,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = VermelhoErro
+            )
+        }
+    }
+}
+
 private data class ResultadoValidacaoCliente(
     val erroNome: String = "",
     val erroEmail: String = "",
@@ -325,7 +397,8 @@ private fun validarCamposClienteDetalhado(
     val telefoneNumeros = telefone.filter { it.isDigit() }
     val enderecoLimpo = enderecoId.trim()
 
-    val temLetra = Regex("[A-Za-zÀ-ÿ]")
+    val temLetra = Regex("\\p{L}")
+    val nomeValido = Regex("^[\\p{L}\\p{M} .'-]+$")
     val emailValido = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
 
     var erroNome = ""
@@ -340,6 +413,8 @@ private fun validarCamposClienteDetalhado(
         erroNome = "O nome não pode ser apenas número."
     } else if (nomeLimpo.length < 3) {
         erroNome = "O nome deve ter pelo menos 3 caracteres."
+    } else if (!nomeValido.matches(nomeLimpo)) {
+        erroNome = "O nome deve conter apenas letras, espaços, acentos, hífen ou apóstrofo."
     }
 
     if (emailLimpo.isBlank()) {

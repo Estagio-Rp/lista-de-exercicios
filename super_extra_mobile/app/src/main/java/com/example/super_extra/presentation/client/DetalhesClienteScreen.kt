@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -48,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.super_extra.R
 import com.example.super_extra.domain.model.Cliente
+import com.example.super_extra.presentation.components.ClienteAvatar
 
 private val AzulSuperExtra = Color(0xFF1F238F)
 private val FundoTela = Color(0xFFF4F4F7)
@@ -56,8 +56,6 @@ private val CinzaBotao = Color(0xFF8A8A8A)
 private val CinzaBotaoClaro = Color(0xFFD4D4D4)
 private val VermelhoBotao = Color(0xFFD83A42)
 private val PretoIcone = Color(0xFF30323A)
-private val RoxoAvatar = Color(0xFFD7D3F8)
-private val AzulAvatar = Color(0xFF2A22D8)
 
 @Composable
 fun DetalhesClienteScreen(
@@ -288,7 +286,11 @@ private fun CardDetalhamentoCliente(
                 .padding(horizontal = 10.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AvatarClienteDetalhe()
+            ClienteAvatar(
+                clienteId = cliente.id,
+                nome = cliente.nome,
+                size = 96.dp
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -341,44 +343,6 @@ private fun CardDetalhamentoCliente(
             CampoDetalheCliente(
                 label = "ID do endereço",
                 valor = cliente.enderecoId.toString()
-            )
-        }
-    }
-}
-
-@Composable
-private fun AvatarClienteDetalhe() {
-    Box(
-        modifier = Modifier
-            .size(76.dp)
-            .background(
-                color = RoxoAvatar,
-                shape = CircleShape
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(18.dp)
-                    .background(
-                        color = Color(0xFF8276E8),
-                        shape = CircleShape
-                    )
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Box(
-                modifier = Modifier
-                    .width(34.dp)
-                    .height(14.dp)
-                    .background(
-                        color = AzulAvatar,
-                        shape = RoundedCornerShape(50.dp)
-                    )
             )
         }
     }

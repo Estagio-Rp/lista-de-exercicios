@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -40,14 +39,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.super_extra.R
 import com.example.super_extra.domain.model.Cliente
 import com.example.super_extra.presentation.components.BotaoVisualizar
+import com.example.super_extra.presentation.components.ClienteAvatar
 import com.example.super_extra.presentation.components.UiState
 
 private val AzulSuperExtra = Color(0xFF1F238F)
@@ -55,7 +53,6 @@ private val FundoTela = Color(0xFFF4F4F7)
 private val CinzaTexto = Color(0xFF777777)
 private val CinzaBorda = Color(0xFFBDBDBD)
 private val PretoIcone = Color(0xFF30323A)
-private val MarromAvatar = Color(0xFF3B2D2F)
 
 @Composable
 fun ClientesScreen(
@@ -172,12 +169,18 @@ private fun filtrarClientes(
     }
 
     return clientes.filter { cliente ->
-        cliente.nome.contains(termoTexto, ignoreCase = true) ||
+        val encontrouTexto = cliente.nome.contains(termoTexto, ignoreCase = true) ||
                 cliente.email.contains(termoTexto, ignoreCase = true) ||
                 cliente.id.toString().contains(termoTexto) ||
-                cliente.enderecoId.toString().contains(termoTexto) ||
-                cliente.cpf.contains(termoNumeros) ||
-                cliente.telefone.contains(termoNumeros)
+                cliente.enderecoId.toString().contains(termoTexto)
+
+        val encontrouNumero = termoNumeros.isNotBlank() &&
+                (
+                        cliente.cpf.contains(termoNumeros) ||
+                                cliente.telefone.contains(termoNumeros)
+                        )
+
+        encontrouTexto || encontrouNumero
     }
 }
 
@@ -367,7 +370,7 @@ private fun ClienteItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 76.dp),
+            .heightIn(min = 84.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -382,7 +385,11 @@ private fun ClienteItem(
                 .padding(horizontal = 12.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AvatarCliente()
+            ClienteAvatar(
+                clienteId = cliente.id,
+                nome = cliente.nome,
+                size = 56.dp
+            )
 
             Spacer(modifier = Modifier.width(12.dp))
 
@@ -427,26 +434,6 @@ private fun ClienteItem(
                 }
             )
         }
-    }
-}
-
-@Composable
-private fun AvatarCliente() {
-    Box(
-        modifier = Modifier
-            .size(42.dp)
-            .background(
-                color = MarromAvatar,
-                shape = CircleShape
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_user),
-            contentDescription = "Cliente",
-            tint = Color.White,
-            modifier = Modifier.size(28.dp)
-        )
     }
 }
 
