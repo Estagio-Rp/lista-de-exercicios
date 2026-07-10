@@ -1,4 +1,7 @@
 package br.com.rpinfo.analuisa.domain.model.entity;
 
-public class Perfil {
+public enum Perfil {
+
+    CLIENTE,
+    ADMINISTRADOR
 }

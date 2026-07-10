@@ -1,4 +1,11 @@
 package br.com.rpinfo.analuisa.application.port.output;
 
-public class PasswordEncoderPort {
+public interface PasswordEncoderPort {
+
+    String codificar(String senha);
+
+    boolean corresponde(
+            String senhaInformada,
+            String senhaCodificada
+    );
 }

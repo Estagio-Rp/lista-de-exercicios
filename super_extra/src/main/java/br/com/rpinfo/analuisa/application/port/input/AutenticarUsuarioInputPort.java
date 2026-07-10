@@ -1,4 +1,9 @@
 package br.com.rpinfo.analuisa.application.port.input;
 
-public class AutenticarUsuarioInputPort {
+public interface AutenticarUsuarioInputPort {
+
+    String autenticar(
+            String email,
+            String senha
+    );
 }

@@ -1,4 +1,8 @@
 package br.com.rpinfo.analuisa.application.port.output;
 
-public class TokenGeneratorPort {
+import br.com.rpinfo.analuisa.domain.model.entity.Usuario;
+
+public interface TokenGeneratorPort {
+
+    String gerarToken(Usuario usuario);
 }
