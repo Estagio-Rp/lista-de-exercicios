@@ -1,4 +1,8 @@
 package br.com.rpinfo.analuisa.application.dto.login;
 
-public class CadastroRequest {
+public record CadastroRequest(
+        String nome,
+        String email,
+        String senha
+) {
 }

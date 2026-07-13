@@ -1,4 +1,7 @@
 package br.com.rpinfo.analuisa.application.dto.login;
 
-public class LoginRequest {
+public record LoginRequest(
+        String email,
+        String senha
+) {
 }
