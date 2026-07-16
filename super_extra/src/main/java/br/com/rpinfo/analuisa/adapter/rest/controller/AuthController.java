@@ -1,8 +1,8 @@
 package br.com.rpinfo.analuisa.adapter.rest.controller;
 
-import br.com.rpinfo.analuisa.adapter.rest.dto.CadastroRequest;
-import br.com.rpinfo.analuisa.adapter.rest.dto.LoginRequest;
-import br.com.rpinfo.analuisa.adapter.rest.dto.TokenResponse;
+import br.com.rpinfo.analuisa.application.dto.login.CadastroRequest;
+import br.com.rpinfo.analuisa.application.dto.login.LoginRequest;
+import br.com.rpinfo.analuisa.application.dto.login.TokenResponse;
 import br.com.rpinfo.analuisa.application.port.input.AutenticarUsuarioInputPort;
 import br.com.rpinfo.analuisa.application.port.input.CadastrarUsuarioInputPort;
 import br.com.rpinfo.analuisa.domain.model.entity.Perfil;
