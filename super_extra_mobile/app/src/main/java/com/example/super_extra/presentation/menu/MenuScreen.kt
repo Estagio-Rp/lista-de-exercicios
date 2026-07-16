@@ -2,23 +2,37 @@ package com.example.super_extra.presentation.menu
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.Storefront
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,14 +50,18 @@ fun MenuScreen(
     nomeUsuario: String = "Usuário",
     onProdutosClick: () -> Unit = {},
     onClientesClick: () -> Unit = {},
-    onEnderecosClick: () -> Unit = {}
+    onEnderecosClick: () -> Unit = {},
+    onSairClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(FundoTela)
     ) {
-        HeaderMenu(nomeUsuario = nomeUsuario)
+        HeaderMenu(
+            nomeUsuario = nomeUsuario,
+            onSairClick = onSairClick
+        )
 
         Column(
             modifier = Modifier
@@ -99,7 +117,10 @@ fun MenuScreen(
 }
 
 @Composable
-private fun HeaderMenu(nomeUsuario: String) {
+private fun HeaderMenu(
+    nomeUsuario: String,
+    onSairClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -110,33 +131,63 @@ private fun HeaderMenu(nomeUsuario: String) {
     ) {
         LogoSuperExtra()
 
-        Column(horizontalAlignment = Alignment.End) {
-            Text(
-                text = "Bem-vindo de volta,",
-                fontSize = 11.sp,
-                color = Color.White.copy(alpha = 0.75f)
-            )
-            Text(
-                text = "$nomeUsuario!",
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(
+                    text = "Bem-vindo de volta,",
+                    fontSize = 11.sp,
+                    color = Color.White.copy(alpha = 0.75f)
+                )
+
+                Text(
+                    text = "$nomeUsuario!",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+
+            IconButton(
+                onClick = onSairClick,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Logout,
+                    contentDescription = "Sair",
+                    tint = Color.White,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun LogoSuperExtra() {
-    Column(horizontalAlignment = Alignment.Start) {
-        Row(verticalAlignment = Alignment.Bottom) {
+    Column(
+        horizontalAlignment = Alignment.Start
+    ) {
+        Row(
+            verticalAlignment = Alignment.Bottom
+        ) {
             BarraLogo(altura = 22)
+
             Spacer(modifier = Modifier.width(4.dp))
+
             BarraLogo(altura = 22)
+
             Spacer(modifier = Modifier.width(4.dp))
+
             BarraLogo(altura = 15)
         }
+
         Spacer(modifier = Modifier.height(4.dp))
+
         Text(
             text = "SUPER EXTRA",
             fontSize = 8.sp,
@@ -148,7 +199,9 @@ private fun LogoSuperExtra() {
 }
 
 @Composable
-private fun BarraLogo(altura: Int) {
+private fun BarraLogo(
+    altura: Int
+) {
     Box(
         modifier = Modifier
             .width(7.dp)
@@ -169,7 +222,9 @@ private fun MenuCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .clickable { onClick() },
+            .clickable {
+                onClick()
+            },
         color = Color.White,
         tonalElevation = 0.dp,
         shadowElevation = 2.dp,
@@ -181,14 +236,21 @@ private fun MenuCard(
                 .drawBehind {
                     drawRect(
                         color = AzulSuperExtra,
-                        size = androidx.compose.ui.geometry.Size(4.dp.toPx(), size.height)
+                        size = androidx.compose.ui.geometry.Size(
+                            4.dp.toPx(),
+                            size.height
+                        )
                     )
                 }
-                .padding(start = 16.dp, end = 14.dp, top = 14.dp, bottom = 14.dp),
+                .padding(
+                    start = 16.dp,
+                    end = 14.dp,
+                    top = 14.dp,
+                    bottom = 14.dp
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
             Box(
                 modifier = Modifier
                     .size(40.dp)
@@ -204,13 +266,16 @@ private fun MenuCard(
                 )
             }
 
-            Column(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(
                     text = titulo,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextoPrimario
                 )
+
                 Text(
                     text = descricao,
                     fontSize = 11.sp,

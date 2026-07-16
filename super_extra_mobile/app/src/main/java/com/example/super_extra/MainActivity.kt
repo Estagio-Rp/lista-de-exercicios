@@ -21,6 +21,9 @@ import com.example.super_extra.presentation.address.DetalhesEnderecoScreen
 import com.example.super_extra.presentation.address.EnderecosScreen
 import com.example.super_extra.presentation.address.EnderecosViewModel
 import com.example.super_extra.presentation.address.FormularioEnderecoScreen
+import com.example.super_extra.presentation.auth.AuthViewModel
+import com.example.super_extra.presentation.auth.CadastroUsuarioScreen
+import com.example.super_extra.presentation.auth.LoginScreen
 import com.example.super_extra.presentation.client.ClientesScreen
 import com.example.super_extra.presentation.client.ClientesViewModel
 import com.example.super_extra.presentation.client.DetalhesClienteScreen
@@ -43,6 +46,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             Super_extraTheme {
+                val authViewModel: AuthViewModel = viewModel()
                 val produtosViewModel: ProdutosViewModel = viewModel()
                 val clientesViewModel: ClientesViewModel = viewModel()
                 val enderecosViewModel: EnderecosViewModel = viewModel()
@@ -72,13 +76,14 @@ class MainActivity : ComponentActivity() {
                 }
 
                 var telaAposSucesso by remember {
-                    mutableStateOf("produtos")
+                    mutableStateOf("menu")
                 }
 
                 AnimatedContent(
                     targetState = telaAtual,
                     transitionSpec = {
-                        val indoParaFrente = ordemTela(targetState) >= ordemTela(initialState)
+                        val indoParaFrente =
+                            ordemTela(targetState) >= ordemTela(initialState)
 
                         if (indoParaFrente) {
                             slideInHorizontally(
@@ -120,12 +125,46 @@ class MainActivity : ComponentActivity() {
                     },
                     label = "transicao_telas"
                 ) { tela ->
-
                     when (tela) {
                         "splash" -> {
                             SplashScreen(
                                 onSplashFinished = {
+                                    telaAtual =
+                                        if (authViewModel.possuiTokenValido()) {
+                                            "menu"
+                                        } else {
+                                            "login"
+                                        }
+                                }
+                            )
+                        }
+
+                        "login" -> {
+                            LoginScreen(
+                                viewModel = authViewModel,
+                                onLoginSucesso = {
+                                    produtosViewModel.carregarProdutos()
+                                    clientesViewModel.carregarClientes()
+                                    enderecosViewModel.carregarEnderecos()
+
                                     telaAtual = "menu"
+                                },
+                                onCriarContaClick = {
+                                    telaAtual = "cadastroUsuario"
+                                }
+                            )
+                        }
+
+                        "cadastroUsuario" -> {
+                            CadastroUsuarioScreen(
+                                viewModel = authViewModel,
+                                onVoltarClick = {
+                                    telaAtual = "login"
+                                },
+                                onCadastroSucesso = {
+                                    telaAposSucesso = "login"
+                                    mensagemSucesso =
+                                        "Cadastro realizado com sucesso. Faça o login para continuar."
                                 }
                             )
                         }
@@ -140,6 +179,16 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onEnderecosClick = {
                                     telaAtual = "enderecos"
+                                },
+                                onSairClick = {
+                                    authViewModel.logout {
+                                        produtoSelecionado = null
+                                        clienteSelecionado = null
+                                        enderecoSelecionado = null
+                                        mensagemSucesso = ""
+                                        mensagemErro = ""
+                                        telaAtual = "login"
+                                    }
                                 }
                             )
                         }
@@ -175,7 +224,8 @@ class MainActivity : ComponentActivity() {
                                         produto = produto,
                                         aoFinalizar = {
                                             telaAposSucesso = "produtos"
-                                            mensagemSucesso = "Produto cadastrado com sucesso."
+                                            mensagemSucesso =
+                                                "Produto cadastrado com sucesso."
                                         }
                                     )
                                 }
@@ -198,9 +248,11 @@ class MainActivity : ComponentActivity() {
                                         produtosViewModel.atualizarProduto(
                                             produto = produtoAtualizado,
                                             aoFinalizar = {
-                                                produtoSelecionado = produtoAtualizado
+                                                produtoSelecionado =
+                                                    produtoAtualizado
                                                 telaAposSucesso = "produtos"
-                                                mensagemSucesso = "Produto atualizado com sucesso."
+                                                mensagemSucesso =
+                                                    "Produto atualizado com sucesso."
                                             }
                                         )
                                     }
@@ -220,7 +272,8 @@ class MainActivity : ComponentActivity() {
                                         telaAtual = "produtos"
                                     },
                                     onEditarClick = {
-                                        telaAtual = "formularioEdicaoProduto"
+                                        telaAtual =
+                                            "formularioEdicaoProduto"
                                     },
                                     onDeletarClick = {
                                         produtosViewModel.deletarProduto(
@@ -228,7 +281,8 @@ class MainActivity : ComponentActivity() {
                                             aoFinalizar = {
                                                 produtoSelecionado = null
                                                 telaAposSucesso = "produtos"
-                                                mensagemSucesso = "Produto removido com sucesso."
+                                                mensagemSucesso =
+                                                    "Produto removido com sucesso."
                                                 telaAtual = "produtos"
                                             }
                                         )
@@ -251,7 +305,8 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNovoClienteClick = {
                                     clienteSelecionado = null
-                                    telaAtual = "formularioCadastroCliente"
+                                    telaAtual =
+                                        "formularioCadastroCliente"
                                 }
                             )
                         }
@@ -270,7 +325,8 @@ class MainActivity : ComponentActivity() {
                                         cliente = cliente,
                                         aoFinalizar = {
                                             telaAposSucesso = "clientes"
-                                            mensagemSucesso = "Cliente cadastrado com sucesso."
+                                            mensagemSucesso =
+                                                "Cliente cadastrado com sucesso."
                                         },
                                         aoErro = { erro ->
                                             mensagemErro = erro
@@ -296,9 +352,11 @@ class MainActivity : ComponentActivity() {
                                         clientesViewModel.atualizarCliente(
                                             cliente = clienteAtualizado,
                                             aoFinalizar = {
-                                                clienteSelecionado = clienteAtualizado
+                                                clienteSelecionado =
+                                                    clienteAtualizado
                                                 telaAposSucesso = "clientes"
-                                                mensagemSucesso = "Cliente atualizado com sucesso."
+                                                mensagemSucesso =
+                                                    "Cliente atualizado com sucesso."
                                             },
                                             aoErro = { erro ->
                                                 mensagemErro = erro
@@ -321,7 +379,8 @@ class MainActivity : ComponentActivity() {
                                         telaAtual = "clientes"
                                     },
                                     onEditarClick = {
-                                        telaAtual = "formularioEdicaoCliente"
+                                        telaAtual =
+                                            "formularioEdicaoCliente"
                                     },
                                     onDeletarClick = {
                                         clientesViewModel.deletarCliente(
@@ -329,7 +388,8 @@ class MainActivity : ComponentActivity() {
                                             aoFinalizar = {
                                                 clienteSelecionado = null
                                                 telaAposSucesso = "clientes"
-                                                mensagemSucesso = "Cliente removido com sucesso."
+                                                mensagemSucesso =
+                                                    "Cliente removido com sucesso."
                                                 telaAtual = "clientes"
                                             },
                                             aoErro = { erro ->
@@ -355,7 +415,8 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNovoEnderecoClick = {
                                     enderecoSelecionado = null
-                                    telaAtual = "formularioCadastroEndereco"
+                                    telaAtual =
+                                        "formularioCadastroEndereco"
                                 }
                             )
                         }
@@ -375,7 +436,8 @@ class MainActivity : ComponentActivity() {
                                         endereco = endereco,
                                         aoFinalizar = {
                                             telaAposSucesso = "enderecos"
-                                            mensagemSucesso = "Endereço cadastrado com sucesso."
+                                            mensagemSucesso =
+                                                "Endereço cadastrado com sucesso."
                                         },
                                         aoErro = { erro ->
                                             mensagemErro = erro
@@ -402,9 +464,12 @@ class MainActivity : ComponentActivity() {
                                         enderecosViewModel.atualizarEndereco(
                                             endereco = enderecoAtualizado,
                                             aoFinalizar = {
-                                                enderecoSelecionado = enderecoAtualizado
-                                                telaAposSucesso = "enderecos"
-                                                mensagemSucesso = "Endereço atualizado com sucesso."
+                                                enderecoSelecionado =
+                                                    enderecoAtualizado
+                                                telaAposSucesso =
+                                                    "enderecos"
+                                                mensagemSucesso =
+                                                    "Endereço atualizado com sucesso."
                                             },
                                             aoErro = { erro ->
                                                 mensagemErro = erro
@@ -427,15 +492,18 @@ class MainActivity : ComponentActivity() {
                                         telaAtual = "enderecos"
                                     },
                                     onEditarClick = {
-                                        telaAtual = "formularioEdicaoEndereco"
+                                        telaAtual =
+                                            "formularioEdicaoEndereco"
                                     },
                                     onDeletarClick = {
                                         enderecosViewModel.deletarEndereco(
                                             id = endereco.id,
                                             aoFinalizar = {
                                                 enderecoSelecionado = null
-                                                telaAposSucesso = "enderecos"
-                                                mensagemSucesso = "Endereço removido com sucesso."
+                                                telaAposSucesso =
+                                                    "enderecos"
+                                                mensagemSucesso =
+                                                    "Endereço removido com sucesso."
                                                 telaAtual = "enderecos"
                                             },
                                             aoErro = { erro ->
@@ -477,26 +545,30 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private fun ordemTela(tela: String): Int {
+private fun ordemTela(
+    tela: String
+): Int {
     return when (tela) {
         "splash" -> 0
-        "menu" -> 1
+        "login" -> 1
+        "cadastroUsuario" -> 2
+        "menu" -> 3
 
-        "produtos" -> 2
-        "clientes" -> 2
-        "enderecos" -> 2
+        "produtos" -> 4
+        "clientes" -> 4
+        "enderecos" -> 4
 
-        "detalhesProduto" -> 3
-        "detalhesCliente" -> 3
-        "detalhesEndereco" -> 3
+        "detalhesProduto" -> 5
+        "detalhesCliente" -> 5
+        "detalhesEndereco" -> 5
 
-        "formularioCadastroProduto" -> 3
-        "formularioCadastroCliente" -> 3
-        "formularioCadastroEndereco" -> 3
+        "formularioCadastroProduto" -> 5
+        "formularioCadastroCliente" -> 5
+        "formularioCadastroEndereco" -> 5
 
-        "formularioEdicaoProduto" -> 4
-        "formularioEdicaoCliente" -> 4
-        "formularioEdicaoEndereco" -> 4
+        "formularioEdicaoProduto" -> 6
+        "formularioEdicaoCliente" -> 6
+        "formularioEdicaoEndereco" -> 6
 
         else -> 0
     }
