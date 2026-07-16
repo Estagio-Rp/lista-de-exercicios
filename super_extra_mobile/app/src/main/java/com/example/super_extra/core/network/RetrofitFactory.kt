@@ -17,13 +17,13 @@ object RetrofitFactory {
     private const val BACKEND_BASE_URL = "http://10.0.2.2:8080/"
     private const val VIACEP_BASE_URL = "https://viacep.com.br/"
 
-    private lateinit var tokenManager: TokenManager
+    private lateinit var authTokenManager: TokenManager
 
     fun inicializar(
         context: Context
     ) {
-        if (!::tokenManager.isInitialized) {
-            tokenManager = TokenManager(
+        if (!::authTokenManager.isInitialized) {
+            authTokenManager = TokenManager(
                 context = context.applicationContext
             )
         }
@@ -31,7 +31,8 @@ object RetrofitFactory {
 
     fun tokenManager(): TokenManager {
         verificarInicializacao()
-        return tokenManager
+
+        return authTokenManager
     }
 
     private val backendHttpClient: OkHttpClient by lazy {
@@ -39,7 +40,9 @@ object RetrofitFactory {
 
         OkHttpClient.Builder()
             .addInterceptor(
-                AuthInterceptor(tokenManager)
+                AuthInterceptor(
+                    tokenManager = authTokenManager
+                )
             )
             .build()
     }
@@ -88,7 +91,7 @@ object RetrofitFactory {
     }
 
     private fun verificarInicializacao() {
-        check(::tokenManager.isInitialized) {
+        check(::authTokenManager.isInitialized) {
             "RetrofitFactory não foi inicializado. " +
                     "Inicialize no Application antes de usar as APIs."
         }
